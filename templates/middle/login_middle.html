@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+
+	<head>
+		<meta charset="utf-8" />
+		<title>中介登录</title>
+        <link rel="icon" href="/static/img/buy-icon.png" type="image/x-icon"/>
+		<link rel="stylesheet" href="/static/css/login.css" />
+        <link rel="stylesheet" href="/static/layui/css/layui.css" media="all">
+        <script src="/static/layui/layui.js"></script>
+        <script src="/static/layui/layui.all.js"></script>
+	</head>
+
+	<body>
+		<div class="top">WORLD&nbsp;·&nbsp;PAY</div>
+        <form class="layui-form" action="">
+            <div class="content">
+                <div class="login">
+                    <div class="title">WORLD-PAY&nbsp;·&nbsp;登录</div>
+                    <div class="line">
+                        <img class="smallImg" src="/static/img/icon1.png" />
+                        <input placeholder="请输入账号" type="text"  name="account" lay-verify="required">
+                    </div>
+                    <div class="line">
+                        <img class="smallImg" src="/static/img/icon2.png" />
+                        <input placeholder="请输入密码" type="password" name="password" lay-verify="required">
+                    </div>
+                    <button type="button" class="logBut" lay-submit="" lay-filter="login">登&nbsp;&nbsp;录</button>
+                </div>
+            </div>
+        </form>
+	</body>
+<script>
+    layui.use('form', function () {
+        var form = layui.form,
+            $ = layui.jquery;
+
+        form.on('submit(login)',function (data) {
+            var data_info = {data:JSON.stringify(data.field)};
+
+            $.ajax({
+				type : 'POST',
+				url : '/middle/login',
+				data : data_info,
+				dataType : 'json',
+				success : function(data) {
+					// 成功提示框
+                    if (data.code == 0){
+                        /*
+                        parent.layer.msg('登录成功!', {
+						icon : 6,
+					});*/
+					location.href='/middle/'; //关闭弹框
+                    }else if(data.code == 502){
+                        parent.layer.msg('账户或密码错误!', {
+						icon : 5
+					});
+                    }
+
+				},
+				error : function(data) {
+					// 异常提示
+					parent.layer.msg('出现网络故障', {
+						icon : 5
+					});
+				}
+			});
+
+            return false;
+        })
+    })
+</script>
+
+</html>

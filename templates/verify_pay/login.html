@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>475440充值</title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="/static/js/jquery-1.8.0.min.js"></script>
+<link rel="icon" href="/static/img/master.png" type="image/x-icon"/>
+
+
+<!--可无视-->
+<link rel="stylesheet" href="/static/css/bootstrap.min.css">
+
+<!--主要样式-->
+<link type="text/css" href="/static/css/style.css" rel="stylesheet" />
+
+<script>
+if(self!=top)
+{
+	parent.location.href='index.html';
+}
+function CheckLogin(obj){
+	if(obj.username.value=='')
+	{
+		{#alert('请输入用户名');#}
+		obj.username.focus();
+		return false;
+	}
+	if(obj.password.value=='') {
+        alert('请输入登录密码');
+        obj.password.focus();
+        return false;
+    }
+	return true;
+}
+</script>
+
+
+</head>
+<body>
+
+<div class="container" align="center">
+	<div class="col-md-6" style="margin-top: 20%;">
+		<div class="inset">
+			<form name="login" id="login" target="form" method="post" action="/verify_pay/login/" onSubmit="return CheckLogin(document.login);">
+				<input type="hidden" name="enews" value="login">
+				<div>
+					<h2>475440充值</h2>
+					<span style="text-align: left;text-indent: 0.4em;"><label>用户名</label></span>
+					<span><input type="text" name="username" class="textbox" ></span>
+				</div>
+				<div>
+					<span style="text-align: left;text-indent: 0.4em;"><label>密码</label></span>
+					<span><input  name="password" type="password" class="password"></span>
+				</div>
+				<div class="sign">
+					<input type="reset"  class="submit" value="重置"/>
+					<input type="submit" value="登录" class="submit" id="submit"/>
+				</div>
+			</form>
+            <iframe id="form" name="form" style="display:none;"></iframe>
+		</div>
+	</div>
+</div>
+
+<script>
+    $(document).ready(function () {
+        $('#submit').click();
+        $('#form').load(function () {
+            var text = $(this).contents().find('body').text();
+            var j = $.parseJSON(text);
+            if (j.code==502){
+                alert(j.msg);
+            }else {
+                location.href='/verify_pay/'
+            }
+        })
+    })
+</script>
+
+</body>
+</html>

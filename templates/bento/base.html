@@ -1,0 +1,34 @@
+<html>
+    <head>
+      {% if title %}
+      <title>{{ title }} - Microblog</title>
+      {% else %}
+      <title>Welcome to facebook47544</title>
+      {% endif %}
+	<meta charset="utf-8"/>
+            <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+                <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<!--
+            <link href="/static/css/mainpage.css" rel="stylesheet" />
+            <link href="/static/css/carddetail.css" rel="stylesheet" />
+        <link rel="stylesheet" href="/static/layui/css/layui.css" media="all">
+        <script src="/static/layui/layui.js"></script>
+            <link rel="shortcut icon" href="favicon.ico"/>
+
+                <script type="text/javascript">
+    </script>
+	-->
+ 	<script type="text/javascript" src="{{url_for('static', filename='layui/layui.js')}}" media="all"></script>
+<link rel="stylesheet" href="{{url_for('static',filename='layui/css/layui.css')}}" media="all">
+<link rel="stylesheet" href="{{url_for('static',filename='layui/css/modules/laydate/default/laydate.css')}}" media="all">
+<script type="text/javascript" src="{{url_for('static', filename='layui/lay/modules/laydate.js')}}" media="all"></script>
+
+
+    </head>
+    <body class="fixed-sidebar full-height-layout gray-bg">
+        <div>facebook 47544:
+         </div>
+        {% block content %}{% endblock %}
+    </body>
+</html>
+

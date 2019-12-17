@@ -1,0 +1,23 @@
+
+{% extends "/bento/base.html"%}
+
+
+{% block content %}
+<title>Upload an excel file</title>
+<h1 style="text-align: center;">可上传文件的后缀名(xls, xlsx, 如需添加其余文件名, 请联系管理员)</h1>
+
+<form action="" method=post enctype=multipart/form-data style="text-align: center;">
+<p><input type=file name=file><input type=submit value=Upload>
+</form>
+<form action="" method="GET">
+    <div style="padding-top: 5%;">
+<h1 style="text-align: center;">下方输入框可直接输入信用卡名字后进行查询</h1>
+        <input type="text" class="layui-input" id="keyword" name="username" placeholder="信用卡名字" style="border:0.5px solid #378888;width:15%; margin: auto">
+    </div>
+    <div align="center">
+          <input type="submit" class="layui-btn" value="Upload"/ >
+    </div>
+</form>
+
+
+{% endblock %}

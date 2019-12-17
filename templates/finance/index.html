@@ -1,0 +1,1155 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <title>Welcome to BenTo</title>
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <link rel="icon" href="/static/img/bento.png" type="image/x-icon"/>
+    <link rel="stylesheet" href="/static/layui/css/layui.css" media="all">
+    <script src="/static/layui/layui.js"></script>
+    <script src="http://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js"></script>
+    <script src="http://code.highcharts.com/highcharts.js"></script>
+    <style>
+        .divForm{
+            width: 500px;
+            height: 400px;
+            top: 50%;
+            left: 50%;
+            margin-bottom: 300px;
+            margin-top: 100px;
+            margin-left: 36%;
+        }
+    </style>
+</head>
+<body>
+
+<div class="layui-layout layui-layout-admin">
+  <div class="layui-header layui-bg-black" >
+    <div class="layui-logo">Welcome to BenTo</div>
+    <ul class="layui-nav layui-layout-right">
+        <li class="layui-nav-item"><span style="font-weight: normal;font-size: 16px;color: ghostwhite;">decline的数量 </span><span style="font-weight: normal;font-size: 16px;color: lightgoldenrodyellow"> {{ advance }}</span></li>
+      <li class="layui-nav-item">
+        <a href="javascript:">
+          {{ admin_name }}
+        </a>
+
+      </li>
+	<!---->
+
+      <li class="layui-nav-item"><a href="/finance/logout">注销</a></li>
+    </ul>
+  </div>
+
+<div class="layui-body">
+
+
+<div class="layui-tab layui-tab-card" lay-filter="demo">
+  <ul class="layui-tab-title">
+      <li class="layui-this" lay-id="1">近期预览</li>
+      <li lay-id="2">所有客户</li>
+      <li lay-id="3">给客户充值记录</li>
+      <li lay-id="11">客户退款记录</li>
+      <li lay-id="4">客户自己的充值记录</li>
+      <!--<li lay-id="5">客户历史余额记录</li>
+      <li lay-id="6">新增客户</li>
+      <li lay-id="7">新增中介</li>
+      <li lay-id="8">中介管理</li>
+      <li lay-id="9">中介提成</li>-->
+      <li lay-id="10">所有卡信息</li>
+      <li lay-id="12">卡的decline记录</li>
+      <li lay-id="13">用户decline比例记录</li>
+      <li lay-id="14">用户详细消费记录</li>
+	
+  </ul>
+  <div class="layui-tab-content" style="height: 100%;">
+      <div class="layui-tab-item layui-show">
+        <div id="month" style="width: 100%; height: 800px; margin: 0 auto"></div>
+  </div>
+    <div class="layui-tab-item">
+
+        <form class="layui-form" action="" lay-filter="example" id="example">
+            <div class="demoTable">
+                客户：
+            <div class="layui-inline">
+                <input class="layui-input" name="s_acc_name" id="s_acc_name" autocomplete="off">
+            </div>
+
+            <button class="layui-btn" lay-submit="" lay-filter="sea_account" type="submit">搜索</button>
+            <button class="layui-btn layui-btn-primary" >重置</button>
+            </div>
+        </form>
+        <table class="layui-hide" id="account_all" lay-filter="account_all"></table>
+        <script type="text/html" id="barDemo">
+{#            <a class="layui-btn layui-btn-normal layui-btn-xs" lay-event="lock">冻结</a>#}
+{#            <a class="layui-btn layui-btn-warm layui-btn-xs" lay-event="del">删卡</a>#}
+        </script>
+    </div>
+
+
+    <div class="layui-tab-item">
+        <form class="layui-form" action="" lay-filter="example" id="example">
+            <div class="demoTable">
+                客户：
+            <div class="layui-inline">
+                <input class="layui-input" name="acc_name" id="acc_name" autocomplete="off">
+            </div>
+                流水号:
+            <div class="layui-inline">
+                <input type="text"  class="layui-input" name="order_num" id="order_num" autocomplete="off">
+            </div>
+                时间范围:
+                <div class="layui-inline">
+                <input type="text" class="layui-input" id="s_test6" placeholder=" - ">
+            </div>
+            <button class="layui-btn" lay-submit="" lay-filter="sea_payed" type="submit">搜索</button>
+            <button class="layui-btn layui-btn-primary" >重置</button>
+            </div>
+        </form>
+
+        <tablse class="layui-hide" id="top_up" lay-filter="top_up"></tablse>
+    </div>
+
+	<!---->
+    <div class="layui-tab-item">
+        <form class="layui-form" action="" lay-filter="example" id="example">
+            <div class="demoTable">
+                客户：
+            <div class="layui-inline">
+                <input class="layui-input" name="bento_name" id="bento_name" autocomplete="off">
+            </div>
+                卡号:
+            <div class="layui-inline">
+                <input type="text"  class="layui-input" name="bento_num" id="bento_num" autocomplete="off">
+            </div>
+                时间范围:
+                <div class="layui-inline">
+                <input type="text" class="layui-input" id="bento_time" placeholder=" - ">
+            </div>
+            <button class="layui-btn" lay-submit="" lay-filter="bt_refund" type="submit">搜索</button>
+            <button class="layui-btn layui-btn-primary" >重置</button>
+            </div>
+        </form>
+
+        <tablse class="layui-hide" id="top_up1" lay-filter="top_up"></tablse>
+    </div>
+
+
+      <div class="layui-tab-item">
+
+          <form class="layui-form" action="" lay-filter="example" id="example">
+              客  户：
+            <div class="layui-inline">
+                <input class="layui-input" name="cus_name" id="cus_name" autocomplete="off">
+            </div>
+            卡  号:
+            <div class="layui-inline">
+                <input type="number" class="layui-input" name="trans_card" id="trans_card" autocomplete="off">
+            </div>
+            时间范围:
+            <div class="layui-inline">
+            <input type="text" class="layui-input" id="test8" autocomplete="off" placeholder=" - ">
+        </div>
+              操作类型:
+              <div class="layui-inline">
+                  <input class="layui-input" name="bento_do_type" id="bento_do_type" autocomplete="off">
+              </div>
+
+        <button class="layui-btn" lay-submit="" lay-filter="cus_trans" type="submit">搜索</button>
+        <button  class="layui-btn layui-btn-primary" id="">重置</button>
+        </form>
+        <table class="layui-hide" id="cus_trans_log" lay-filter="cus_trans_log"></table>
+
+      </div>
+
+        <!--
+      <div class="layui-tab-item">
+
+
+           <form class="layui-form" action="" lay-filter="example" id="example">
+                  客  户：
+                <div class="layui-inline">
+                    <input class="layui-input" name="cus_name_log" id="cus_name_log" autocomplete="off">
+                </div>
+                时间范围:
+                <div class="layui-inline">
+                <input type="text" class="layui-input" id="test9" placeholder=" - ">
+            </div>
+            <button class="layui-btn" lay-submit="" lay-filter="cus_log_ter" type="submit">搜索</button>
+            <button  class="layui-btn layui-btn-primary" id="">重置</button>
+            </form>
+
+          <table class="layui-hide" id="cus_money_log" lay-filter="cus_money_log"></table>
+      </div>
+    -->
+    <!--
+    <div class="layui-tab-item">
+
+        <div class="divForm">
+        <form class="layui-form" lay-filter=""  enctype="multipart/form-data">
+            <div class="layui-form-item">
+                <label class="layui-form-label">姓   名</label>
+                <div class="layui-input-inline">
+                    <input type="text" name="name" required lay-verify="required" placeholder="客户姓名" autocomplete="off"
+                           class="layui-input"  id="name">
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">账   号</label>
+                <div class="layui-input-inline">
+                    <input type="text" id="account" name="account" required lay-verify="required" placeholder="客户登录账号" autocomplete="off"
+                           class="layui-input">
+                </div>
+            </div>
+
+            <div class="layui-form-item">
+                <label class="layui-form-label">密   码</label>
+                <div class="layui-input-inline">
+                    <input type="text" id="password" name="password" placeholder="客户登录密码" required lay-verify="required" autocomplete="off"
+                           class="layui-input">
+                </div>
+            </div>
+
+            <div class="layui-form-item">
+                <label class="layui-form-label">电   话</label>
+                <div class="layui-input-inline">
+                    <input type="number" id="phone_num" name="phone_num" placeholder="接收短息通知号码"  autocomplete="off"
+                           class="layui-input">
+                </div>
+            </div>
+
+            <div class="layui-form-item">
+                <label class="layui-form-label">开 卡 费</label>
+                <div class="layui-input-inline">
+                    <input type="number" id="create_price" name="create_price" placeholder="开卡费" required lay-verify="required" autocomplete="off"
+                           class="layui-input">
+                </div>
+            </div>
+
+            <div class="layui-form-item">
+                <label class="layui-form-label">取现手续费</label>
+                <div class="layui-input-inline">
+                    <input type="number" id="refund" name="refund" placeholder="取现的手续费(例:0.05)" required lay-verify="required" autocomplete="off"
+                           class="layui-input">
+                </div>
+            </div>
+
+            <div class="layui-form-item">
+                <label class="layui-form-label">最低充值金额</label>
+                <div class="layui-input-inline">
+                    <input type="number" id="min_top" name="min_top" placeholder="最低充值到卡的金额" required lay-verify="required" autocomplete="off"
+                           class="layui-input">
+                </div>
+            </div>
+
+
+            <div class="layui-form-item">
+                <label class="layui-form-label">最高充值金额</label>
+                <div class="layui-input-inline">
+                    <input type="number" id="max_top" name="max_top" placeholder="最高充值到卡的金额" autocomplete="off"
+                           class="layui-input">
+                </div>
+            </div>
+
+
+            <div class="layui-form-item">
+                <label class="layui-form-label">开卡数量  </label>
+                <div class="layui-input-inline">
+                    <input type="text" id="note" name="note" placeholder="开卡数量" autocomplete="off"
+                           class="layui-input">
+                </div>
+            </div>
+
+            <div class="layui-form-item">
+                <div class="layui-input-block">
+                    <button  class="layui-btn layui-btn-lg" lay-submit="" lay-filter="formDemo" type="submit">确认</button>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    </div>
+
+      <div class="layui-tab-item">
+
+          <div class="divForm">
+        <form class="layui-form" lay-filter=""  enctype="multipart/form-data">
+            <div class="layui-form-item">
+                <label class="layui-form-label">姓   名</label>
+                <div class="layui-input-inline">
+                    <input type="text" name="name" required lay-verify="required" placeholder="客户姓名" autocomplete="off"
+                           class="layui-input"  id="name">
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">账   号</label>
+                <div class="layui-input-inline">
+                    <input type="text" id="account" name="account" required lay-verify="required" placeholder="客户登录账号" autocomplete="off"
+                           class="layui-input">
+                </div>
+            </div>
+
+            <div class="layui-form-item">
+                <label class="layui-form-label">密   码</label>
+                <div class="layui-input-inline">
+                    <input type="text" id="password" name="password" placeholder="客户登录密码" required lay-verify="required" autocomplete="off"
+                           class="layui-input">
+                </div>
+            </div>
+
+            <div class="layui-form-item">
+                <label class="layui-form-label">电   话</label>
+                <div class="layui-input-inline">
+                    <input type="number" id="phone_num" name="phone_num" placeholder="接收短息通知号码"  autocomplete="off"
+                           class="layui-input">
+                </div>
+            </div>
+
+            <div class="layui-form-item">
+                <label class="layui-form-label">开卡利润</label>
+                <div class="layui-input-inline">
+                    <input type="number" id="create_price" name="create_price" placeholder="开一张卡中介多少钱" required lay-verify="required" autocomplete="off"
+                           class="layui-input">
+                </div>
+            </div>
+
+            <div class="layui-form-item">
+                <label class="layui-form-label">开卡数量</label>
+                <div class="layui-input-inline">
+                    <input type="text" id="note1" name="note1" autocomplete="off" placeholder="可开卡的数量"
+                           class="layui-input">
+                </div>
+            </div>
+
+            <div class="layui-form-item">
+                <div class="layui-input-block">
+                    <button  class="layui-btn layui-btn-lg" lay-submit="" lay-filter="add_middle" type="submit">确认</button>
+                </div>
+            </div>
+        </form>
+    </div>
+
+      </div>
+
+      <div class="layui-tab-item">
+          <tablse class="layui-hide" id="middle_info" lay-filter="middle_info"></tablse>
+          <script type="text/html" id="middle_bar">
+{#            <a class="layui-btn layui-btn-xs" lay-event="top_up">充值</a>#}
+{#            <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="edit">编辑</a>#}
+            <a class="layui-btn layui-btn-normal layui-btn-xs" lay-event="mid_edit">编辑</a>
+            <a class="layui-btn layui-btn-warm layui-btn-xs" lay-event="del">提成</a>
+        </script>
+      </div>
+
+      <div class="layui-tab-item">
+          <table class="layui-show" id="middle_money" lay-filter="middle_money"></table>
+          <script type="text/html" id="middle_money_bar">
+            <a class="layui-btn layui-btn-xs" lay-event="payed" id="pay">确认支付</a>
+        </script>
+      </div>
+      -->
+      <div class="layui-tab-item">
+
+          <form class="layui-form" action="" lay-filter="example" id="example">
+            <div class="demoTable">
+                 <div class="layui-form-item">
+                     <div class="layui-inline">
+                      <label class="layui-form-label">搜索选择框</label>
+                      <div class="layui-input-inline">
+                        <select name="modules" lay-verify="required" lay-search="" id="field">
+                          <option value="">直接选择或搜索选择</option>
+                          <option value="card_cus">标签</option>
+                          <option value="card_no">卡号</option>
+                          <option value="account_no">客户名</option>
+                        </select>
+                      </div>
+                     </div>
+                 <div class="layui-inline">
+
+                     <input type="text" id="value" name="value" placeholder="搜索条件对应的值" autocomplete="off"
+                           class="layui-input">
+
+                 </div>
+                 <div class="layui-inline">
+                     <button class="layui-btn" lay-submit="" lay-filter="sea_card" type="submit">搜索</button>
+                     <button class="layui-btn layui-btn-primary">重置</button>
+                 </div>
+                 </div>
+            </div>
+          </form>
+
+          <script type="text/html" id="toolbarDemo">
+              <div>数据库全部卡数量:{{ card_use[0] }}&nbsp;&nbsp;&nbsp;&nbsp;数据库标记为已注销的卡数量: {{ card_no[0] }}&nbsp;&nbsp;&nbsp;&nbsp;数据库使用中的卡数量{{ card_un[0] }}</div>
+          </script>
+
+          <table class="layui-show" id="card_all" lay-filter="card_all"></table>
+
+      </div>
+
+      <!---->
+      <div class="layui-tab-item">
+        <form class="layui-form" action="" lay-filter="example" id="example">
+            <div class="demoTable">
+                客户：
+            <div class="layui-inline">
+                <input class="layui-input" name="decline_name" id="decline_name" autocomplete="off">
+            </div>
+                卡号后四位:
+            <div class="layui-inline">
+                <input type="text"  class="layui-input" name="decline_num" id="decline_num" autocomplete="off">
+            </div>
+                时间范围:
+                <div class="layui-inline">
+                <input type="text" class="layui-input" id="test10" placeholder=" - ">
+            </div>
+            <button class="layui-btn" lay-submit="" lay-filter="sea_decline" type="submit">搜索</button>
+            <button class="layui-btn layui-btn-primary" >重置</button>
+            </div>
+        </form>
+
+        <tablse class="layui-hide" id="bento_decline" lay-filter="bento_decline"></tablse>
+    </div>
+
+    <!--account -->
+    <div class="layui-tab-item">
+           <form class="layui-form" action="" lay-filter="example" id="example">
+               <div class="demoTable">
+                   客户：
+               <div class="layui-inline">
+                   <input class="layui-input" name="account_decline_name" id="account_decline_name" autocomplete="off">
+               </div>
+                <button class="layui-btn" lay-submit="" lay-filter="sea_account_decl" type="submit">搜索</button>
+                <button class="layui-btn layui-btn-primary" >重置</button>
+               </div>
+           </form>
+ 
+          <tablse class="layui-hide" id="account_decl" lay-filter="account_decl"></tablse>
+       </div>
+
+	<div class="layui-tab-item">
+          <form class="layui-form" action="" lay-filter="example" id="example">
+              <div class="demoTable">
+                  客户：
+              <div class="layui-inline">
+                  <input class="layui-input" name="account_transname" id="account_transname" autocomplete="off">
+              </div>
+                  卡的名字:
+              <div class="layui-inline">
+                  <input type="text"  class="layui-input" name="account_transcard" id="account_transcard" autocomplete="off">
+              </div>
+	          操作状态:
+              <div class="layui-inline">
+                  <input type="text"  class="layui-input" name="account_transtatus" id="account_transtatus" autocomplete="off">
+              </div>
+
+
+                  时间范围:
+                  <div class="layui-inline">
+                  <input type="text" class="layui-input" id="test12" placeholder=" - ">
+              </div>	
+
+              <button class="layui-btn" lay-submit="" lay-filter="sea_alltrans" type="submit">搜索</button>
+              <button class="layui-btn layui-btn-primary" >重置</button>
+             </div>
+         </form>
+ 
+          <tablse class="layui-hide" id="bento_alltrans" lay-filter="bento_alltrans"></tablse>
+      </div>
+
+
+  </div>
+</div>
+
+
+<div class="layui-side layui-bg-black" >
+    <div class="layui-side-scroll">
+      <ul class="layui-nav layui-nav-tree"  lay-filter="test">
+        <li class="layui-nav-item layui-nav-itemed">
+          <a class="" href="javascript:">客户信息</a>
+          <dl class="layui-nav-child">
+            <dd><a href="javascript:" id="make_vir">近期预览</a></dd>
+            <dd><a href="javascript:" id="make_vir_some">所有客户</a></dd>
+            <dd><a href="javascript:" id="all_vir">给客户充值记录</a></dd>
+	    <dd><a href="javascript:" id="bento_refund">客户退款记录</a></dd>
+            <dd><a href="javascript:" id="cus_trans">客户自己的充值记录</a></dd>
+            <!--<dd><a href="javascript:" id="cus_log">客户历史余额记录</a></dd>-->
+          </dl>
+        </li>
+      </ul>
+
+        <ul class="layui-nav layui-nav-tree"  lay-filter="test">
+        <li class="layui-nav-item layui-nav-itemed">
+          <a class="" href="javascript:">客户管理</a>
+          <dl class="layui-nav-child">
+            <dd><a href="javascript:" id="add_acc">新增客户</a></dd>
+          </dl>
+        </li>
+      </ul>
+
+        <ul class="layui-nav layui-nav-tree"  lay-filter="test">
+        <li class="layui-nav-item layui-nav-itemed">
+          <a class="" href="javascript:">中介管理</a>
+          <dl class="layui-nav-child">
+            <dd><a href="javascript:" id="add_mid">新增中介</a></dd>
+            <dd><a href="javascript:" id="mid_info">中介管理</a></dd>
+            <dd><a href="javascript:" id="mid_money">中介提成</a></dd>
+          </dl>
+        </li>
+      </ul>
+
+        <ul class="layui-nav layui-nav-tree"  lay-filter="test">
+        <li class="layui-nav-item layui-nav-itemed">
+          <a class="" href="javascript:">卡管理</a>
+          <dl class="layui-nav-child">
+            <dd><a href="javascript:" id="card_admin">所有卡信息</a></dd>
+            <dd><a href="javascript:" id="decline_da">卡的decline记录</a></dd>
+	    <dd><a href="javascript:" id="account_decline">用户decline比例记录</a></dd>
+	    <dd><a href="javascript:" id="account_alltrans">用户详细消费记录</a></dd>
+          </dl>
+        </li>
+      </ul>
+    </div>
+</div>
+
+
+  <div class="layui-footer">
+    <!-- 底部固定区域 -->
+Welcome to BenTo
+  </div>
+</div>
+</div>
+<script src="/static/layui/layui.all.js"></script>
+
+<script>
+    layui.config({
+        version: '1560414887305' //为了更新 js 缓存，可忽略
+    });
+
+    layui.use(['laydate', 'laypage', 'layer', 'table', 'carousel', 'upload', 'element', 'slider', 'form'], function () {
+
+        var laydate = layui.laydate //日期
+            , laypage = layui.laypage //分页
+            , layer = layui.layer //弹层
+            , table = layui.table //表格
+            , upload = layui.upload //上传
+            , element = layui.element //元素操作
+            , $ = layui.$
+            , form = layui.form;
+
+
+        <!-- 此为本月开卡折线图js -->
+        $(document).ready(function () {
+            var chart = {
+                type: 'spline'
+            };
+            var title = {
+                text: '近30天客户开卡统计'
+            };
+            var subtitle = {
+                text: '说明: 每条线代表不同客户!'
+            };
+
+            var yAxis = {
+                title: {
+                    text: '开卡数量:'
+                },
+                labels: {
+                    formatter: function () {
+                        return this.value;
+                    }
+                },
+                lineWidth: 4,
+            };
+            var tooltip = {
+                crosshairs: true,
+                shared: true
+            };
+            var plotOptions = {
+                spline: {
+                    marker: {
+                        radius: 4,
+                        lineColor: '#666666',
+                        lineWidth: 1
+                    }
+                }
+            };
+
+            var series = [];
+
+            $.ajax({
+                type : 'GET',
+                url : '/finance/line_chart',
+                dataType : 'json',
+                success : function(data) {
+                    // 成功提示框
+                    if (data.code == 0){
+                        var info = data.data,
+                            column = data.column,
+                            xax = data.xAx,
+                            xaxis = {categories:xax,lineWidth: 4};
+                        var c = {name:'合计',data:column, type:'column',pointWidth:10,dataLabels:{enabled:true , style:{color:'#080808',size:50}}};
+                        series.push(c);
+                        for (var i=0; i<info.length;i++){
+                            var name = info[i].name;
+                            var data1 = info[i].data;
+                            //var s = {name:name,data:data1};
+                            var s = {name:name,data:data1,type:'spline'};
+                            series.push(s)
+                        }
+                        var json = {};
+                        json.chart = chart;
+                        json.title = title;
+                        json.subtitle = subtitle;
+                        json.tooltip = tooltip;
+                        json.xAxis = xaxis;
+                        json.yAxis = yAxis;
+                        json.series = series;
+                        json.plotOptions = plotOptions;
+                        $('#month').highcharts(json);
+                    }else if(data.code == 502){
+                        parent.layer.msg(data.msg, {
+                        icon : 5
+                    });
+                    }
+
+                },
+                error : function(data) {
+                    // 异常提示
+                    parent.layer.msg('出现网络故障', {
+                        icon : 5
+                    });
+                }
+            });
+        });
+
+
+        $(".layui-tab-title li").click(function(){
+            var picTabNum = $(this).attr('lay-id');
+            sessionStorage.setItem("picTabNum",picTabNum);
+            });
+            $(function(){
+                var getPicTabNum = sessionStorage.getItem("picTabNum");
+                $(".layui-tab-title li").eq(Number(getPicTabNum)-1).addClass("layui-this").siblings().removeClass("layui-this");
+                $(".layui-tab-content>div>div[id=test_table]>div>table").eq(Number(getPicTabNum)-1).addClass("layui-show").siblings().removeClass("layui-show");
+            });
+
+        var getPicTabNum = sessionStorage.getItem("picTabNum");
+
+
+        element.tabChange('demo', getPicTabNum);
+	laydate.render({
+	    elem: '#bento_time',
+	    range: true
+	});
+
+        laydate.render({
+            elem: '#s_test6'
+            ,range: true
+          });
+
+        laydate.render({
+            elem: '#test7'
+            ,range: true
+          });
+
+        laydate.render({
+            elem: '#test8'
+            ,range: true
+          });
+        laydate.render({
+            elem: '#test9'
+            ,range: true
+          });
+        laydate.render({
+            elem: '#test10'
+            ,range: true
+          });
+	laydate.render({
+	    elem: '#test11',
+	    range: true
+	});
+	laydate.render({
+ 	    elem: '#test12',
+	    range: true
+	})
+
+        //table.render({
+        //    elem: '#cus_money_log'
+        //    , height: 'full-250'
+        //    , cellMinWidth: '80'
+        //    , url: '/admin/cus_log' //数据接口
+        //    , title: '客户账户金额表'
+       //     , limit:50
+      //      , limits:[50,100,150,200,250,300,350,400,450,500]
+      //      , toolbar: "r" //开启工具栏，此处显示默认图标，可以自定义模板，详见文档
+      //      , totalRow: true //开启合计行
+      //      , cols: [[ //表头
+      //          {type:'numbers'}
+      //          , {field: 'log_time', title: '记录时间', align: 'center', sort: true,  totalRowText: '合计：'}
+      //          , {field: 'customer', title: '客户', align: 'center', sort: true,}
+      //          , {field: 'balance', title: '余额', align: 'center', sort: true,}
+      //          , {field: 'out_money', title: '总计支出金额', align: 'center', sort: true,}
+      //          , {field: 'sum_balance', title: '总计充值金额', align: 'center', sort: true,}
+      //      ]]
+      //      , id: 'cus_log'
+      //      , page: true
+      //  });
+
+        //执行一个 table 实例
+        table.render({
+            elem: '#card_all'
+            , height: 'full-250'
+            , cellMinWidth: '80'
+            , url: '/finance/card_all/' //数据接口
+            , title: '卡信息'
+            , toolbar: '#toolbarDemo'
+            , limit:50
+            , limits:[50,100,150,200,250,300,350,400,450,500]
+            , totalRow: true //开启合计行
+            , cols: [[ //表头
+                {type:'numbers'}
+                //, {field: 'activation', title: 'cardId', align: 'center', sort: true,  totalRowText: '合计：'}
+                , {field: 'card_no', title: '卡号', align: 'center', sort: true,}
+                //, {field: 'pay_passwd', title: '支付密码', align: 'center', sort: true,}
+                , {field: 'act_time', title: '激活时间', align: 'center', sort: true,}
+                , {field: 'card_name', title: '卡姓名', align: 'center', sort: true,}
+                , {field: 'account_name', title: '标签', align: 'center', sort: true}
+                , {field: 'label', title: '持有人', align: 'center', sort: true,}
+            ]]
+            , id: 'card_all'
+            , page: true
+        });
+
+	table.render({
+              elem: '#bento_alltrans'
+              , height: 'full-250'
+              , cellMinWidth: '80'
+              , url: '/finance/all_trans/' //数据接口
+              , title: '交易记录表'
+              , limit:300
+              , limits:[300, 600, 900, 1200, 1500, 1800, 2100, 2400, 2700, 3000]
+              , toolbar: "true" //开启工具栏，此处显示默认图标，可以自定义模板，详见文档
+              , totalRow: true //开启合计行
+              , cols: [[ //表头
+                  {type:'numbers'}
+                  ,{type: 'checkbox'}
+                  , {field: 'hand_money', title: '卡的名字', align: 'center', totalRow: true, sort: true}
+                  , {field: 'date', title: '操作日期', align: 'center', sort: true,  totalRowText: '合计：'}
+                  , {field: 'trans_type', title: '交易类型', align: 'center', sort: true,style:'color: green'}
+                  , {field: 'do_type', title: '操作状态', align: 'center', sort: true,}
+                  , {field: 'do_money', title: '操作金额', align: 'center', totalRow: true, sort: true, style:'color: red'}
+                  , {field: 'card_no', title: '卡号', align: 'center', sort: true}
+                  , {field: 'before_balance', title: '归属客户', align: 'center', sort: true}
+              ]]
+             , id: 'bento_alltrans'
+             , page: true
+ 
+         });
+
+        table.on('rowDouble(card_all)', function(obj){
+        var data = obj.data;
+            layer.open({
+                type: 2
+                ,offset: 'r' //具体配置参考：http://www.layui.com/doc/modules/layer.html#offset
+                ,skin:'layui-layer-demo'
+                ,id: 'layerUser'//防止重复弹出
+                ,title: '卡号为 ' + data.card_no + ' 的详细信息'
+                ,area: ['40%','80%']
+                ,anim: 2
+                ,shadeClose:true
+                ,content: '/user/one_card_detail?card_no=' + data.card_name
+                ,btn: '关闭全部'
+                ,btnAlign: 'c' //按钮居中a
+                ,shade:  [0.8, '#393D49'] //弹框背景选项
+                ,success: function(layero, index) {
+                        var body = layer.getChildFrame('body', index);
+                        body.contents().find("#card_num").html(data.card_no);
+                    }
+              });
+
+            //标注选中样式
+            obj.tr.addClass('layui-table-click').siblings().removeClass('layui-table-click');
+        });
+
+        //执行一个 table 实例
+        table.render({
+            elem: '#cus_trans_log'
+            , height: 'full-250'
+            , cellMinWidth: '80'
+            , url: '/finance/account_trans/' //数据接口
+            , title: '客户交易记录'
+            , limit:50
+            , limits:[50,100,150,200,250,300,350,400,450,500]
+            , toolbar: "true" //开启工具栏，此处显示默认图标，可以自定义模板，详见文档
+            , totalRow: true //开启合计行
+            , cols: [[ //表头
+                {type:'numbers'}
+                ,{type: 'checkbox'}
+                , {field: 'cus_name', title: '客户', align: 'center', sort: true,  totalRowText: '合计：'}
+                , {field: 'date', title: '操作日期', align: 'center', sort: true,}
+                , {field: 'do_type', title: '操作类型', align: 'center', sort: true,}
+                //, {field: 'num', title: '操作类型', align: 'center', sort: true}
+                , {field: 'card_no', title: '卡号', align: 'center', sort: true}
+                , {field: 'do_money', title: '操作金额', align: 'center', totalRow: true, sort: true, style: "color: red"}
+                //, {field: 'hand_money', title: '手续费', align: 'center', totalRow: true, sort: true}
+                , {field: 'before_balance', title: '之前余额', align: 'center', sort: true}
+                , {field: 'balance', title: '之后余额', align: 'center', sort: true}
+            ]]
+            , id: 'cus_trans_log'
+            , page: true
+        });
+
+        //执行一个 table 实例
+        table.render({
+            elem: '#account_all'
+            , height: 'full-250'
+            , cellMinWidth: '80'
+            , url: '/finance/account_info/' //数据接口
+            , title: '客户信息'
+            , limit:50
+            , limits:[50,100,150,200,250,300,350,400,450,500]
+            , toolbar: "r" //开启工具栏，此处显示默认图标，可以自定义模板，详见文档
+            , totalRow: true //开启合计行
+            , cols: [[ //表头
+                {type:'numbers'}
+                , {field: 'name', title: '客户', align: 'center', sort: true,  totalRowText: '合计：'}
+                , {field: 'account', title: '账号', align: 'center', sort: true,}
+                , {field: 'password', title: '密码', align: 'center', sort: true,}
+                , {field: 'create_price', title: '开卡费', align: 'center', sort: true,}
+                //, {field: 'refund', title: '取现手续费', align: 'center', sort: true,}
+                , {field: 'min_top', title: '最低充值金额', align: 'center', sort: true,}
+                //, {field: 'max_top', title: '最高充值金额', align: 'center', sort: true,}
+                , {field: 'card_num', title: '开卡数量', align: 'center', sort: true,totalRow:true,style: "color: #000000"}
+                , {field: 'in_card_num', title: '已开卡数量', align: 'center', sort: true,totalRow:true,style: "color: #000000"}
+                , {field: 'del_card_num', title: '已删卡数量', align: 'center', sort: true,totalRow:true,style: "color: #000000"}
+                , {field: 'out_money', title: '总消费金额', align: 'center', sort: true, totalRow:true,style: "color: red"}
+                , {field: 'account_all_money', title: '卡的总余额', align: 'center', sort: true, totalRow:true,style: "color: red"}
+                , {field: 'balance', title: '账户余额', align: 'center', sort: true, totalRow:true, style: "color: purple"}
+                , {field: 'card_balance', title: '卡的消费总额', align: 'center', sort: true, totalRow:true}
+                , {field: 'sum_balance', title: '总充值金额', align: 'center', sort: true, totalRow:true}
+                , {fixed: 'right', width: 220, align: 'center', toolbar: '#barDemo'}
+            ]]
+            , id: 'account_info'
+            , page: true
+        });
+
+	table.render({
+            elem: '#top_up1'
+            , height: 'full-250'
+            , cellMinWidth: '80'
+            , url: '/finance/bento_refund/' //数据接口
+            , title: '客户退款记录'
+            , limit:20
+            , toolbar: "true" //开启工具栏，此处显示默认图标，可以自定义模板，详见文档
+            , totalRow: true //开启合计行
+            , cols: [[ //表头
+                {type:'numbers'}
+		, {field: 'name', title: '客户', align: 'center', sort: true,  totalRowText: '合计：'}
+                , {field: 'pay_num', title: '卡号', align: 'center', sort: true,}
+                , {field: 'time', title: '充值时间', align: 'center', sort: true, }
+                , {field: 'trans_type', title: '操作类型', align: 'center', sort: true, style:'color: #104E8B'}
+                , {field: 'money', title: '操作金额', align: 'center', sort: true, totalRow: true,style:'color: red'}
+                , {field: 'before_balance', title: '操作前卡余额', align: 'center', sort: true, totalRow: true}
+                , {field: 'balance', title: '操作后卡余额', align: 'center', sort: true, totalRow: true}
+                , {field: 'sum_balance', title: '删卡总金额', align: 'center', sort: true, totalRow: true}
+		, {field: 'sum_refund', title: '转移总金额', align: 'center', sort: true, totalRow: true}
+
+            ]]
+            , id: 'bento_refund'
+            , page: true
+        });
+
+	//执行一个 table 实例
+	table.render({
+            elem: '#bento_decline'
+            , height: 'full-250'
+            , cellMinWidth: '80'
+            , url: '/finance/decline_data/' //数据接口
+            , title: '交易记录表'
+            , limit:100
+            , limits:[100, 200, 300, 400, 500, 600, 700, 800, 900, 1000]
+            , toolbar: "true" //开启工具栏，此处显示默认图标，可以自定义模板，详见文档
+            , totalRow: true //开启合计行
+            , cols: [[ //表头
+                {type:'numbers'}
+                ,{type: 'checkbox'}
+                , {field: 'hand_money', title: '卡的名字', align: 'center', totalRow: true, sort: true}
+                , {field: 'date', title: '操作日期', align: 'center', sort: true,  totalRowText: '合计：'}
+                //, {field: 'trans_type', title: '交易类型', align: 'center', sort: true,style:'color: green'}
+                , {field: 'do_type', title: '操作类型', align: 'center', sort: true,}
+                , {field: 'do_money', title: '操作金额', align: 'center', totalRow: true, sort: true, style:'color: red'}
+                , {field: 'card_no', title: '卡号', align: 'center', sort: true}
+                , {field: 'before_balance', title: '归属客户', align: 'center', sort: true}
+                , {field: 'reason', title: 'decline原因', align: 'center', sort: true,style:'color: green'}
+            ]]
+            , id: 'bento_decline'
+            , page: true
+
+        });
+
+
+        //执行一个 table 实例
+        table.render({
+            elem: '#top_up'
+            , height: 'full-250'
+            , cellMinWidth: '80'
+            , url: '/finance/top_history/' //数据接口
+            , title: '客户充值记录'
+            , limit:20
+            , toolbar: "true" //开启工具栏，此处显示默认图标，可以自定义模板，详见文档
+            , totalRow: true //开启合计行
+            , cols: [[ //表头
+                {type:'numbers'}
+                , {field: 'name', title: '客户', align: 'center', sort: true,  totalRowText: '合计：'}
+                , {field: 'pay_num', title: '流水号', align: 'center', sort: true,}
+                , {field: 'time', title: '充值时间', align: 'center', sort: true, }
+		, {field: 'trans_type', title: '充值类型', align: 'center', sort: true, style:'color: #104E8B'}
+                , {field: 'money', title: '充值金额', align: 'center', sort: true, totalRow: true,style:'color: red'}
+                , {field: 'before_balance', title: '充值前余额', align: 'center', sort: true, totalRow: true}
+                , {field: 'balance', title: '充值后余额', align: 'center', sort: true, totalRow: true}
+	 	, {field: 'sum_balance', title: '总充值金额', align: 'center', sort: true, totalRow: true}
+            ]]
+            , id: 'top_history'
+            , page: true
+        });
+
+	//account decline
+	table.render({
+              elem: '#account_decl'
+              , height: 'full-250'
+              , cellMinWidth: '80'
+              , url: '/finance/account_decline/' //数据接口
+              , title: '交易记录表'
+              , limit:100
+              , limits:[100, 200, 300, 400, 500, 600, 700, 800, 900, 1000]
+              , toolbar: "true" //开启工具栏，此处显示默认图标，可以自定义模板，详见文档
+              , totalRow: true //开启合计行
+              , cols: [[ //表头
+                  {type:'numbers'}
+                  ,{type: 'checkbox'}
+                  , {field: 'alias', title: '客户名', align: 'center', totalRow: true, sort: true}
+                  , {field: 'decl', title: 'decline数量', align: 'center', sort: true,  totalRowText: '合计：'}
+                  , {field: 't_data', title: '所有卡交易数量', align: 'center', sort: true,style:'color: green'}
+                  , {field: 'three_decl', title: '三天内所有decline数量', align: 'center', sort: true,style:'color: green'}
+                  , {field: 'three_tran', title: '三天内所有交易数量', align: 'center', sort: true,style:'color: green'}
+                  , {field: 'bili', title: '三天decline比', align: 'center', sort: true,}
+              ]]
+             , id: 'account_decl'
+              , page: true
+ 
+         });
+
+
+
+        //监听右侧导航栏点击事件
+        $('#make_vir').on('click',function () {
+           element.tabChange('demo', 1);
+        });
+
+        $('#make_vir_some').on('click',function () {
+           element.tabChange('demo', 2);
+        });
+        $('#all_vir').on('click',function () {
+           element.tabChange('demo', 3);
+        });
+        $('#cus_trans').on('click',function () {
+           element.tabChange('demo', 4);
+        });
+        //$('#cus_log').on('click',function () {
+        //   element.tabChange('demo', 5);
+        //});
+        $('#add_acc').on('click',function () {
+           element.tabChange('demo', 6);
+        });
+        $('#add_mid').on('click',function () {
+           element.tabChange('demo', 7);
+        });
+        $('#mid_info').on('click',function () {
+           element.tabChange('demo', 8);
+        });
+        $('#mid_money').on('click',function () {
+           element.tabChange('demo', 9);
+        });
+        $('#card_admin').on('click',function () {
+           element.tabChange('demo', 10);
+        });
+	$('#bento_refund').on('click',function () {
+           element.tabChange('demo', 11);
+        });
+	$('#decline_da').on('click', function(){
+	   element.tabChange('demo', 12)	
+	});
+	$('#account_decline').on('click', function(){
+            element.tabChange('demo', 13)
+         });
+	$('#account_alltrans').on('click', function(){
+             element.tabChange('demo', 14)
+         });
+
+
+
+
+
+        //分页
+        laypage.render({
+            elem: 'pageDemo' //分页容器的id
+            , count: 100 //总页数
+            , skin: '#1e9fff' //自定义选中色值
+            //,skip: true //开启跳页
+            , jump: function (obj, first) {
+                if (!first) {
+                    layer.msg('第' + obj.curr + '页', {offset: 'b'});
+                }
+            }
+        });
+
+
+
+         form.on('submit(sea_account)', function(data){
+             var $ = layui.jquery;
+             var data_info = $('#s_acc_name').val();
+             table.reload("account_info", {
+                 page: {
+                   curr: 1 //重新从第 1 页开始
+                 },where: {
+                     customer:data_info,
+                   }
+               }, '/finance/account_info');
+            return false;
+         });
+
+         form.on('submit(sea_payed)', function(data){
+
+             var $ = layui.jquery;
+             var acc_name = $('#acc_name').val(),
+                order_num = $('#order_num').val(),
+                time_range = $('#s_test6').val();
+             table.reload("top_history", {
+                 page: {
+                   curr: 1 //重新从第 1 页开始
+                 },where: {
+                     acc_name:acc_name,
+                     order_num:order_num,
+                     time_range:time_range,
+                   }
+               }, '/finance/top_history/');
+            return false;
+         });
+
+	form.on('submit(sea_account_decl)', function(data){
+
+              var $ = layui.jquery;
+              var acc_name = $('#account_decline_name').val();
+              table.reload("account_decl", {
+                  page: {
+                    curr: 1 //重新从第 1 页开始
+                  },where: {
+                      acc_name:acc_name,
+                    }
+                }, '/finance/account_decline/');
+             return false;
+          });
+
+	form.on('submit(sea_decline)', function(data){
+
+             var $ = layui.jquery;
+             var acc_name = $('#decline_name').val(),
+                order_num = $('#decline_num').val(),
+                time_range = $('#test10').val();
+             table.reload("bento_decline", {
+                 page: {
+                   curr: 1 //重新从第 1 页开始
+                 },where: {
+                     acc_name:acc_name,
+                     order_num:order_num,
+                     time_range:time_range,
+                   }
+               }, '/finance/decline_data/');
+            return false;
+         });
+
+	//addff
+	form.on('submit(bt_refund)', function(data){
+
+             var $ = layui.jquery;
+             var acc_name = $('#bento_name').val(),
+                order_num = $('#bento_num').val(),
+                time_range = $('#bento_time').val();
+             table.reload("bento_refund", {
+                 page: {
+                   curr: 1 //重新从第 1 页开始
+                 },where: {
+                     acc_name:acc_name,
+                     order_num:order_num,
+                     time_range:time_range,
+                   }
+               }, '/finance/bento_refund/');
+            return false;
+         });
+
+         form.on('submit(sea_card)', function(data){
+
+             var $ = layui.jquery;
+             var field = $('#field').val(),
+                 value = $('#value').val();
+             table.reload("card_all", {
+                 page: {
+                   curr: 1 //重新从第 1 页开始
+                 },where: {
+                     field: field,
+                     value: value,
+                   }
+               }, '/finance/card_all/');
+            return false;
+         });
+
+         form.on('submit(cus_trans)', function(data){
+             var $ = layui.jquery;
+             var cus_name = $("#cus_name").val(),
+                 trans_card = $('#trans_card').val(),
+                 trans_type = $('#trans_type').val(),
+                 trans_do_type = $('#bento_do_type').val(),
+                 time_range = $('#test8').val();
+             table.reload("cus_trans_log", {
+                 page: {
+                   curr: 1 //重新从第 1 页开始
+                 },where: {
+                     cus_name:cus_name,
+                     trans_card: trans_card,
+                     time_range:time_range,
+                     trans_type:trans_type,
+                     trans_do_type: trans_do_type,
+                   }
+               }, '/finance/account_trans/');
+            return false;
+         });
+	
+	form.on('submit(sea_alltrans)', function(data){
+
+              var $ = layui.jquery;
+              var acc_name = $('#account_transname').val(),
+                 order_num = $('#account_transcard').val(),
+		 trans_status = $('#account_transtatus').val(),
+                 time_range = $('#test12').val();
+              table.reload("bento_alltrans", {
+                  page: {
+                    curr: 1 //重新从第 1 页开始
+                  },where: {
+                      acc_name:acc_name,
+                      order_num:order_num,
+		    	trans_status: trans_status,
+                      time_range:time_range,
+                    }
+                }, '/finance/all_trans/');
+             return false;
+          });
+
+	
+
+    });
+</script>
+</body>
+</html>

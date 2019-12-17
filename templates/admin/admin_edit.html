@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <title>订单账号密码界面</title>
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <link rel="stylesheet" href="/static/layui/css/layui.css" media="all">
+    <script src="/static/layui/layui.js"></script>
+    <script src="/static/layui/layui.all.js"></script>
+
+    <style>
+        body {
+            margin: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div id="details" style="padding: 20px;" lay-filter="detail">
+    <form class="layui-form" lay-filter="example" id="example" enctype="multipart/form-data">
+        <div class="layui-form-item">
+            <label class="layui-form-label">旧密码</label>
+            <div class="layui-input-block">
+                <input type="text" name="old_pass" required lay-verify="required" placeholder="请输入账号旧密码" autocomplete="off"
+                       class="layui-input" id="old_pass">
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">新密码</label>
+            <div class="layui-input-block">
+                <input type="password" name="new_pass_one" required lay-verify="required" placeholder="请输入新密码" autocomplete="off"
+                       class="layui-input" id="new_pass_one">
+            </div>
+        </div>
+
+        <div class="layui-form-item">
+            <label class="layui-form-label">确认新密码</label>
+            <div class="layui-input-block">
+                <input type="password" name="new_pass_two" required lay-verify="required" placeholder="请确认新密码" autocomplete="off"
+                       class="layui-input" id="new_pass_two">
+            </div>
+        </div>
+
+        <div class="layui-form-item">
+            <div class="layui-input-block">
+                <button class="layui-btn" lay-submit="" lay-filter="formDemo" id="sub" type="submit">立即提交</button>
+{#                <button type="reset" class="layui-btn layui-btn-primary">重置</button>#}
+            </div>
+        </div>
+    </form>
+</div>
+<script>
+    layui.use('form', function(){
+        var form = layui.form;
+      //监听提交
+        form.on('submit(formDemo)', function(data){
+            {#layer.msg(JSON.stringify(data.field));#}
+            var data_info = {data:JSON.stringify(data.field)};
+            var $ = layui.jquery;
+
+            $.ajax({
+				type : 'POST',
+				url : '/admin/change_pass',
+				data : data_info,
+				dataType : 'json',
+				success : function(data) {
+				    {#var data1 = JSON.parse(data);#}
+			    	console.log(data.code);
+					// 成功提示框
+                    if (data.code == 0){
+                        parent.layer.msg('修改密码成功!', {
+						icon : 6,
+					});
+					parent.layer.closeAll('iframe'); //关闭弹框
+                    }else if(data.code == 502){
+                        parent.layer.msg(data.msg, {
+						icon : 5
+					});
+                    }
+
+				},
+				error : function(data) {
+					// 异常提示
+					parent.layer.msg('出现网络故障', {
+						icon : 5
+					});
+					parent.layer.closeAll('iframe'); //关闭弹框
+				}
+			});
+			return false;
+            });
+    });
+</script>
+</body>
+
+</html>

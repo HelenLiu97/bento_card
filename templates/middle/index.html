@@ -1,0 +1,386 @@
+<html>
+<head>
+    <meta charset="UTF-8" />
+    <title>WORLD-PAY·MIDDLE</title>
+    <link rel="stylesheet" href="/static/layui/css/layui.css"  media="all">
+    <link rel="icon" href="/static/img/buy-icon.png" type="image/x-icon"/>
+    <script src="/static/layui/layui.js" charset="utf-8"></script>
+    <script src="http://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js"></script>
+    <script src="http://code.highcharts.com/highcharts.js"></script>
+</head>
+<body>
+
+<div class="layui-layout layui-layout-admin">
+    <div class="layui-header">
+        <ul class="layui-nav layui-layout-right">
+          <li class="layui-nav-item" lay-unselect="" style="float: right">
+            <a href="javascript:"><img src="/static/img/logo.png" class="layui-nav-img">{{ name }}</a>
+            <dl class="layui-nav-child">
+              <dd><a href="javascript:" id="middle_info">基本信息</a></dd>
+              <dd><a href="javascript:" id="change_phone">修改电话</a></dd>
+              <dd><a href="/middle/logout">注    销</a></dd>
+            </dl>
+          </li>
+        </ul>
+    </div>
+</div>
+
+<div class="layui-tab layui-tab-brief" lay-filter="docDemoTabBrief">
+  <ul class="layui-tab-title">
+    <li class="layui-this" lay-id="1">数据概览</li>
+    <li lay-id="2">客户开卡统计</li>
+    <li lay-id="3">中介费统计</li>
+  </ul>
+  <div class="layui-tab-content" style="height: 100px;">
+    <div class="layui-tab-item layui-show">
+        <div id="today" style="width: 100%; height: 800px; margin: 0 auto"></div>
+
+        <hr class="layui-bg-gray" style="height: 100px;">
+        <div id="week" style="width: 100%; height: 800px; margin: 0 auto"></div>
+    </div>
+    <div class="layui-tab-item">
+        <table class="layui-hide" id="customer_info" lay-filter="customer_info"></table>
+    </div>
+    <div class="layui-tab-item">
+        <blockquote class="layui-elem-quote layui-quote-nm">
+            <span >说明: 如果今天是周三,将自动计算上周三到本周二所有客户的开卡数量,计算中介费</span>
+            <br>——如有不明请咨询终端。
+        </blockquote>
+        <table class="layui-hide" id="middle_money" lay-filter="middle_money"></table>
+    </div>
+  </div>
+</div>
+
+
+<script language="JavaScript">
+    layui.use(['laydate', 'laypage', 'layer', 'table', 'carousel', 'upload', 'element', 'slider', 'form'], function () {
+
+        var laydate = layui.laydate //日期
+            , laypage = layui.laypage //分页
+            , layer = layui.layer //弹层
+            , table = layui.table //表格
+            , upload = layui.upload //上传
+            , element = layui.element //元素操作
+            , $ = layui.$
+            , form = layui.form;
+
+
+        //修改推送短信电话
+        $('#change_phone').on('click', function () {
+            var myreg = /^(((13[0-9]{1})|(14[0-9]{1})|(17[0]{1})|(15[0-3]{1})|(15[5-9]{1})|(18[0-9]{1}))+\d{8})$/;
+            layer.prompt({title: '更改接收短信通知电话号码。'}, function(num, index){
+
+                    if (isNaN(num)){
+                        layer.msg('请输入数字!')
+                    }else if (num.length != 11){
+                        layer.msg('请输入标准的电话号码!')
+                    }else if (!myreg.test(num)){
+                        layer.msg('请输入标准的电话号码!')
+                    } else{
+                        $.ajax({
+                        type : 'GET',
+                        url : '/middle/change_phone' + '?phone_num=' + num,
+                        dataType : 'json',
+                        success : function(data) {
+                            // 成功提示框
+                            if (data.code == 0){
+                                parent.layer.msg(data.msg, {
+                                icon : 6,
+                            });
+                            }else if(data.code == 502){
+                                parent.layer.msg(data.msg, {
+                                icon : 5
+                            });
+                            }
+
+                        },
+                        error : function(data) {
+                            // 异常提示
+                            parent.layer.msg('出现网络故障', {
+                                icon : 5
+                            });
+                        }
+                            });
+                    }
+                    layer.close(index);
+
+                });
+        });
+
+
+        //基本资料弹出
+        $('#middle_info').on('click', function () {
+            layer.open({
+                type: 2
+                ,title: false //不显示标题栏
+                ,closeBtn: false
+                ,area: ['500px','340px']
+                ,shade: 0.8
+                ,id: 'user_detail' //设定一个id，防止重复弹出
+                ,btn: ['关闭']
+                ,shadeClose: true
+                ,btnAlign: 'c'
+                ,moveType: 1 //拖拽模式，0或者1
+                ,content: '/middle/middle_info'
+
+              });
+        });
+
+        $(".layui-tab-title li").click(function(){
+            {#var picTabNum = $(this).index();#}
+            var picTabNum = $(this).attr('lay-id');
+            sessionStorage.setItem("picTabNum",picTabNum);
+            });
+            $(function(){
+                var getPicTabNum = sessionStorage.getItem("picTabNum");
+                $(".layui-tab-title li").eq(Number(getPicTabNum)-1).addClass("layui-this").siblings().removeClass("layui-this");
+                $(".layui-tab-content>div>div[id=test_table]>div>table").eq(Number(getPicTabNum)-1).addClass("layui-show").siblings().removeClass("layui-show");
+            });
+
+        var getPicTabNum = sessionStorage.getItem("picTabNum");
+
+
+        element.tabChange('docDemoTabBrief', getPicTabNum);
+
+        <!-- 此为今日开卡折线图js -->
+        $(document).ready(function () {
+            var chart = {
+                type: 'spline'
+            };
+            var title = {
+                text: '今日开卡总量折线图'
+            };
+            var subtitle = {
+                text: '说明: 每条线代表不同客户!'
+            };
+            var xAxis = {
+                categories: ['00:00-06:00', '06:00-12:00', '12:00-18:00', '18:00-23:59'],
+                lineWidth: 4
+            };
+            var yAxis = {
+                title: {
+                    text: '开卡数量:'
+                },
+                labels: {
+                    formatter: function () {
+                        return this.value;
+                    }
+                },
+                lineWidth: 4
+            };
+            var tooltip = {
+                crosshairs: true,
+                shared: true
+            };
+            var plotOptions = {
+                spline: {
+                    marker: {
+                        radius: 4,
+                        lineColor: '#666666',
+                        lineWidth: 1
+                    }
+                }
+            };
+            var series = [];
+
+            $.ajax({
+                type : 'GET',
+                url : '/middle/line_chart/?today=yes',
+                dataType : 'json',
+                success : function(data) {
+                    // 成功提示框
+                    if (data.code == 0){
+                        var info = data.data;
+                        for (var i=0; i<info.length;i++){
+                            var name = info[i].name;
+                            var data1 = info[i].data;
+                            var s = {name:name,data:data1};
+                            series.push(s)
+                        }
+                        var json = {};
+                        json.chart = chart;
+                        json.title = title;
+                        json.subtitle = subtitle;
+                        json.tooltip = tooltip;
+                        json.xAxis = xAxis;
+                        json.yAxis = yAxis;
+                        json.series = series;
+                        json.plotOptions = plotOptions;
+                        $('#today').highcharts(json);
+                    }else if(data.code == 502){
+                        parent.layer.msg(data.msg, {
+                        icon : 5
+                    });
+                    }
+
+                },
+                error : function(data) {
+                    // 异常提示
+                    parent.layer.msg('出现网络故障', {
+                        icon : 5
+                    });
+                }
+            });
+
+        });
+
+
+        <!-- 此为本周开卡折线图js -->
+        $(document).ready(function () {
+            var chart = {
+                type: 'spline'
+            };
+            var title = {
+                text: '本周数量统计。tip:周三到周二(七天)'
+            };
+            var subtitle = {
+                text: '说明: 每条线代表不同客户!'
+            };
+            var xAxis = {
+                categories: ['周三', '周四', '周五', '周六', '周日', '周一', '周二'],
+                lineWidth: 4
+            };
+            var yAxis = {
+                title: {
+                    text: '开卡数量:'
+                },
+                labels: {
+                    formatter: function () {
+                        return this.value;
+                    }
+                },
+                lineWidth: 4
+            };
+            var tooltip = {
+                crosshairs: true,
+                shared: true
+            };
+            var plotOptions = {
+                spline: {
+                    marker: {
+                        radius: 4,
+                        lineColor: '#666666',
+                        lineWidth: 1
+                    }
+                }
+            };
+            var series = [];
+
+            $.ajax({
+                type : 'GET',
+                url : '/middle/line_chart/?week=yes',
+                dataType : 'json',
+                success : function(data) {
+                    // 成功提示框
+                    if (data.code == 0){
+                        var info = data.data;
+                        for (var i=0; i<info.length;i++){
+                            var name = info[i].name;
+                            var data1 = info[i].data;
+                            var s = {name:name,data:data1};
+                            series.push(s)
+                        }
+                        var json = {};
+                        json.chart = chart;
+                        json.title = title;
+                        json.subtitle = subtitle;
+                        json.tooltip = tooltip;
+                        json.xAxis = xAxis;
+                        json.yAxis = yAxis;
+                        json.series = series;
+                        json.plotOptions = plotOptions;
+                        $('#week').highcharts(json);
+                    }else if(data.code == 502){
+                        parent.layer.msg(data.msg, {
+                        icon : 5
+                    });
+                    }
+
+                },
+                error : function(data) {
+                    // 异常提示
+                    parent.layer.msg('出现网络故障', {
+                        icon : 5
+                    });
+                }
+            });
+        });
+
+
+        //执行一个 table 实例
+        table.render({
+            elem: '#customer_info'
+            , height: ''
+            , url: '/middle/customer_info' //数据接口
+            , title: '客户开卡统计表'
+            , limit:20
+            , toolbar: "r" //开启工具栏，此处显示默认图标，可以自定义模板，详见文档
+            , totalRow: true //开启合计行
+            , cols: [[ //表头
+                {type:'numbers'}
+                , {field: 'name', title: '客户姓名', align: 'center', totalRowText: '合计：'}
+                , {field: 'card_num', title: '共计开卡数量', align: 'center', totalRow:true}
+                , {field: 'sum_balance', title: '共计充值余额', align: 'center', totalRow:true}
+                , {field: 'balance', title: '账户剩余余额', align: 'center', totalRow:true}
+            ]]
+            , id: 'card_info'
+            , page: true
+        });
+
+
+        //执行一个 table 实例
+        table.render({
+            elem: '#middle_money'
+            , height: ''
+            , url: '/middle/middle_money' //数据接口
+            , title: '中介费统计表'
+            , limit:50
+            , limits:[50,100,150,200,250,300,350,400,450,500]
+            , toolbar: "r" //开启工具栏，此处显示默认图标，可以自定义模板，详见文档
+            , totalRow: true //开启合计行
+            , cols: [[ //表头
+                {type:'numbers'}
+                , {field: 'start_time', title: '开始时间(周三)', align: 'center', sort: true,  totalRowText: '合计：'}
+                , {field: 'end_time', title: '结束时间(周二)', align: 'center', sort: true, }
+                , {field: 'card_num', title: '开卡量', align: 'center', sort: true,totalRow:true}
+                , {field: 'create_price', title: '开卡费', align: 'center', sort: true,totalRow:true}
+                , {field: 'create_time', title: '系统统计时间', align: 'center', sort: true,}
+                , {field: 'sum_money', title: '提成总额', align: 'center', style:"color:red;", sort: true, totalRow:true}
+                , {field: 'pay_status', title: '是否支付提成', align: 'center', sort: true}
+                , {field: 'pay_time', title: '终端确认时间', align: 'center', sort: true}
+            ]]
+            , id: 'card_info'
+            , page: true
+        });
+
+        table.on('rowDouble(middle_money)', function(obj){
+        var data = obj.data;
+            layer.open({
+                type: 2
+                ,offset: 'auto' //具体配置参考：http://www.layui.com/doc/modules/layer.html#offset
+                ,skin:'layui-layer-demo'
+                ,id: 'layerUser'//防止重复弹出
+                ,title: '提成总额明细'
+                ,area: ['20%','30%']
+                ,anim: 2
+                ,shadeClose:true
+                ,content: '/middle/money_detail?info_id=' + data.id
+                ,btn: '关闭全部'
+                ,btnAlign: 'c' //按钮居中a
+                ,shade:  [0.8, '#393D49'] //弹框背景选项
+
+              });
+
+            //标注选中样式
+            obj.tr.addClass('layui-table-click').siblings().removeClass('layui-table-click');
+        });
+
+
+        $('.demoTable .layui-btn').on('click', function () {
+            var type = $(this).data('type');
+            active[type] ? active[type].call(this) : '';
+        });
+    })
+</script>
+</body>
+</html>

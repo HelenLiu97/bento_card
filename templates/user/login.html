@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+<meta charset="utf-8" />
+<title>登录</title>
+<link rel="stylesheet" type="text/css" href="/static/css/index.css" />
+<link rel="icon" href="/static/img/buy-icon.png" type="image/x-icon"/>
+<link rel="stylesheet" href="/static/layui/css/layui.css" media="all">
+<script src="/static/layui/layui.js"></script>
+<script src="/static/layui/layui.all.js"></script>
+</head>
+
+<body>
+
+<img class="bgone" src="/static/img/1.jpg" />
+<img class="pic" src="/static/img/a.png" />
+
+<div class="table">
+	<div class="wel">Welcome to BenTo</div>
+	<div class="wel1">Bento Login</div>
+    <form class="layui-form" action="">
+        <div class="layui-form-item layui-form-text">
+            <div class="user">
+                <div id="yonghu" style=""><img src="/static/img/yhm.png" /></div>
+                <input type="text" placeholder="请输入账号" name="user_name" lay-verify="required">
+            </div>
+        </div>
+
+        <div class="layui-form-item layui-form-text">
+            <div class="password">
+                <div id="yonghu"><img src="/static/img/mm.png" /></div>
+                <input type="password" name="pass_word" placeholder="请输入密码" lay-verify="required">
+            </div>
+        </div>
+
+        <button class="btn" lay-submit="" lay-filter="login">登录</button>
+    </form>
+</div>
+
+<script>
+    layui.use('form', function () {
+        var form = layui.form,
+            $ = layui.jquery;
+
+
+        form.on('submit(login)',function (data) {
+            var data_info = {data:JSON.stringify(data.field)};
+
+            $.ajax({
+				type : 'POST',
+				url : '/user/login',
+				data : data_info,
+				dataType : 'json',
+				success : function(data) {
+				    {#var data1 = JSON.parse(data);#}
+			    	{#console.log(data.code);#}
+					// 成功提示框
+                    if (data.code == 0){
+                        /*
+                        parent.layer.msg('登录成功!', {
+						icon : 6,
+					});*/
+					location.href='/user/'; //关闭弹框
+                    }else if(data.code == 502){
+                        parent.layer.msg('账户或密码错误!', {
+						icon : 5
+					});
+                    }
+
+				},
+				error : function(data) {
+					// 异常提示
+					parent.layer.msg('出现网络故障', {
+						icon : 5
+					});
+				}
+			});
+
+            return false;
+        })
+
+    })
+</script>
+
+</body>
+</html>

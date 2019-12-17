@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+		<title>FB4754</title>
+        <!--<link rel="icon" href="/static/img/master.png" type="image/x-icon"/>-->
+        <link rel="stylesheet" href="/static/layui/css/layui.css" media="all"/>
+		<link rel="stylesheet" href="/static/css/pay_index.css" media="all"/>
+		<style>
+			/* 覆盖原框架样式 */
+			.layui-elem-quote{background-color: inherit!important;}
+			.layui-input, .layui-select, .layui-textarea{background-color: inherit; padding-left: 30px;}
+
+            .pay{
+            width: 500px;
+            height: 518px;
+            }
+		</style>
+	</head>
+	<body>
+		<!-- Head -->
+		<div class="layui-fluid">
+			<div class="layui-row layui-col-space15" style="float: left">
+				<div class="layui-col-sm12 layui-col-md12 zyl_mar_01">
+					<blockquote class="layui-elem-quote">475440·充值界面 (提示: 需要充值时请刷新本界面,重新获取汇率!)</blockquote>
+                    <li class="layui-nav-item"><a href="/pay/logout">退出当前用户</a></li>
+				</div>
+			</div>
+            <button type="button" class="layui-btn layui-btn-lg layui-btn-warm layui-btn-radius" style="float: right;margin-top: 25px"><a href="javascript:"><i class="layui-icon">&#xe609;</i>475440</a></button>
+		</div>
+
+
+		<!-- Head End -->
+
+		<!-- Carousel -->
+		<div class="layui-row">
+			<div class="layui-col-sm12 layui-col-md12">
+				<div class="layui-carousel zyl_login_height" id="zyllogin" lay-filter="zyllogin">
+					<div carousel-item="">
+						<div>
+							<div class="zyl_login_cont"></div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<!-- Carousel End -->
+
+		<!-- Footer -->
+		<div class="layui-row">
+			<div class="layui-col-sm12 layui-col-md12 zyl_center zyl_mar_01">
+				© 2019 - 475440充值推送界面
+			</div>
+		</div>
+		<!-- Footer End -->
+
+
+
+		<!-- LoginForm -->
+		<div class="zyl_lofo_main">
+            <div class="layui-tab layui-tab-card">
+                <ul class="layui-tab-title">
+                  <li class="layui-this">人民币充值</li>
+                  <li>美元充值</li>
+                </ul>
+                <div class="layui-tab-content" >
+                    <div class="layui-tab-item layui-show" >
+                      <div class="pay">
+                      <form class="layui-form" lay-filter="example" id="example" enctype="multipart/form-data">
+                              <div class="layui-form-item">
+                                <label class="layui-form-label">实收:</label>
+                                  <h2 id="receipts" style="line-height:35px; color: red"></h2>
+                            </div>
+                        <div class="layui-form-item">
+                            <label class="layui-form-label">充值金额: </label>
+                            <div class="layui-input-inline">
+                                <input id="accountReceivable" autoComplete='off' class="layui-input" type="number" required lay-verify="required"  placeholder="充值美金金额">
+                            </div>
+                        </div>
+
+                        <div class="layui-form-item">
+                            <label class="layui-form-label">充值用户: </label>
+                            <div class="layui-input-inline">
+                                <input type="text" name="cus_name" placeholder="客户的用户名" required lay-verify="required" autocomplete="off"
+                                       class="layui-input" id="cus_name" >
+                            </div>
+                        </div>
+
+                        <div class="layui-form-item">
+                            <label class="layui-form-label">用户账号: </label>
+                            <div class="layui-input-inline">
+                                <input type="text" name="cus_account" placeholder="客户的账号" required lay-verify="required" autocomplete="off"
+                                       class="layui-input" id="cus_account" >
+                            </div>
+                        </div>
+
+                        <div class="layui-form-item">
+                            <label class="layui-form-label">通知电话(必填): </label>
+                            <div class="layui-input-inline">
+                                <input type="text" name="send_phone" placeholder="充值成功后短信推送!" required lay-verify="required" autocomplete="off"
+                                       class="layui-input" id="send_phone" >
+                            </div>
+                        </div>
+
+                          <div class="layui-form-item">
+                            <label class="layui-form-label">通知电话(选填): </label>
+                            <div class="layui-input-inline">
+                                <input type="text" name="send_phone2" placeholder="充值成功后短信推送!"  autocomplete="off"
+                                       class="layui-input" id="send_phone2" >
+                            </div>
+                        </div>
+
+                        <div class="layui-form-item">
+                            <label class="layui-form-label">当前汇率: </label>
+                            <div class="layui-input-inline">
+                                <input id="vipdiscount"  readonly="true" value="{{ ex_change }}" class="layui-input">
+                            </div>
+                        </div>
+
+                        <div class="layui-form-item">
+                            <label class="layui-form-label">汇率波动溢价: </label>
+                            <div class="layui-input-inline">
+                                <input id="range"  readonly="true" value="{{ ex_range }}" class="layui-input">
+                            </div>
+                        </div>
+
+                        <div class="layui-form-item">
+                            <label class="layui-form-label">手续费: </label>
+                            <div class="layui-input-inline">
+                                <input id="hand"  readonly="true" value="{{ hand }}" class="layui-input">
+                            </div>
+                        </div>
+
+
+                        <div class="layui-form-item">
+                            <div class="layui-input-block">
+                                <button  class="layui-btn layui-btn-lg" lay-submit="" lay-filter="user_top_cn" id="sub" type="submit">确认</button>
+                            </div>
+                        </div>
+                    </form>
+                    </div>
+                    </div>
+                <div class="layui-tab-item" >
+                    <div class="pay">
+                      <form class="layui-form" lay-filter="example" id="examples" enctype="multipart/form-data">
+                              <div class="layui-form-item">
+                                <label class="layui-form-label">实收:</label>
+                                  <h2 id="dollar" style="line-height:35px; color: red"></h2>
+
+                            </div>
+                        <div class="layui-form-item">
+                            <label class="layui-form-label">充值金额: </label>
+                            <div class="layui-input-inline">
+                                <input id="top_money" autoComplete='off' class="layui-input" type="number" required lay-verify="required"  placeholder="充值美金金额">
+                            </div>
+                        </div>
+
+                        <div class="layui-form-item">
+                            <label class="layui-form-label">充值用户: </label>
+                            <div class="layui-input-inline">
+                                <input type="text" name="cus_name_dollar" placeholder="客户的用户名" required lay-verify="required" autocomplete="off"
+                                       class="layui-input" id="cus_name_dollar" >
+                            </div>
+                        </div>
+
+                        <div class="layui-form-item">
+                            <label class="layui-form-label">用户账号: </label>
+                            <div class="layui-input-inline">
+                                <input type="text" name="cus_account_dollar" placeholder="客户的账号" required lay-verify="required" autocomplete="off"
+                                       class="layui-input" id="cus_account_dollar" >
+                            </div>
+                        </div>
+
+                        <div class="layui-form-item">
+                            <label class="layui-form-label">通知电话(必填): </label>
+                            <div class="layui-input-inline">
+                                <input type="text" name="send_phone" placeholder="充值成功后短信推送!" autocomplete="off"
+                                       class="layui-input" id="send_phone3" >
+                            </div>
+                        </div>
+
+                        <div class="layui-form-item">
+                            <label class="layui-form-label">通知电话(选填): </label>
+                            <div class="layui-input-inline">
+                                <input type="text" name="send_phone" placeholder="充值成功后短信推送!" autocomplete="off"
+                                       class="layui-input" id="send_phone4" >
+                            </div>
+                        </div>
+
+                        <div class="layui-form-item">
+                            <label class="layui-form-label">手续费: </label>
+                            <div class="layui-input-inline">
+                                <input id="dollar_hand"  readonly="true" value="{{ dollar_hand }}" class="layui-input">
+                            </div>
+                        </div>
+
+
+                        <div class="layui-form-item">
+                            <div class="layui-input-block">
+                                <button  class="layui-btn layui-btn-lg" lay-submit="" lay-filter="user_top_dollar" id="" type="submit">确认</button>
+                            </div>
+                        </div>
+                    </form>
+                    </div>
+                </div>
+            </div>
+		</div>
+        </div>
+		<!-- LoginForm End -->
+
+
+		<!-- Jquery Js -->
+		<script type="text/javascript" src="/static/js/jquery.min.js"></script>
+		<!-- Layui Js -->
+		<script type="text/javascript" src="/static/layui/layui.js"></script>
+		<!-- Jqarticle Js -->
+		<script type="text/javascript" src="/static/assembly/jqarticle/jparticle.min.js"></script>
+		<!-- ZylVerificationCode Js-->
+		<script type="text/javascript" src="/static/assembly/zylVerificationCode/zylVerificationCode.js"></script>
+<script>
+    layui.use(['carousel', 'form', 'element', 'upload'], function(){
+        var carousel = layui.carousel,
+            form = layui.form,
+            $ = layui.jquery,
+            element = layui.element,
+            upload = layui.upload;
+
+
+
+        //设置轮播主体高度
+        var zyl_login_height = $(window).height()/1.3;
+        var zyl_car_height = $(".zyl_login_height").css("cssText","height:" + zyl_login_height + "px!important");
+
+
+        //Login轮播主体
+        carousel.render({
+            elem: '#zyllogin'//指向容器选择器
+            ,width: '100%' //设置容器宽度
+            ,height:'zyl_car_height'
+            ,anim: 'fade' //切换动画方式
+            ,autoplay: true //是否自动切换false true
+            ,arrow: 'none' //切换箭头默认显示状态||不显示：none||悬停显示：hover||始终显示：always
+            ,indicator: 'none' //指示器位置||外部：outside||内部：inside||不显示：none
+            ,interval: '5000' //自动切换时间:单位：ms（毫秒）
+        });
+
+        //监听轮播--案例暂未使用
+        carousel.on('change(zyllogin)', function(obj){
+            var loginCarousel = obj.index;
+        });
+
+        //粒子线条
+        $(".zyl_login_cont").jParticle({
+            background: "#C7C7C7",//背景颜色
+            color: "#2B2B2B",//粒子和连线的颜色
+            particlesNumber:100,//粒子数量
+            //disableLinks:true,//禁止粒子间连线
+            //disableMouse:true,//禁止粒子间连线(鼠标)
+            particle: {
+                minSize: 4,//最小粒子
+                maxSize: 10,//最大粒子
+                speed: 40,//粒子的动画速度
+             }
+        });
+
+        function accAdd(num1, num2) {
+            var r1, r2, m;
+            try {
+                r1 = num1.toString().split('.')[1].length;
+            } catch (e) {
+                r1 = 0;
+            }
+            try {
+                r2 = num2.toString().split(".")[1].length;
+            } catch (e) {
+                r2 = 0;
+            }
+            m = Math.pow(10, Math.max(r1, r2));
+            // return (num1*m+num2*m)/m;
+            return Math.round(num1 * m + num2 * m) / m;
+        }
+
+        function accMul(num1, num2) {
+            var m = 0, s1 = num1.toString(), s2 = num2.toString();
+            try {
+                m += s1.split(".")[1].length
+            } catch (e) {
+            }
+            try {
+                m += s2.split(".")[1].length
+            } catch (e) {
+            }
+            return Number(s1.replace(".", "")) * Number(s2.replace(".", "")) / Math.pow(10, m);
+        }
+
+        $(function () {
+            $('#accountReceivable').bind('input propertychange', function () {
+                var a = $('#accountReceivable').val();
+                var b = $('#vipdiscount').val();
+                var range = $('#range').val();
+                var hand = $('#hand').val();
+                var change = accAdd(b, range),
+                    hand_money = accAdd(hand, '1');
+                var sum = accMul(accMul(a, change), hand_money);
+                $('#receipts').html(sum);
+            });
+        });
+
+        $(function () {
+            $('#top_money').bind('input propertychange', function () {
+                var a = $('#top_money').val();
+                var hand = $('#dollar_hand').val(),
+                    hand_exchange = accAdd(hand, '1');
+                var sum = accMul(a, hand_exchange);
+                $('#dollar').html(sum);
+            });
+        });
+
+
+
+        form.on('submit(user_top_cn)', function(data){
+            var sum_money = $("#receipts").html(),
+                a = $('#accountReceivable').val(),
+                cus_name = $('#cus_name').val(),
+                cus_account = $('#cus_account').val(),
+                phone = $('#send_phone').val(),
+                phone2 = $('#send_phone2').val(),
+                exchange = $('#vipdiscount').val();
+            var data_info = {sum_money:sum_money, top_money: a, cus_name: cus_name, cus_account:cus_account, phone:phone, phone2:phone2};
+            $.ajax({
+				type : 'POST',
+				url : '/pay/acc_top_cn/',
+				data : {data: JSON.stringify(data_info)},
+				dataType : 'json',
+				success : function(data) {
+					// 成功弹出上传支付截图
+                    if (data.code == 0){
+                        layer.open({
+                            type: 2
+                            ,offset: 'r' //具体配置参考：http://www.layui.com/doc/modules/layer.html#offset
+                            ,skin:'layui-layer-demo'
+                            ,id: 'layerUser'//防止重复弹出
+                            ,title: '充值界面信息'
+                            ,area: ['600px','600px']
+                            ,anim: 2
+                            ,shadeClose:true
+                            ,content: '/pay/pay_pic/?sum_money=' + sum_money + "&top_money=" + a + '&cus_name=' +cus_name + '&cus_account=' + cus_account + "&phone=" + phone +"&phone2=" + phone2 +"&ex_change=" + exchange
+                            ,btn: '关闭全部'
+                            ,btnAlign: 'c' //按钮居中a
+                            ,shade:  [0.8, '#393D49'] //弹框背景选项
+                            ,success: function(layero, index) {
+                                    var body = layer.getChildFrame('body', index);
+                                    body.contents().find("#sum_money").html(sum_money);
+                                }
+                          });
+                    }else if(data.code == 502){
+                        parent.layer.msg(data.msg, {offset:['100px'],
+						icon : 5
+					});
+                    }
+
+				},
+				error : function(data) {
+					// 异常提示
+					parent.layer.msg('出现网络故障', {
+						icon : 5
+					});
+				}
+			});
+            return false;
+        });
+
+        form.on('submit(user_top_dollar)', function(data){
+            var sum_money = $("#dollar").html(),
+                top_dollar = $('#top_money').val(),
+                cus_name = $('#cus_name_dollar').val(),
+                cus_account = $('#cus_account_dollar').val(),
+                phone3 = $('#send_phone3').val(),
+                phone4 = $('#send_phone4').val();
+            var data_info = {sum_money:sum_money, top_money: top_dollar, cus_name: cus_name, cus_account:cus_account, phone3:phone3, phone4:phone4};
+            $.ajax({
+				type : 'POST',
+				url : '/pay/acc_top_dollar/',
+				data : {data: JSON.stringify(data_info)},
+				dataType : 'json',
+				success : function(data) {
+					// 成功弹出上传支付截图
+                    if (data.code == 0){
+                        layer.open({
+                            type: 2
+                            ,offset: 'r' //具体配置参考：http://www.layui.com/doc/modules/layer.html#offset
+                            ,skin:'layui-layer-demo'
+                            ,id: 'layerUser'//防止重复弹出
+                            ,title: '充值界面信息'
+                            ,area: ['40%','40%']
+                            ,anim: 2
+                            ,shadeClose:true
+                            ,content: '/pay/pay_pic/?sum_money=' + sum_money + "&top_money=" + top_dollar + '&cus_name=' +cus_name + '&cus_account=' + cus_account + "&phone=" + phone3 + "&phone2=" + phone4
+                            ,btn: '关闭全部'
+                            ,btnAlign: 'c' //按钮居中a
+                            ,shade:  [0.8, '#393D49'] //弹框背景选项
+                            ,success: function(layero, index) {
+                                    var body = layer.getChildFrame('body', index);
+                                    body.contents().find("#sum_money").html(sum_money);
+                                }
+                          });
+                    }else if(data.code == 502){
+                        parent.layer.msg(data.msg, {offset:['100px'],
+						icon : 5
+					});
+                    }
+
+				},
+				error : function(data) {
+					// 异常提示
+					parent.layer.msg('出现网络故障', {
+						icon : 5
+					});
+				}
+			});
+            return false;
+        });
+    });
+
+</script>
+</body>
+</html>

@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+                <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+            <link href="/static/css/mainpage.css" rel="stylesheet" />
+            <link href="/static/css/carddetail.css" rel="stylesheet" />
+        <link rel="stylesheet" href="/static/layui/css/layui.css" media="all">
+    <title>Title</title>
+</head>
+<body class="fixed-sidebar full-height-layout gray-bg" >
+<div class="modal-body">
+    </div>
+
+
+      <table class="layui-table" lay-skin="nob" lay-size="sm" id="item">
+        <colgroup>
+        </colgroup>
+        <thead>
+          <tr>
+              <th>中介名下客户</th>
+              <th>登录名</th>
+              <th>密码</th>
+              <th>所剩余额</th>
+              <th>总充值金额</th>
+              <th>开卡数量</th>
+
+          </tr>
+        </thead>
+        <tbody>
+            {% for i in pay_list %}
+            <tr>
+                <td>{{ i.name }}</td>
+                <td>{{ i.account }}</td>
+                <td>{{ i.password }}</td>
+                <td>{{ i.balance }}</td>
+                <td>{{ i.sum_balance }}</td>
+                <td>{{ i.label }}</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+  </table>
+
+        </body>
+
+</body>
+</html>

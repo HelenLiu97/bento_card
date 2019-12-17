@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <title>订单账号密码界面</title>
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <link rel="stylesheet" href="/static/layui/css/layui.css" media="all">
+    <script src="/static/layui/layui.js"></script>
+    <script src="/static/layui/layui.all.js"></script>
+
+    <style>
+        body {
+            margin: 10px;
+        }
+    </style>
+</head>
+<body>
+<button type="button" class="layui-btn layui-btn-danger" id="test7"><i class="layui-icon"></i>上传图片</button>
+<table class="layui-hide" id="qr_code" lay-filter="qr_code"> </table>
+<script type="text/html" id="barDemo">
+    <a class="layui-btn layui-btn-normal layui-btn-xs" lay-event="lock" id="do_lock">锁定</a>
+    <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">删除</a>
+</script>
+
+<style type="text/css">
+    .layui-table-cell{
+	    text-align:center;
+	    height: auto;
+	    white-space: normal;
+    }
+</style>
+<script>
+    layui.use(['form', 'table', 'upload'], function(){
+            var form  = layui.form,
+                table = layui.table,
+                upload = layui.upload,
+                $ = layui.jquery;
+
+            upload.render({
+                elem: '#test7'
+                ,acceptMime: 'image/*'
+                ,url: '/admin/upload_code/'
+                ,before: function(obj){
+                    layer.load();
+                }
+                ,done: function(res){
+                    layer.closeAll('loading');
+                    if (res.code == 0){
+                        layer.msg(res.msg,{icon:6});
+                    }else{
+                        layer.msg(res.msg,{icon:5});
+                    }
+                }
+                ,error: function (res) {
+                    layer.closeAll('loading')
+                }
+              });
+
+            //执行一个 table 实例
+            table.render({
+                elem: '#qr_code'
+                , height: 'full-250'
+                , cellMinWidth: '80'
+                , url: '/admin/qr_info/' //数据接口
+                , title: '收款码信息'
+                , skin: 'line'
+                , toolbar: false
+                , cols: [[ //表头
+                    {type:'numbers'}
+                    , {field: 'qr_code', title: '收款码', width:'20%', align: 'center',templet: function (res) {
+                            return '<div><img src="' + res.qr_code + '"></div>'
+                        }}
+                    , {field: 'qr_code', title: '图片地址', align: 'center',}
+                    , {field: 'qr_date', title: '上传时间', align: 'center', sort: true,}
+                    , {field: 'sum_money', title: '累计收款', align: 'center', sort: true,}
+                    , {field: 'status', title: '状态', align: 'center', sort: true,}
+                    , {fixed: 'right', width: 220, align: 'center', toolbar: '#barDemo'}
+                ]]
+                , id: 'qr_code'
+                , done: function (res, curr, count) {
+                    for (var i = 0; i < res.data.length; i++) {
+                        if (res.data[i].status == '锁定') {
+                            $('table tbody tr').eq(i).css('color', '#B23AEE');
+                            $('table tbody tr td a[id=do_lock]').eq(i).html('解锁').css('background-color', 'black')
+                        }
+                    }
+                }
+            });
+
+
+            table.on('tool(qr_code)', function (obj) {
+            var data = obj.data
+                , layEvent = obj.event;
+
+            if (layEvent === 'lock') {
+                $.ajax({
+                    type: 'get',
+                    url: '/admin/edit_code/?url=' + data.qr_code,
+                    dataType: 'json',
+                    success: function (data) {
+                        // 成功提示框
+                        if (data.code == 0) {
+                            parent.layer.msg(data.msg, {
+                                icon: 6,time:1000
+                            });
+                            location.reload()
+                        } else if (data.code == 502) {
+                            parent.layer.msg(data.msg, {
+                                icon: 5
+                            });
+                        }
+
+                    },
+                    error: function (data) {
+                        // 异常提示
+                        parent.layer.msg('出现网络故障', {
+                            icon: 2
+                        });
+                    }
+                });
+            } else if (layEvent === 'del') {
+                layer.confirm('确认删除本条收款码信息?', function (index) {
+                $.ajax({
+                    type: 'post',
+                    url: '/admin/edit_code/?url=' + data.qr_code,
+                    dataType: 'json',
+                    success: function (data) {
+                        // 成功提示框
+                        if (data.code == 0) {
+                            parent.layer.msg(data.msg, {
+                                icon: 6,time:1000
+                            });
+                            location.reload()
+                        } else if (data.code == 502) {
+                            parent.layer.msg(data.msg, {
+                                icon: 5
+                            });
+                        }
+
+                    },
+                    error: function (data) {
+                        // 异常提示
+                        parent.layer.msg('出现网络故障', {
+                            icon: 2
+                        });
+                    }
+                });
+                })
+            }
+        });
+
+
+    });
+</script>
+</body>
+
+</html>
