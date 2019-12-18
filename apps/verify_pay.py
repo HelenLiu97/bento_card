@@ -45,7 +45,8 @@ def del_log():
 
 @verify_pay_blueprint.route('/logout/', methods=['GET'])
 def logout():
-    session.pop('verify_pay')
+    session.pop('user_name')
+    session.pop('user_id')
     return redirect('/verify_pay/')
 
 
@@ -119,8 +120,10 @@ def verify_login():
         data = request.values.to_dict()
         user_name = data.get('username')
         pass_word = data.get('password')
-        if user_name == "GUTE123" and pass_word == "trybest":
-            session['verify_pay'] = 'T'
+        data = SqlData().search_verify_login(user_name, pass_word)
+        if data:
+            session['user_name'] = data.get('user_name')
+            session['user_id'] = data.get('user_id')
             return jsonify({'code': RET.OK, 'msg': MSG.OK})
         else:
             return jsonify({'code': RET.SERVERERROR, 'msg': '账号或密码错误!'})
@@ -129,7 +132,10 @@ def verify_login():
 @verify_pay_blueprint.route('/')
 @verify_required
 def verify_index():
-    return render_template('verify_pay/index.html')
+    user_name = session.get('user_name')
+    context = dict()
+    context['user_name'] = user_name
+    return render_template('verify_pay/index.html', **context)
 
 
 @verify_pay_blueprint.route('/pay_log/', methods=['GET'])

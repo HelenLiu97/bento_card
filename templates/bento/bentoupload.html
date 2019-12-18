@@ -10,12 +10,16 @@
 <p><input type=file name=file><input type=submit value=Upload>
 </form>
 <form action="" method="GET">
-    <div style="padding-top: 5%;">
-<h1 style="text-align: center;">下方输入框可直接输入信用卡名字后进行查询</h1>
-        <input type="text" class="layui-input" id="keyword" name="username" placeholder="信用卡名字" style="border:0.5px solid #378888;width:15%; margin: auto">
+    <div style="padding-top: 5%;padding-bottom: 10px">
+<h1 style="text-align: center;">下方输入框可直接输入信用卡名字后进行查询(可选择消费时间段)</h1>
+        <input type="text" class="layui-input" id="keyword" required name="username" placeholder="信用卡名字" style="border:0.5px solid #378888;width:15%; margin: auto">
+
+    </div>
+    <div style="padding-bottom: 10px">
+    <input type="text" class="layui-input" id="test8" name="range_time" placeholder="消费时间段" style="border:0.5px solid #8B1A1A;width:15%; margin: auto;">
     </div>
     <div align="center">
-          <input type="submit" class="layui-btn" value="Upload"/ >
+          <input type="submit" class="layui-btn" value="Upload" >
     </div>
 </form>
 

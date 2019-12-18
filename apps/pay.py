@@ -31,11 +31,9 @@ def login():
         code = data.get('code')
         ver_code = data.get('ver_code')
         account = SqlData().recharge_search_user(username=login)
-        # if account and account.get("password") == pwd:
         if ver_code != code:
             return jsonify({'code': RET.SERVERERROR, 'msg': '验证码错误!区分大小写!'})
         elif account and account.get("password") == pwd:
-        # elif login == 'quanqiufu!' and pwd == 'trybest@':
             session['pay_login'] = 'T'
             return jsonify({'code': RET.OK, 'msg': MSG.OK})
         else:
@@ -198,9 +196,9 @@ def pay_pic():
         获取充值金额, 保存付款截图. 发送邮件通知管理员
         '''
         # try:
-            # 两组数据,1,表单信息充值金额,等一下客户信息 2,截图凭证最多可上传5张
-            # print(request.form)
-            # print(request.files)
+        # 两组数据,1,表单信息充值金额,等一下客户信息 2,截图凭证最多可上传5张
+        # print(request.form)
+        # print(request.files)
         data = json.loads(request.form.get('data'))
         top_money = data.get('top_money')
         sum_money = data.get('sum_money')
@@ -223,7 +221,7 @@ def pay_pic():
             if not f_obj:
                 return jsonify({'code': RET.SERVERERROR, 'msg': "请先上传图片再操作"})
             for i in range(5):
-                file_name = "{}{}".format(file_n, i+1)
+                file_name = "{}{}".format(file_n, i + 1)
                 fileobj = request.files.get(file_name)
                 if fileobj:
                     now_time = sum_code()
@@ -241,7 +239,8 @@ def pay_pic():
             if change_type == "pic":
                 SqlData().insert_pay_log(n_time, sum_money, top_money, vir_code, '待充值', phone, url, cus_id)
             elif change_type == "bank":
-                SqlData().insert_pay_log(n_time, sum_money, top_money, vir_code, '待充值', phone, "{},{},{}".format(bank_name, bank_number, bank_address), cus_id)
+                SqlData().insert_pay_log(n_time, sum_money, top_money, vir_code, '待充值', phone,
+                                         "{},{},{}".format(bank_name, bank_number, bank_address), cus_id)
             # 获取要推送邮件的邮箱
             top_push = SqlData().search_admin_field('top_push')
             top_dict = json.loads(top_push)

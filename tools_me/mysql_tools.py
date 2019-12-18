@@ -40,7 +40,6 @@ class SqlData(object):
             user_data['name'] = rows[0][2]
             return user_data
         except Exception as e:
-            logging.error(str(e))
             return '账号或密码错误!'
 
     # 查询用户首页数据信息
@@ -1182,6 +1181,17 @@ class SqlData(object):
             logging.error("更新充值用户字段" + field + "失败!" + str(e))
             self.connect.rollback()
         self.close_connect()
+
+    def search_verify_login(self, u_account, u_password):
+        sql = "SELECT id, u_name FROM verify_account WHERE BINARY u_account = '{}' AND BINARY u_password='{}'".format(u_account, u_password)
+        self.cursor.execute(sql)
+        rows = self.cursor.fetchall()
+        user_data = dict()
+        if not rows:
+            return user_data
+        user_data['user_id'] = rows[0][0]
+        user_data['user_name'] = rows[0][1]
+        return user_data
 
 
 if __name__ == "__main__":

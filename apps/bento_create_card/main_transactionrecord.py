@@ -5,6 +5,7 @@ import logging
 from .config import bento_data, GetToken
 # from .bento_create_card.sqldata import BentoCard, session
 from .sqldata_native import SqlDataNative
+
 logging.basicConfig(level=logging.INFO, format='%(asctime)s :: %(levelname)s :: %(message)s', filename="error.log")
 
 
@@ -32,7 +33,6 @@ class TransactionRecord(object):
         # d.append({"sum": len(r.json().get("cards"))})
         return d
 
-
     # 查询指定用户的交易记录, 仅查询COMPLETE，PENDING或DECLINED事务。
     def card_transactions(self, *args):
         """
@@ -46,7 +46,8 @@ class TransactionRecord(object):
             try:
                 if transactions.get("card").get("alias") in args:
                     transactions_datas.append({
-                        "date": time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(transactions.get("transactionDate") / 1000)),
+                        "date": time.strftime("%Y-%m-%d %H:%M:%S",
+                                              time.localtime(transactions.get("transactionDate") / 1000)),
                         "description": transactions.get("payee").get("name"),
                         "alias": transactions.get("card").get("alias"),
                         "amount": transactions.get("amount"),
@@ -75,7 +76,7 @@ class TransactionRecord(object):
             url = [
                 "https://api.bentoforbusiness.com/cards?index=0&limit=1000",
                 "https://api.bentoforbusiness.com/cards?index=500&limit=1000",
-                ]
+            ]
             headers = {
                 "Authorization": GetToken()
             }

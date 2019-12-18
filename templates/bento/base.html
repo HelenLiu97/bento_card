@@ -19,9 +19,9 @@
     </script>
 	-->
  	<script type="text/javascript" src="{{url_for('static', filename='layui/layui.js')}}" media="all"></script>
-<link rel="stylesheet" href="{{url_for('static',filename='layui/css/layui.css')}}" media="all">
-<link rel="stylesheet" href="{{url_for('static',filename='layui/css/modules/laydate/default/laydate.css')}}" media="all">
-<script type="text/javascript" src="{{url_for('static', filename='layui/lay/modules/laydate.js')}}" media="all"></script>
+    <link rel="stylesheet" href="{{url_for('static',filename='layui/css/layui.css')}}" media="all">
+    <link rel="stylesheet" href="{{url_for('static',filename='layui/css/modules/laydate/default/laydate.css')}}" media="all">
+    <script type="text/javascript" src="{{url_for('static', filename='layui/lay/modules/laydate.js')}}" media="all"></script>
 
 
     </head>
@@ -30,5 +30,15 @@
          </div>
         {% block content %}{% endblock %}
     </body>
+<script>
+    layui.use(['laydate'], function () {
+        var laydate = layui.laydate;
+
+        laydate.render({
+            elem: '#test8'
+            ,range: true
+          });
+    })
+</script>
 </html>
 

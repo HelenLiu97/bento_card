@@ -14,6 +14,7 @@ from tools_me.mysql_tools import SqlData
 from apps.bento_create_card.main_create_card import main_createcard, CreateCard, get_bento_data
 from apps.bento_create_card.sqldata_native import SqlDataNative
 from apps.bento_create_card.main_recharge import main_transaction_data, RechargeCard
+
 logging.basicConfig(level=logging.INFO, format='%(asctime)s :: %(levelname)s :: %(message)s', filename="error.log")
 
 
@@ -33,7 +34,7 @@ def bento_refund():
     if not availableAmount:
         return jsonify({"code": RET.OK, "msg": "该卡余额异常, 无法进行退款转移操作"})
     # if float("%.2f"%data) - float("%.2f"%availableAmount) < 1:
-    if float("%.2f"%availableAmount) - float("%.2f"%data) < 1:
+    if float("%.2f" % availableAmount) - float("%.2f" % data) < 1:
         return jsonify({"code": RET.OK, "msg": "该卡导出余额后需保持卡余额大于等于1, 若需全部退款, 可执行删卡"})
     # SqlDataNative().update_card_Balance(cardid=cardid, availableAmount=availableAmount)
     if cardid:
@@ -52,12 +53,14 @@ def bento_refund():
                 # balance = round(before_balance + float(data), 2)
                 # 手续费
                 account_refund = SqlData().search_user_field('refund', user_id)
-                new_account_refund = account_refund*data
-                new_balance = round(balance - account_refund*data, 2)
+                new_account_refund = account_refund * data
+                new_balance = round(balance - account_refund * data, 2)
                 SqlData().update_user_field_int('balance', new_balance, user_id)
                 n_time = xianzai_time()
-                SqlData().insert_account_trans(n_time, TRANS_TYPE.IN, "转移退款", cardid, card_no, float(data), new_account_refund, before_balance,new_balance, user_id)
-                SqlDataNative().insert_operating_log(cardid=cardid, operating_time=create_time, operating_log="{}, 转移退款".format(result_msg.get("msg")))
+                SqlData().insert_account_trans(n_time, TRANS_TYPE.IN, "转移退款", cardid, card_no, float(data),
+                                               new_account_refund, before_balance, new_balance, user_id)
+                SqlDataNative().insert_operating_log(cardid=cardid, operating_time=create_time,
+                                                     operating_log="{}, 转移退款".format(result_msg.get("msg")))
 
                 return jsonify({"code": RET.OK, "msg": result_msg.get("msg")})
             else:
@@ -103,19 +106,19 @@ def all_trans():
     elif args_list and time_range != "":
         min_time = time_range.split(' - ')[0] + ' 00:00:00'
         max_time = time_range.split(' - ')[1] + ' 23:59:59'
-        min_tuple =  datetime.datetime.strptime(min_time,'%Y-%m-%d %H:%M:%S')
-        max_tuple =  datetime.datetime.strptime(max_time,'%Y-%m-%d %H:%M:%S')
+        min_tuple = datetime.datetime.strptime(min_time, '%Y-%m-%d %H:%M:%S')
+        max_tuple = datetime.datetime.strptime(max_time, '%Y-%m-%d %H:%M:%S')
         for d in data:
-            dat = datetime.datetime.strptime(d.get("date"),'%Y-%m-%d %H:%M:%S')
+            dat = datetime.datetime.strptime(d.get("date"), '%Y-%m-%d %H:%M:%S')
             if (min_tuple < dat and max_tuple > dat) and set(args_list) < set(d.values()):
                 new_data.append(d)
     elif time_range and len(args_list) == 0:
         min_time = time_range.split(' - ')[0] + ' 00:00:00'
         max_time = time_range.split(' - ')[1] + ' 23:59:59'
-        min_tuple =  datetime.datetime.strptime(min_time,'%Y-%m-%d %H:%M:%S')
-        max_tuple =  datetime.datetime.strptime(max_time,'%Y-%m-%d %H:%M:%S')
+        min_tuple = datetime.datetime.strptime(min_time, '%Y-%m-%d %H:%M:%S')
+        max_tuple = datetime.datetime.strptime(max_time, '%Y-%m-%d %H:%M:%S')
         for d in data:
-            dat = datetime.datetime.strptime(d.get("date"),'%Y-%m-%d %H:%M:%S')
+            dat = datetime.datetime.strptime(d.get("date"), '%Y-%m-%d %H:%M:%S')
             if min_tuple < dat and max_tuple > dat:
                 new_data.append(d)
 
@@ -125,8 +128,8 @@ def all_trans():
     data = sorted(data, key=operator.itemgetter("date"))
     data = list(reversed(data))
     for i in range(0, len(data), int(limit)):
-        page_list.append(data[i: i+int(limit)])
-    results["data"] = page_list[int(page)-1]
+        page_list.append(data[i: i + int(limit)])
+    results["data"] = page_list[int(page) - 1]
     results["count"] = len(data)
     # results = {"code": RET.OK, "msg": MSG.OK, "count": len(data), "data": page_list[int(page)-1]}
     return jsonify(results)
@@ -178,13 +181,13 @@ def bento_update():
     s = SqlDataNative().alias_fount_cardid(alias)
     data = get_bento_data(cardid=s)
     if data.get("pan"):
-        SqlDataNative().update_card_data(pan=data.get("pan"), cvv=data.get("cvv"), expiration=data.get("expiration"), alias=alias)
+        SqlDataNative().update_card_data(pan=data.get("pan"), cvv=data.get("cvv"), expiration=data.get("expiration"),
+                                         alias=alias)
         return jsonify({"code": RET.OK, "msg": "更新成功"})
     else:
         return jsonify({"code": RET.OK, "msg": "更新失败, 请稍后再试"})
 
 
-    
 @user_blueprint.route('/delcard/', methods=['GET'])
 @login_required
 def del_account():
@@ -212,9 +215,14 @@ def del_account():
         # balance = round(before_balance + availableAmount, 2)
         SqlData().update_user_field_int('balance', balance, user_id)
         n_time = xianzai_time()
-        SqlData().insert_account_trans(n_time, TRANS_TYPE.IN, DO_TYPE.REFUND, cardid, cardnumber, availableAmount, 0, before_balance,balance, user_id)
-        SqlDataNative().insert_operating_log(cardid=cardid, operating_time=create_time,operating_log="原有金额{}, 卡上余额{}, 现有额度{}, 删卡退款".format(before_balance, availableAmount, balance))
-        return jsonify({"code": RET.OK, "msg": "原有金额{}, 卡上余额{}, 现有额度{}".format(before_balance, availableAmount, balance)})
+        SqlData().insert_account_trans(n_time, TRANS_TYPE.IN, DO_TYPE.REFUND, cardid, cardnumber, availableAmount, 0,
+                                       before_balance, balance, user_id)
+        SqlDataNative().insert_operating_log(cardid=cardid, operating_time=create_time,
+                                             operating_log="原有金额{}, 卡上余额{}, 现有额度{}, 删卡退款".format(before_balance,
+                                                                                                 availableAmount,
+                                                                                                 balance))
+        return jsonify(
+            {"code": RET.OK, "msg": "原有金额{}, 卡上余额{}, 现有额度{}".format(before_balance, availableAmount, balance)})
     else:
         return jsonify({"code": RET.OK, "msg": "删卡失败, 请重试, 如若多次不行, 请联系管理员"})
 
@@ -263,7 +271,7 @@ def account_trans():
 
     user_id = g.user_id
     task_info = SqlData().search_account_trans(user_id, card_sql, time_sql, type_sql=do_sql)
-    
+
     results = {"code": RET.OK, "msg": MSG.OK, "count": 0, "data": ""}
     if len(task_info) == 0:
         results['MSG'] = MSG.NODATA
@@ -336,22 +344,23 @@ def top_up():
                 # SqlData().update_user_field_int('balance', balance, user_id)
 
                 n_time = xianzai_time()
-                SqlData().insert_account_trans(n_time, TRANS_TYPE.OUT, DO_TYPE.TOP_UP, cardid, card_no, float(top_money), 0, before_balance,
-                                        balance, user_id)
-                SqlDataNative().insert_operating_log(cardid=cardid, operating_time=n_time,operating_log="{}, 用户充值".format(result_msg.get("msg")))
+                SqlData().insert_account_trans(n_time, TRANS_TYPE.OUT, DO_TYPE.TOP_UP, cardid, card_no,
+                                               float(top_money), 0, before_balance,
+                                               balance, user_id)
+                SqlDataNative().insert_operating_log(cardid=cardid, operating_time=n_time,
+                                                     operating_log="{}, 用户充值".format(result_msg.get("msg")))
                 return jsonify({"code": RET.OK, "msg": result_msg.get("msg")})
             else:
                 return jsonify({"code": RET.SERVERERROR, "msg": result_msg.get("error_msg")})
     else:
         return jsonify({"code": RET.SERVERERROR, "msg": "充值失败, 该卡号不存在, 请联系管理员"})
-        
+
 
 # 批量建卡
 @user_blueprint.route('/create_some/', methods=['POST'])
 @login_required
 # @choke_required
 def create_some():
-
     data = json.loads(request.form.get('data'))
     card_num = data.get('card_num')
     content = data.get('content')
@@ -388,7 +397,7 @@ def create_some():
 
     # 计算充值金额是否在允许范围
     # if not min_top <= int(limit) <= max_top:
-    if not min_top <= int(limit) :
+    if not min_top <= int(limit):
         results = {"code": RET.SERVERERROR, "msg": "充值金额不在允许范围内!"}
         return jsonify(results)
 
@@ -399,7 +408,7 @@ def create_some():
             # status = CreateCard().create_card(card_alias=d, card_amount=int(limit), label=label)
             status = main_createcard(limit_num=1, card_amount=int(limit), label=label, attribution=attribution)
             if status:
-            # 开卡费用
+                # 开卡费用
                 n_time = xianzai_time()
                 card_no = status.get("pan")
                 card_card_id = status.get("cardId")
@@ -409,9 +418,10 @@ def create_some():
                 SqlData().update_balance(create_price_do_money, user_id)
                 balance = SqlData().search_user_field("balance", user_id)
                 # balance = before_balance - create_price
-                SqlData().insert_account_trans(n_time, TRANS_TYPE.OUT, DO_TYPE.CREATE_CARD, card_card_id, card_no, create_price, 0, before_balance, balance, user_id)
+                SqlData().insert_account_trans(n_time, TRANS_TYPE.OUT, DO_TYPE.CREATE_CARD, card_card_id, card_no,
+                                               create_price, 0, before_balance, balance, user_id)
                 SqlData().update_user_field_int('balance', balance, user_id)
-            # 充值费用
+                # 充值费用
                 before_balance = SqlData().search_user_field('balance', user_id)
                 top_money = int(limit)
                 top_money_do_money = float(limit) - float(limit) * 2
@@ -421,9 +431,10 @@ def create_some():
                 SqlData().update_user_field_int('balance', balance, user_id)
                 n_time = xianzai_time()
                 card_no = status.get("pan")
-                SqlData().insert_account_trans(n_time, TRANS_TYPE.OUT, DO_TYPE.TOP_UP, card_card_id, card_no, top_money, 0, before_balance, balance, user_id)
+                SqlData().insert_account_trans(n_time, TRANS_TYPE.OUT, DO_TYPE.TOP_UP, card_card_id, card_no, top_money,
+                                               0, before_balance, balance, user_id)
                 data_list.append(status.get("pan"))
-        return jsonify({"code": RET.OK, "msg": "成功开卡"+str(len(data_list))+"张!请刷新界面!"})
+        return jsonify({"code": RET.OK, "msg": "成功开卡" + str(len(data_list)) + "张!请刷新界面!"})
     except Exception as e:
         logging.error(e)
         results = {"code": RET.SERVERERROR, "msg": str(e)}
@@ -482,9 +493,10 @@ def create_card():
             # balance = before_balance - create_price
             # 更新开卡费用
             n_time = xianzai_time()
-            SqlData().insert_account_trans(n_time, TRANS_TYPE.OUT, DO_TYPE.CREATE_CARD, card_card_id, card_no, create_price, 0, before_balance, balance, user_id)
+            SqlData().insert_account_trans(n_time, TRANS_TYPE.OUT, DO_TYPE.CREATE_CARD, card_card_id, card_no,
+                                           create_price, 0, before_balance, balance, user_id)
             SqlData().update_user_field_int('balance', balance, user_id)
-            
+
             # 更新充值费用
             before_balance = SqlData().search_user_field('balance', user_id)
             top_money_do_money = float(top_money) - float(top_money) * 2
@@ -492,7 +504,8 @@ def create_card():
             balance = SqlData().search_user_field("balance", user_id)
             # balance = round(before_balance - float(top_money), 2)
             SqlData().update_user_field_int('balance', balance, user_id)
-            SqlData().insert_account_trans(n_time, TRANS_TYPE.OUT, DO_TYPE.TOP_UP, card_card_id, card_no, top_money, 0, before_balance, balance, user_id)
+            SqlData().insert_account_trans(n_time, TRANS_TYPE.OUT, DO_TYPE.TOP_UP, card_card_id, card_no, top_money, 0,
+                                           before_balance, balance, user_id)
             return jsonify({"code": RET.OK, "msg": "开卡成功"})
         else:
             return jsonify({"code": RET.SERVERERROR, "msg": "开卡成功, 进入process状态, 需等待卡号和安全码生成"})
@@ -539,16 +552,15 @@ def account_html():
     # 获取交易数量
     # cardid_list = SqlDataNative().attribution_fount_cardid(user_name)
     # decline_rati = RechargeCard().declined_statistics(cardid_list[1: 100])
-    
+
     t_data = SqlDataNative().account_sum_transaction(attribution=user_name)
-    
+
     # 获取decline数量
-    today_time = time.strftime('%Y-%m-%d',time.localtime(time.time()))
+    today_time = time.strftime('%Y-%m-%d', time.localtime(time.time()))
     max_today = "{} {}".format(change_today(today_time, 0), "23:59:59")
     min_today = "{} {}".format(change_today(today_time, -3), "00:00:00")
     decline_data = SqlDataNative().count_decline_data(attribution=user_name, min_today=min_today, max_today=max_today)
     # decline_data = SqlDataNative().count_decline_data(user_name)
-    
 
     # decline / 交易总量
     # decline_ratio = "{}{}".format(float("%.4f"%(decline_data / t_data))) if t_data != 0 else 0
@@ -556,7 +568,8 @@ def account_html():
     # one_t_data = SqlDataNative().account_sum_transaction(attribution=user_name)
     three_data = SqlDataNative().count_decline_data(attribution=user_name, min_today=min_today, max_today=max_today)
     three_tran_data = SqlDataNative().search_d(user_name)
-    decline_ratio = "{}{}".format(float("%.4f"%(three_data / three_tran_data * 100)), '%') if three_tran_data != 0 else 0
+    decline_ratio = "{}{}".format(float("%.4f" % (three_data / three_tran_data * 100)),
+                                  '%') if three_tran_data != 0 else 0
 
     # decline_ratio = "{}{}".format(float("%.4f"%(decline_data / t_data * 100)), '%') if t_data != 0 else 0
     # 获取已开卡数量
@@ -598,7 +611,7 @@ def account_html():
     context['min_top'] = min_top
     context['max_top'] = max_top
     context['sum_balance'] = sum_balance
-    context['out_money'] = float("%.2f"%float(out_money - bento_income_money))
+    context['out_money'] = float("%.2f" % float(out_money - bento_income_money))
     context['notice'] = notice
     return render_template('user/index.html', **context)
 
@@ -819,4 +832,3 @@ def login():
             results['code'] = RET.SERVERERROR
             results['msg'] = MSG.DATAERROR
             return jsonify(results)
-

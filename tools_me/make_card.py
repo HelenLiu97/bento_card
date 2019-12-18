@@ -3,7 +3,6 @@ from tools_me.mysql_tools import SqlData
 
 
 def make_card(n):
-
     for i in range(n):
         # 取出数据库信息激活码
 
@@ -36,4 +35,3 @@ def make_card(n):
         freeze_fee_all = int(re_de.get('freeze_fee_all'))
         balance = int(re_de.get('balance'))
         real_balance = freeze_fee_all - balance
-

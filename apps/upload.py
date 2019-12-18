@@ -108,7 +108,8 @@ def up_account():
                 else:
                     sizeof = excel_to_data(int(one[18]))
                 security_code = one[19]
-                SqlData().insert_account_detail(user_id, account, password, email, email_pw, pay_money, reg_time, label, terrace,
+                SqlData().insert_account_detail(user_id, account, password, email, email_pw, pay_money, reg_time, label,
+                                                terrace,
                                                 country, member_state, name, phone, coun, province, city, zip_num,
                                                 address, card_num, sizeof, security_code)
         if in_account_list:

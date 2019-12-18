@@ -15,7 +15,8 @@ class CreateCard(object):
     def create_card(self, card_alias, card_amount, label, attribution):
         user_data = {}
         url = "https://api.bentoforbusiness.com/cards"
-        r = requests.post(url=url, data=json.dumps(bento_data(card_alias=card_alias, card_amount=card_amount, attribution=attribution)), headers=self.headers)
+        r = requests.post(url=url, data=json.dumps(
+            bento_data(card_alias=card_alias, card_amount=card_amount, attribution=attribution)), headers=self.headers)
         user_data["alias"] = r.json().get("alias")
         user_data["cardId"] = r.json().get("cardId")
         user_data["card_amount"] = card_amount
@@ -25,9 +26,12 @@ class CreateCard(object):
             expriation_data = self.get_expiration(cardid=user_data.get("cardId"))
             user_data.update(expriation_data)
             # update alias card_id, card_amount
-            SqlDataNative().insert_new_account(alias=user_data.get("alias"), card_id=user_data.get("cardId"), card_amount=card_amount, card_number=user_data.get("pan"),
-                    card_cvv=user_data.get("cvv"), label=label, card_validity=user_data.get("expiration"),attribution=attribution, 
-                    create_time=time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time())))
+            SqlDataNative().insert_new_account(alias=user_data.get("alias"), card_id=user_data.get("cardId"),
+                                               card_amount=card_amount, card_number=user_data.get("pan"),
+                                               card_cvv=user_data.get("cvv"), label=label,
+                                               card_validity=user_data.get("expiration"), attribution=attribution,
+                                               create_time=time.strftime('%Y-%m-%d %H:%M:%S',
+                                                                         time.localtime(time.time())))
             """
             d = BentoCard(alias=user_data.get("alias"), card_id=user_data.get("cardId"), card_amount=card_amount, card_number=user_data.get("pan"),
                           card_cvv=user_data.get("cvv"), label=label,card_validity=user_data.get("expiration"),attribution=attribution, 
@@ -63,6 +67,7 @@ class CreateCard(object):
             "expiration": response.json().get("expiration")
         }
 
+
 # 单张开卡
 def main_createcard(limit_num, card_amount, label, attribution):
     """
@@ -73,13 +78,16 @@ def main_createcard(limit_num, card_amount, label, attribution):
     :return: 返回开卡的数据并入库
     """
     for i in SqlDataNative().search_data(limit_num=limit_num):
-        c = CreateCard().create_card(card_alias=i.get("username"), card_amount=card_amount, label=label, attribution=attribution)
+        c = CreateCard().create_card(card_alias=i.get("username"), card_amount=card_amount, label=label,
+                                     attribution=attribution)
         return c
 
-#uo查询卡信息
+
+# uo查询卡信息
 def inquire_card(cardid):
     s = SqlDataNative().search_data(limit_num=limit_num)
     print(s)
+
 
 def get_bento_data(cardid):
     pan = CreateCard().get_pan(cardid)
@@ -97,6 +105,3 @@ if __name__ == "__main__":
     print(s)
     # main(limit_num=3, card_amount=300, label="杨经理kevin")
     pass
-
-
-

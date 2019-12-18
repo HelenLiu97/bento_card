@@ -61,6 +61,7 @@ def bank_msg():
             logging.error(str(e))
             return jsonify({'code': RET.SERVERERROR, 'msg': MSG.SERVERERROR})
 
+
 @admin_blueprint.route('/edit_code/', methods=['GET', 'POST'])
 @admin_required
 def edit_code():
@@ -108,6 +109,7 @@ def ex_change():
         except Exception as e:
             logging.error(str(e))
             return jsonify({'code': RET.SERVERERROR, 'msg': MSG.SERVERERROR})
+
 
 @admin_blueprint.route('/upload_code/', methods=['POST'])
 @admin_required
@@ -186,11 +188,13 @@ def top_msg():
             logging.error(str(e))
             return jsonify({'code': RET.SERVERERROR, 'msg': MSG.SERVERERROR})
 
+
 @admin_blueprint.route('/qr_code/', methods=['GET', 'POST'])
 @admin_required
 def qr_code():
     if request.method == 'GET':
         return render_template('admin/qr_code.html')
+
 
 @admin_blueprint.route('/notice_edit/', methods=['GET', 'POST'])
 @admin_required
@@ -207,20 +211,19 @@ def notice():
         return jsonify({"code": RET.OK, "msg": MSG.OK})
 
 
-
 @admin_blueprint.route('/all_trans', methods=['GET'])
 @admin_required
 def all_trans():
     page = request.args.get("page")
     limit = request.args.get("limit")
     # 客户名
-    acc_name = request.args.get("acc_name") 
+    acc_name = request.args.get("acc_name")
     # 卡的名字
-    order_num = request.args.get("order_num") 
+    order_num = request.args.get("order_num")
     # 时间范围
-    time_range = request.args.get("time_range") 
+    time_range = request.args.get("time_range")
     # 操作状态
-    trans_status = request.args.get("trans_status") 
+    trans_status = request.args.get("trans_status")
 
     args_list = []
     data = SqlDataNative().bento_alltrans()
@@ -244,22 +247,21 @@ def all_trans():
     elif args_list and time_range != "":
         min_time = time_range.split(' - ')[0] + ' 00:00:00'
         max_time = time_range.split(' - ')[1] + ' 23:59:59'
-        min_tuple =  datetime.datetime.strptime(min_time,'%Y-%m-%d %H:%M:%S')
-        max_tuple =  datetime.datetime.strptime(max_time,'%Y-%m-%d %H:%M:%S')
+        min_tuple = datetime.datetime.strptime(min_time, '%Y-%m-%d %H:%M:%S')
+        max_tuple = datetime.datetime.strptime(max_time, '%Y-%m-%d %H:%M:%S')
         for d in data:
-            dat = datetime.datetime.strptime(d.get("date"),'%Y-%m-%d %H:%M:%S')
+            dat = datetime.datetime.strptime(d.get("date"), '%Y-%m-%d %H:%M:%S')
             if (min_tuple < dat and max_tuple > dat) and set(args_list) < set(d.values()):
                 new_data.append(d)
     if time_range and len(args_list) == 0:
         min_time = time_range.split(' - ')[0] + ' 00:00:00'
         max_time = time_range.split(' - ')[1] + ' 23:59:59'
-        min_tuple =  datetime.datetime.strptime(min_time,'%Y-%m-%d %H:%M:%S')
-        max_tuple =  datetime.datetime.strptime(max_time,'%Y-%m-%d %H:%M:%S')
+        min_tuple = datetime.datetime.strptime(min_time, '%Y-%m-%d %H:%M:%S')
+        max_tuple = datetime.datetime.strptime(max_time, '%Y-%m-%d %H:%M:%S')
         for d in data:
-            dat = datetime.datetime.strptime(d.get("date"),'%Y-%m-%d %H:%M:%S')
+            dat = datetime.datetime.strptime(d.get("date"), '%Y-%m-%d %H:%M:%S')
             if min_tuple < dat and max_tuple > dat:
                 new_data.append(d)
-            
 
     page_list = list()
     if new_data:
@@ -267,17 +269,18 @@ def all_trans():
     data = sorted(data, key=operator.itemgetter("date"))
     data = list(reversed(data))
     for i in range(0, len(data), int(limit)):
-        page_list.append(data[i: i+int(limit)])
-    results["data"] = page_list[int(page)-1]
+        page_list.append(data[i: i + int(limit)])
+    results["data"] = page_list[int(page) - 1]
     results["count"] = len(data)
     return jsonify(results)
+
 
 @admin_blueprint.route('/account_decline', methods=['GET'])
 @admin_required
 def account_decline():
     page = request.args.get('page')
     limit = request.args.get('limit')
-    
+
     alias_name = request.args.get("account_decline_name")
     alias_data = []
     if alias_name:
@@ -288,7 +291,8 @@ def account_decline():
         today_time = time.strftime('%Y-%m-%d', time.localtime(time.time()))
         max_today = "{} {}".format(change_today(today_time, 0), "23:59:59")
         min_today = "{} {}".format(change_today(today_time, -3), "00:00:00")
-        three_data = SqlDataNative().count_decline_data(attribution=alias_name, min_today=min_today,max_today=max_today)
+        three_data = SqlDataNative().count_decline_data(attribution=alias_name, min_today=min_today,
+                                                        max_today=max_today)
 
         alias_data.append({
             "alias": alias_name,
@@ -296,10 +300,10 @@ def account_decline():
             "decl": one_decline_data,
             "three_decl": three_data,
             "three_tran": 0,
-            "bili": "{}{}".format(float("%.4f"%(three_data/one_t_data)), "%") if one_t_data != 0 else 0
+            "bili": "{}{}".format(float("%.4f" % (three_data / one_t_data)), "%") if one_t_data != 0 else 0
         })
-        return jsonify({"code":0,"count":len(alias_data),"data":alias_data,"msg":"SUCCESSFUL"})
-        
+        return jsonify({"code": 0, "count": len(alias_data), "data": alias_data, "msg": "SUCCESSFUL"})
+
     alias_list = SqlDataNative().bento_all_alias()
     for alias in alias_list:
         t_data = SqlDataNative().account_sum_transaction(attribution=alias)
@@ -308,7 +312,7 @@ def account_decline():
         today_time = time.strftime('%Y-%m-%d', time.localtime(time.time()))
         max_today = "{} {}".format(change_today(today_time, 0), "23:59:59")
         min_today = "{} {}".format(change_today(today_time, -3), "00:00:00")
-        three_data = SqlDataNative().count_decline_data(attribution=alias, min_today=min_today,max_today=max_today)
+        three_data = SqlDataNative().count_decline_data(attribution=alias, min_today=min_today, max_today=max_today)
         three_tran_data = SqlDataNative().search_d(alias)
         alias_data.append({
             "alias": alias,
@@ -316,9 +320,11 @@ def account_decline():
             "decl": decline_data,
             "three_decl": three_data,
             "three_tran": three_tran_data,
-            "bili": "{}{}".format(float("%.4f"%(three_data/three_tran_data*100)), "%") if three_tran_data != 0 else 0
+            "bili": "{}{}".format(float("%.4f" % (three_data / three_tran_data * 100)),
+                                  "%") if three_tran_data != 0 else 0
         })
-    return jsonify({"code":0,"count":len(alias_data),"data":alias_data,"msg":"SUCCESSFUL"})
+    return jsonify({"code": 0, "count": len(alias_data), "data": alias_data, "msg": "SUCCESSFUL"})
+
 
 @admin_blueprint.route('/decline_data', methods=['GET'])
 @admin_required
@@ -348,10 +354,9 @@ def decline_data():
     task_info = list(reversed(task_info))
     for i in range(0, len(task_info), int(limit)):
         page_list.append(task_info[i:i + int(limit)])
-    results["data"] = page_list[int(page)-1]
+    results["data"] = page_list[int(page) - 1]
     results["count"] = len(task_info)
     return jsonify(results)
-
 
 
 @admin_blueprint.route('/bento_refund', methods=['GET'])
@@ -567,6 +572,7 @@ def card_info_all():
         logging.error(str(e))
         return jsonify({'code': RET.SERVERERROR, 'msg': MSG.SERVERERROR})
 
+
 @admin_blueprint.route('/sub_middle_money', methods=['POST'])
 @admin_required
 def sub_middle_money():
@@ -602,6 +608,7 @@ def middle_money():
         logging.error(str(e))
         return jsonify({'code': RET.SERVERERROR, 'msg': MSG.SERVERERROR})
 
+
 @admin_blueprint.route('/card_info/', methods=['GET'])
 @admin_required
 def card_info():
@@ -624,6 +631,7 @@ def card_info():
     results['data'] = page_list[int(page) - 1]
     results['count'] = len(data)
     return jsonify(results)
+
 
 @admin_blueprint.route('/acc_to_middle/', methods=['GET', 'POST'])
 @admin_required
@@ -672,6 +680,7 @@ def acc_to_middle():
                 return jsonify(results)
             SqlData().update_user_field_int('middle_id', 'NULL', user_id)
         return jsonify(results)
+
 
 @admin_blueprint.route('/middle_info/', methods=['GET'])
 @admin_required
@@ -757,7 +766,8 @@ def add_account():
         t = xianzai_time()
         user_id = SqlData().search_user_field_name('id', account)
         SqlData().insert_top_up(pay_num, t, 0, 0, 0, user_id)
-        SqlData().insert_account_trans(date=t, trans_type="充值", do_type="支出", num=0, card_no=0, do_money=0, hand_money=0, before_balance=0, balance=0, account_id=user_id)
+        SqlData().insert_account_trans(date=t, trans_type="充值", do_type="支出", num=0, card_no=0, do_money=0,
+                                       hand_money=0, before_balance=0, balance=0, account_id=user_id)
         return jsonify(results)
     except Exception as e:
         logging.error(e)
@@ -876,7 +886,7 @@ def top_history():
         x_time = o.get('time')
         user_id = o.get('user_id')
         sum_money = SqlData().search_time_sum_money(x_time, user_id)
-        o['sum_balance'] = round(sum_money, 2) 
+        o['sum_balance'] = round(sum_money, 2)
         info_list.append(o)
     results['data'] = info_list_1
     results['count'] = len(task_info)
@@ -904,7 +914,6 @@ def top_up():
         phone = SqlData().search_user_field_name('phone_num', name)
 
         if phone:
-
             CCP().send_Template_sms(phone, [name, t, money], 478898)
 
         return jsonify(results)
@@ -975,7 +984,7 @@ def account_info():
         out_money = SqlData().search_trans_sum(u_id)
         bento_income_money = SqlData().search_income_money(u_id)
         # u['card_num'] = card_count
-        u['out_money'] = float("%.2f"%float(out_money - bento_income_money))
+        u['out_money'] = float("%.2f" % float(out_money - bento_income_money))
 
         account_all_amount = 0
         # all_moneys = TransactionRecord().all_alias_money()
@@ -987,7 +996,7 @@ def account_info():
                         account_all_amount = account_all_amount + all_money.get("availableAmount")
         count_del_quant = SqlDataNative().count_del_data(alias=u.get("name"))
         u['del_card_num'] = count_del_quant
-        u['account_all_money'] = float("%.2f"%account_all_amount)
+        u['account_all_money'] = float("%.2f" % account_all_amount)
         u['in_card_num'] = len(all_cardids)
         task_info.append(u)
     page_list = list()
@@ -1062,7 +1071,8 @@ def test():
             info_dict['data'] = count_list
             data.append(info_dict)
     else:
-        data = [{'name': '无客户', 'data': [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]}]
+        data = [{'name': '无客户',
+                 'data': [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]}]
 
     sum_list = list()
     for i in data:

@@ -240,8 +240,9 @@ def verify_required(view_func):
     @wraps(view_func)
     def wraaper(*args, **kwargs):
         """具体实现判断用户是否登录的逻辑"""
-        middle_id = session.get('verify_pay')
-        if not middle_id:
+        verify_name = session.get('user_name')
+        verify_id = session.get('user_id')
+        if not verify_name and not verify_id:
             return render_template('verify_pay/login.html')
         else:
             # 执行被装饰的视图函数

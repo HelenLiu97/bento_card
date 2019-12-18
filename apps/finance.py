@@ -5,26 +5,24 @@ import logging
 import operator
 import time
 from apps.bento_create_card.public import change_today
-from tools_me.other_tools import xianzai_time, login_required, check_float, make_name, finance_required, sum_code
-from tools_me.parameter import RET, MSG, TRANS_STATUS, TRANS_TYPE, DO_TYPE
-# from tools_me.RSA_NAME.helen import QuanQiuFu
-from tools_me.remain import get_card_remain
-from . import user_blueprint
+from tools_me.other_tools import finance_required
+from tools_me.parameter import RET, MSG
 from flask import render_template, request, jsonify, session, g, url_for, redirect
 from tools_me.mysql_tools import SqlData
-from apps.bento_create_card.main_create_card import main_createcard, CreateCard, get_bento_data
 from apps.bento_create_card.sqldata_native import SqlDataNative
-from apps.bento_create_card.main_transactionrecord import main_alias_datas, TransactionRecord
-from apps.bento_create_card.main_recharge import main_transaction_data, RechargeCard
+from apps.bento_create_card.main_transactionrecord import TransactionRecord
 from flask.views import MethodView
 from . import finance_blueprint
+
 logging.basicConfig(level=logging.INFO, format='%(asctime)s :: %(levelname)s :: %(message)s', filename="error.log")
+
 
 @finance_blueprint.route('/logout/')
 @finance_required
 def logout():
     session.pop("finance")
     return redirect(url_for('finance.financelogin'))
+
 
 class FinanceLogin(MethodView):
 
@@ -55,7 +53,6 @@ class FinanceLogin(MethodView):
 
 
 class FinanceIndex(MethodView):
-
     decorators = [finance_required]
 
     def get(self):
@@ -97,7 +94,7 @@ def account_info():
         out_money = SqlData().search_trans_sum(u_id)
         bento_income_money = SqlData().search_income_money(u_id)
         # u['card_num'] = card_count
-        u['out_money'] = float("%.2f"%float(out_money - bento_income_money))
+        u['out_money'] = float("%.2f" % float(out_money - bento_income_money))
 
         account_all_amount = 0
         # all_moneys = TransactionRecord().all_alias_money()
@@ -109,8 +106,8 @@ def account_info():
                         account_all_amount = account_all_amount + all_money.get("availableAmount")
         count_del_quant = SqlDataNative().count_del_data(alias=u.get("name"))
         u['del_card_num'] = count_del_quant
-        u['account_all_money'] = float("%.2f"%account_all_amount)
-        u['card_balance'] = float("%.2f"%float(out_money - bento_income_money - account_all_amount))
+        u['account_all_money'] = float("%.2f" % account_all_amount)
+        u['card_balance'] = float("%.2f" % float(out_money - bento_income_money - account_all_amount))
         u['in_card_num'] = len(all_cardids)
         task_info.append(u)
     page_list = list()
@@ -120,6 +117,7 @@ def account_info():
     results['data'] = page_list[int(page) - 1]
     results['count'] = len(task_info)
     return jsonify(results)
+
 
 @finance_blueprint.route('/card_all/', methods=['GET'])
 @finance_required
@@ -160,6 +158,7 @@ def card_info_all():
         logging.error(str(e))
         return jsonify({'code': RET.SERVERERROR, 'msg': MSG.SERVERERROR})
 
+
 @finance_blueprint.route('/decline_data/', methods=['GET'])
 @finance_required
 def decline_data():
@@ -187,7 +186,7 @@ def decline_data():
     task_info = list(reversed(task_info))
     for i in range(0, len(task_info), int(limit)):
         page_list.append(task_info[i:i + int(limit)])
-    results["data"] = page_list[int(page)-1]
+    results["data"] = page_list[int(page) - 1]
     results["count"] = len(task_info)
     return jsonify(results)
 
@@ -306,6 +305,7 @@ def all_trans():
     results["count"] = len(data)
     return jsonify(results)
 
+
 @finance_blueprint.route('/top_history/', methods=['GET'])
 @finance_required
 def top_history():
@@ -384,6 +384,7 @@ def top_history():
     results['count'] = len(task_info)
     return jsonify(results)
 
+
 @finance_blueprint.route('/bento_refund/', methods=['GET'])
 @finance_required
 def bento_refund():
@@ -445,6 +446,7 @@ def bento_refund():
     results['count'] = len(task_info)
     return jsonify(results)
 
+
 @finance_blueprint.route('/account_trans/', methods=['GET'])
 @finance_required
 def account_trans():
@@ -486,6 +488,7 @@ def account_trans():
     results['data'] = page_list[int(page) - 1]
     results['count'] = len(task_info)
     return jsonify(results)
+
 
 finance_blueprint.add_url_rule("/login/", view_func=FinanceLogin.as_view("financelogin"))
 finance_blueprint.add_url_rule("/index/", view_func=FinanceIndex.as_view("financeindex"))

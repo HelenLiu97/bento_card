@@ -7,14 +7,14 @@ from apps.bento_create_card.public import Key, get_time
 
 def change_time(dt):
     if dt:
-        #转换成时间数组
+        # 转换成时间数组
         timeArray = time.strptime(dt, "%Y-%m-%d %H:%M:%S")
-        #转换成时间戳
+        # 转换成时间戳
         timestamp = time.mktime(timeArray)
         return int(timestamp * 1000)
     else:
-        return int(time.time()*1000) 
-        
+        return int(time.time() * 1000)
+
 
 def cut_list(ls, n):
     return [ls[i:i + n] for i in range(0, len(ls), n)]
@@ -23,32 +23,40 @@ def cut_list(ls, n):
 def bento_data(card_alias, card_amount, attribution):
     customStartDate, customEndDate = get_time()
     data = {
-        "type":"CategoryCard",
-        "virtualCard":True,
-        "shippingMethod":"STANDARD",
-        "blockInternationalTransactions":False,
-        "blockOnlineTransactions":False,
-        "allowedDaysActive":False,
-        "allowedCategoriesActive":False,
+        "type": "CategoryCard",
+        "virtualCard": True,
+        "shippingMethod": "STANDARD",
+        "blockInternationalTransactions": False,
+        "blockOnlineTransactions": False,
+        "allowedDaysActive": False,
+        "allowedCategoriesActive": False,
         "alias": card_alias,
-        "spendingLimit":{
-            "active":True,
-            "amount":card_amount,
-            "period":"Custom",
-            "customStartDate":customStartDate,
-            "customEndDate":customEndDate},
-        "allowedDays":[
-            "MONDAY","TUESDAY",
-            "WEDNESDAY","THURSDAY",
-            "FRIDAY","SATURDAY","SUNDAY"],
+        "spendingLimit": {
+            "active": True,
+            "amount": card_amount,
+            "period": "Custom",
+            "customStartDate": customStartDate,
+            "customEndDate": customEndDate},
+        "allowedDays": [
+            "MONDAY", "TUESDAY",
+            "WEDNESDAY", "THURSDAY",
+            "FRIDAY", "SATURDAY", "SUNDAY"],
         "allowedCategories": [
-            {"transactionCategoryId": 7, "name": "Business Services", "type": "SPENDING", "group": "Services", "description": "Photography, Secretarial, Computer Consulting, etc.","mccs":[],"bentoType":"com.bentoforbusiness.entity.card.TransactionCategory","id":7},
+            {"transactionCategoryId": 7, "name": "Business Services", "type": "SPENDING", "group": "Services",
+             "description": "Photography, Secretarial, Computer Consulting, etc.", "mccs": [],
+             "bentoType": "com.bentoforbusiness.entity.card.TransactionCategory", "id": 7},
 
-            {"transactionCategoryId": 8, "name": "Professional Services", "type": "SPENDING", "group": "Services", "description": "Insurance, Legal, Real Estate, Doctors, Medical, etc.","mccs":[],"bentoType":"com.bentoforbusiness.entity.card.TransactionCategory","id":8},
+            {"transactionCategoryId": 8, "name": "Professional Services", "type": "SPENDING", "group": "Services",
+             "description": "Insurance, Legal, Real Estate, Doctors, Medical, etc.", "mccs": [],
+             "bentoType": "com.bentoforbusiness.entity.card.TransactionCategory", "id": 8},
 
-            {"transactionCategoryId": 16, "name": "Financial Services", "type": "SPENDING", "group": "Services", "description": "Money order, OTC Cash Disbursement, etc.","mccs":[],"bentoType":"com.bentoforbusiness.entity.card.TransactionCategory", "id":16},
+            {"transactionCategoryId": 16, "name": "Financial Services", "type": "SPENDING", "group": "Services",
+             "description": "Money order, OTC Cash Disbursement, etc.", "mccs": [],
+             "bentoType": "com.bentoforbusiness.entity.card.TransactionCategory", "id": 16},
 
-            {"transactionCategoryId": 17, "name": "Amusement and Entertainment", "type": "SPENDING", "group": "Food & Drink", "description":"Movie Theaters, Pool Halls, Bowling Alleys, etc.","mccs":[],"bentoType":"com.bentoforbusiness.entity.card.TransactionCategory", "id": 17}
+            {"transactionCategoryId": 17, "name": "Amusement and Entertainment", "type": "SPENDING",
+             "group": "Food & Drink", "description": "Movie Theaters, Pool Halls, Bowling Alleys, etc.", "mccs": [],
+             "bentoType": "com.bentoforbusiness.entity.card.TransactionCategory", "id": 17}
         ],
         "billingAddress":
             {
@@ -64,15 +72,21 @@ def bento_data(card_alias, card_amount, attribution):
     }
     if attribution == "杨经理FB1" or attribution == "gt":
         data.update({
-            "allowedCategories":  [
-                {"transactionCategoryId":7,"name":"Business Services","group":"Services","bentoType":"com.bentoforbusiness.entity.card.TransactionCategory","id":7},
-                {"transactionCategoryId":8,"name":"Professional Services","group":"Services","bentoType":"com.bentoforbusiness.entity.card.TransactionCategory","id":8},
-                {"transactionCategoryId":11,"name":"Retail and Miscellaneous Stores","group":"Retail & Goods","bentoType":"com.bentoforbusiness.entity.card.TransactionCategory","id":11},
-                {"transactionCategoryId":16,"name":"Financial Services","group":"Services","bentoType":"com.bentoforbusiness.entity.card.TransactionCategory","id":16},
-                {"transactionCategoryId":17,"name":"Amusement and Entertainment","group":"Food & Drink","bentoType":"com.bentoforbusiness.entity.card.TransactionCategory","id":17}
+            "allowedCategories": [
+                {"transactionCategoryId": 7, "name": "Business Services", "group": "Services",
+                 "bentoType": "com.bentoforbusiness.entity.card.TransactionCategory", "id": 7},
+                {"transactionCategoryId": 8, "name": "Professional Services", "group": "Services",
+                 "bentoType": "com.bentoforbusiness.entity.card.TransactionCategory", "id": 8},
+                {"transactionCategoryId": 11, "name": "Retail and Miscellaneous Stores", "group": "Retail & Goods",
+                 "bentoType": "com.bentoforbusiness.entity.card.TransactionCategory", "id": 11},
+                {"transactionCategoryId": 16, "name": "Financial Services", "group": "Services",
+                 "bentoType": "com.bentoforbusiness.entity.card.TransactionCategory", "id": 16},
+                {"transactionCategoryId": 17, "name": "Amusement and Entertainment", "group": "Food & Drink",
+                 "bentoType": "com.bentoforbusiness.entity.card.TransactionCategory", "id": 17}
             ]
         })
     return data
+
 
 def RefreshToken():
     token_url = "{}{}".format(Key.URL, "sessions")

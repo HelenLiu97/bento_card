@@ -1,6 +1,7 @@
 import time
 import pymysql
 import logging
+
 logging.basicConfig(level=logging.INFO, format='%(asctime)s :: %(levelname)s :: %(message)s', filename="error.log")
 
 
@@ -15,7 +16,7 @@ class SqlDataNative(object):
             host=host, port=port, user=user,
             passwd=password, db=database,
             charset='utf8'
-                )
+        )
         self.cursor = self.connect.cursor()
 
     def count_bento_data(self, sqld):
@@ -40,7 +41,7 @@ class SqlDataNative(object):
                     "expire": i[6],
                     "label": "",
                     "pay_passwd": "",
-                    })
+                })
         except Exception as e:
             logging.warning(str(e))
         finally:
@@ -83,7 +84,7 @@ class SqlDataNative(object):
             for i in rows:
                 data.append({
                     # "card_no": "{}{}".format("\t",i[3]),
-                    "card_no": "{}{}".format("\t",i[3]) if i[8] !="已注销" else "{}{}".format("****", i[3][-4:]),
+                    "card_no": "{}{}".format("\t", i[3]) if i[8] != "已注销" else "{}{}".format("****", i[3][-4:]),
                     "act_time": str(i[7]),
                     "card_name": i[1],
                     "label": i[8],
@@ -91,7 +92,7 @@ class SqlDataNative(object):
                     "expire": i[6],
                     "number": n,
                     "remain": "双击查看",
-                    })
+                })
                 n += 1
         except Exception as e:
             logging.warning(str(e))
@@ -114,7 +115,7 @@ class SqlDataNative(object):
             yield {
                 "id": i[0],
                 "username": i[1]
-                }
+            }
         self.close_connect()
 
     def cardnum_fount_cardid(self, cardnum):
@@ -134,7 +135,7 @@ class SqlDataNative(object):
             self.connect.rollback()
         finally:
             self.close_connect()
-        
+
     def cardnum_fount_alias(self, cardnum):
         sql = "SELECT alias FROM bento_create_card WHERE card_number='{}'".format(cardnum)
         self.cursor.execute(sql)
@@ -142,15 +143,12 @@ class SqlDataNative(object):
         self.close_connect()
         return rows[0]
 
-
     def fount_cardid_alias(self, card_no):
         sql = "SELECT card_id,alias FROM bento_create_card WHERE card_number='{}'".format(card_no)
         self.cursor.execute(sql)
         rows = self.cursor.fetchone()
         self.close_connect()
         return rows
-
-
 
     def close_connect(self):
         if self.cursor:
@@ -165,7 +163,6 @@ class SqlDataNative(object):
         self.close_connect()
         return rows[0]
 
-
     def attribution_fount_cardid(self, alias):
         sql = "SELECT card_id FROM bento_create_card WHERE attribution='{}' and label != '已注销'".format(alias)
         self.cursor.execute(sql)
@@ -178,9 +175,9 @@ class SqlDataNative(object):
             return data
         return data
 
-
     def update_card_Balance(self, cardid, availableAmount, create_time):
-        sql = "UPDATE bento_create_card set card_amount='{}', create_time='{}' where card_id='{}'".format(availableAmount, create_time, cardid)
+        sql = "UPDATE bento_create_card set card_amount='{}', create_time='{}' where card_id='{}'".format(
+            availableAmount, create_time, cardid)
         try:
             self.cursor.execute(sql)
             self.connect.commit()
@@ -191,7 +188,8 @@ class SqlDataNative(object):
             self.close_connect()
 
     def update_card_data(self, pan, cvv, expiration, alias):
-        sql = 'UPDATE bento_create_card set card_number="{}",card_cvv="{}",card_validity="{}" where alias="{}";'.format(pan, cvv, expiration, alias)
+        sql = 'UPDATE bento_create_card set card_number="{}",card_cvv="{}",card_validity="{}" where alias="{}";'.format(
+            pan, cvv, expiration, alias)
         try:
             self.cursor.execute(sql)
             self.connect.commit()
@@ -209,7 +207,8 @@ class SqlDataNative(object):
         return rows
 
     def select_transaction_data(self, attribution, name_sql, card_sql, label_sql, time_sql):
-        sql = "SELECT * FROM bento_create_card WHERE attribution='{}' {} {} {} {}".format(attribution, name_sql, card_sql, label_sql, time_sql)
+        sql = "SELECT * FROM bento_create_card WHERE attribution='{}' {} {} {} {}".format(attribution, name_sql,
+                                                                                          card_sql, label_sql, time_sql)
         self.cursor.execute(sql)
         rows = self.cursor.fetchall()
         data = []
@@ -217,7 +216,7 @@ class SqlDataNative(object):
         try:
             for i in rows:
                 data.append({
-                    "card_no": "{}{}".format("\t",i[3]) if i[8] !="已注销" else "{}{}".format("****", i[3][-4:]),
+                    "card_no": "{}{}".format("\t", i[3]) if i[8] != "已注销" else "{}{}".format("****", i[3][-4:]),
                     "act_time": str(i[7]),
                     "card_name": i[1],
                     "label": i[8],
@@ -225,7 +224,7 @@ class SqlDataNative(object):
                     "expire": i[6],
                     "number": n,
                     "remain": "双击查看余额及交易记录",
-                    })
+                })
                 n += 1
         except Exception as e:
             logging.warning(str(e))
@@ -239,8 +238,10 @@ class SqlDataNative(object):
         rows = self.cursor.fetchall()
         return rows[0][0]
 
-    def insert_new_account(self, alias, card_id, card_amount, card_number, card_cvv, label, card_validity, attribution,create_time):
-        sql = "INSERT INTO bento_create_card(alias, card_id, card_amount, card_number, card_cvv, label, card_validity, attribution, create_time) VALUES('{}', '{}', '{}', '{}', '{}', '{}', '{}', '{}', '{}')".format(alias, card_id, card_amount, card_number, card_cvv, label, card_validity, attribution, create_time)
+    def insert_new_account(self, alias, card_id, card_amount, card_number, card_cvv, label, card_validity, attribution,
+                           create_time):
+        sql = "INSERT INTO bento_create_card(alias, card_id, card_amount, card_number, card_cvv, label, card_validity, attribution, create_time) VALUES('{}', '{}', '{}', '{}', '{}', '{}', '{}', '{}', '{}')".format(
+            alias, card_id, card_amount, card_number, card_cvv, label, card_validity, attribution, create_time)
         try:
             self.cursor.execute(sql)
             self.connect.commit()
@@ -251,7 +252,8 @@ class SqlDataNative(object):
             self.close_connect()
 
     def count_decline_data(self, attribution, min_today, max_today):
-        sql = "SELECT count(*) FROM bento_declined_data WHERE attribution='{}' and date BETWEEN '{}' and '{}'".format(attribution, min_today, max_today)
+        sql = "SELECT count(*) FROM bento_declined_data WHERE attribution='{}' and date BETWEEN '{}' and '{}'".format(
+            attribution, min_today, max_today)
         # sql = "SELECT count(*) FROM bento_declined_data WHERE attribution='{}'".format(attribution)
         self.cursor.execute(sql)
         rows = self.cursor.fetchone()
@@ -276,7 +278,8 @@ class SqlDataNative(object):
         return data
 
     def admin_decline_data(self, attribution, card_sql, time_sql):
-        sql = "SELECT * FROM bento_declined_data WHERE status='DECLINED' {} {} {}".format(attribution, card_sql, time_sql)
+        sql = "SELECT * FROM bento_declined_data WHERE status='DECLINED' {} {} {}".format(attribution, card_sql,
+                                                                                          time_sql)
         self.cursor.execute(sql)
         rows = self.cursor.fetchall()
         data = []
@@ -328,7 +331,7 @@ class SqlDataNative(object):
         return data
 
     def bento_alltrans(self):
-        import json 
+        import json
         import time
         sql = "select alias, transactions_data,attribution from bento_user_decline where transactions_data_len != 0"
         self.cursor.execute(sql)
@@ -354,11 +357,11 @@ class SqlDataNative(object):
                 continue
         return data
 
-
     def one_bento_alltrans(self, alias):
         import json
         import time
-        sql = "select alias, transactions_data,attribution from bento_user_decline where transactions_data_len != 0 and attribution='{}'".format(alias)
+        sql = "select alias, transactions_data,attribution from bento_user_decline where transactions_data_len != 0 and attribution='{}'".format(
+            alias)
         self.cursor.execute(sql)
         i = self.cursor.fetchall()
         self.close_connect()
@@ -374,12 +377,11 @@ class SqlDataNative(object):
                         "card_no": row.get("card").get("lastFour"),
                         "before_balance": rows[2],
                         "date": time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(row.get("transactionDate") / 1000)),
-                        })
+                    })
             except Exception as e:
                 logging.warning(str(e))
                 continue
         return data
-
 
     def bento_notice(self):
         sql = "select notice from bento_notice"
@@ -438,7 +440,8 @@ class SqlDataNative(object):
 
     # account operating log
     def insert_operating_log(self, cardid, operating_log, operating_time):
-        sql = "INSERT INTO bento_card_operating_log(cardid, operating_log, operating_time) VALUES('{}', '{}', '{}')".format(cardid, operating_log, operating_time)
+        sql = "INSERT INTO bento_card_operating_log(cardid, operating_log, operating_time) VALUES('{}', '{}', '{}')".format(
+            cardid, operating_log, operating_time)
         try:
             self.cursor.execute(sql)
             self.connect.commit()
@@ -478,9 +481,10 @@ class SqlDataNative(object):
         row = self.cursor.fetchall()
         return row[0][0]
 
+
 def main():
     card_name = ""
-    attribution="大龙"
+    attribution = "大龙"
     card_num = ""
     label = ""
     range_time = "2019-10-29 - 2019-10-25"
@@ -499,9 +503,9 @@ def main():
         min_time = range_time.split(' - ')[0] + ' 23:59:59'
         max_time = range_time.split(' - ')[1] + ' 23:59:59'
         time_sql = "AND create_time BETWEEN '{}' AND '{}'".format(max_time, min_time)
-    
+
     print(SqlDataNative().select_transaction_data(attribution, name_sql, card_sql, label_sql, time_sql))
-    
+
 
 if __name__ == "__main__":
     print(SqlDataNative().cardid_fount_label(cardid=878521))
