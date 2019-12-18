@@ -8,7 +8,7 @@ from .sqldata_native import SqlDataNative
 logging.basicConfig(level=logging.INFO, format='%(asctime)s :: %(levelname)s :: %(message)s', filename="error.log")
 
 
-class TransactionRecord():
+class TransactionRecord(object):
     def __init__(self):
         self.headers = {
             "Content-Type": "application/json",
@@ -99,6 +99,7 @@ class TransactionRecord():
         except Exception as e:
             logging.warning(str(e))
             return []
+
 
 def main_alias_datas():
     t = TransactionRecord().alias_data()

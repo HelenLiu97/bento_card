@@ -4,7 +4,7 @@ import logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s :: %(levelname)s :: %(message)s', filename="error.log")
 
 
-class SqlDataNative():
+class SqlDataNative(object):
     def __init__(self):
         host = "127.0.0.1"
         port = 3306
@@ -23,7 +23,6 @@ class SqlDataNative():
         self.cursor.execute(sql)
         rows = self.cursor.fetchone()
         return rows
-
 
     def admin_search_data(self):
         sql = "SELECT * FROM bento_create_card where label='王先生大玩家3'"
@@ -47,7 +46,6 @@ class SqlDataNative():
         finally:
             self.close_connect()
         return data
-
 
     def admin_alias_data(self, sqld):
         sql = "SELECT * FROM bento_create_card {}".format(sqld)
@@ -191,8 +189,6 @@ class SqlDataNative():
             self.connect.rollback()
         finally:
             self.close_connect()
-        
-
 
     def update_card_data(self, pan, cvv, expiration, alias):
         sql = 'UPDATE bento_create_card set card_number="{}",card_cvv="{}",card_validity="{}" where alias="{}";'.format(pan, cvv, expiration, alias)
@@ -277,7 +273,6 @@ class SqlDataNative():
                 "before_balance": i[9],
                 "reason": i[10],
             })
-
         return data
 
     def admin_decline_data(self, attribution, card_sql, time_sql):
@@ -304,7 +299,6 @@ class SqlDataNative():
         rows = self.cursor.fetchone()
         return rows[0]
 
-    # 
     def account_sum_transaction(self, attribution):
         sql = "select sum(transactions_data_len) from bento_user_decline where attribution='{}'".format(attribution)
         self.cursor.execute(sql)

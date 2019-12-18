@@ -6,6 +6,7 @@ import logging
 from apps.bento_create_card.config import bento_data, GetToken, cut_list, change_time
 logging.basicConfig(level=logging.INFO, format='%(asctime)s :: %(levelname)s :: %(message)s', filename="error.log")
 
+
 class RechargeCard():
     def __init__(self):
         self.headers = {
@@ -42,7 +43,6 @@ class RechargeCard():
                     return {"error_msg": "转移失败, 所剩余额未扣减"}
                 return {"msg": "已有金额: {}, 转移金额: {}, 卡内可用余额: {}".format(bento_availableAmount, recharge_amount,response.json().get("availableAmount"))}
         return {"error_msg": "bento后台数据查无此账号"}
-
 
     def recharge(self, cardid, recharge_amount):
         # 获取用户cardid
@@ -145,9 +145,6 @@ def main_transaction_data(cards, alias):
     transactions_datas = RechargeCard().transaction_data(cards=cards)
     availableAmount = RechargeCard().one_alias(alias=alias)
     return transactions_datas, availableAmount
-
-
-
 
 
 if __name__ == "__main__":

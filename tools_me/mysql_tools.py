@@ -1057,7 +1057,7 @@ class SqlData(object):
                     "bank_name": row[1],
                     "bank_number": row[2],
                     "bank_address": row[3],
-                    "money": row[4]
+                    "money": str(row[4])
                 })
             else:
                 return ""

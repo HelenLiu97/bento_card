@@ -246,10 +246,10 @@ def account_trans():
 
     time_range = request.args.get('time_range')
     card_num = request.args.get('card_num')
-    trans_type = request.args.get('trans_type')
+    do_type = request.args.get('do_type')
     time_sql = ""
     card_sql = ""
-    type_sql = ""
+    do_sql = ""
     if time_range:
         min_time = time_range.split(' - ')[0]
         max_time = time_range.split(' - ')[1] + ' 23:59:59'
@@ -258,11 +258,11 @@ def account_trans():
         # card_sql = "AND card_no = '" + card_num + "'"
         card_sql = "AND card_no LIKE '%{}%'".format(card_num)
 
-    if trans_type:
-        type_sql = "AND trans_type='" + trans_type + "'"
+    if do_type:
+        do_sql = "AND do_type='" + do_type + "'"
 
     user_id = g.user_id
-    task_info = SqlData().search_account_trans(user_id, card_sql, time_sql, type_sql=type_sql)
+    task_info = SqlData().search_account_trans(user_id, card_sql, time_sql, type_sql=do_sql)
     
     results = {"code": RET.OK, "msg": MSG.OK, "count": 0, "data": ""}
     if len(task_info) == 0:

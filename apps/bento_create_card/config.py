@@ -4,6 +4,7 @@ import requests
 from datetime import datetime
 from apps.bento_create_card.public import Key, get_time
 
+
 def change_time(dt):
     if dt:
         #转换成时间数组
@@ -18,9 +19,10 @@ def change_time(dt):
 def cut_list(ls, n):
     return [ls[i:i + n] for i in range(0, len(ls), n)]
 
+
 def bento_data(card_alias, card_amount, attribution):
     customStartDate, customEndDate = get_time()
-    data =  {
+    data = {
         "type":"CategoryCard",
         "virtualCard":True,
         "shippingMethod":"STANDARD",

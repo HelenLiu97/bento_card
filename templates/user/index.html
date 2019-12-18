@@ -209,9 +209,9 @@
             <div class="layui-inline">
                 <input type="number" class="layui-input" name="trans_card" id="trans_card" autocomplete="off">
             </div>
-            交易类型：
+            操作类型：
             <div class="layui-inline">
-                <input type="text" class="layui-input" name="trans_card" id="trans_type" autocomplete="off">
+                <input type="text" class="layui-input" name="trans_card" id="do_type" autocomplete="off">
             </div>
             时间范围:
             <div class="layui-inline">
@@ -809,7 +809,7 @@
         var trans = $('#sub_trans');
         trans.on('click',function () {
             var trans_card = $('#trans_card').val(),
-                trasn_type = $('#trans_type').val(),
+                do_type = $('#do_type').val(),
                 time_range = $('#test7').val();
             table.reload('pay_history', {
                 page: {
@@ -817,7 +817,7 @@
                 },where: {
                     time_range: time_range,
                     card_num: trans_card,
-                    trans_type:trasn_type,
+                    do_type:do_type,
                   }
               }, '/user/account_trans/');
             return false
