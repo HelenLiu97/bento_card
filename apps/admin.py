@@ -787,6 +787,8 @@ def change_pass():
             results['msg'] = '密码错误!'
             return jsonify(results)
         SqlData().update_admin_field('password', new_pass_one)
+        session.pop('admin_id')
+        session.pop('admin_name')
         return jsonify(results)
 
 
@@ -997,9 +999,37 @@ def account_info():
     return jsonify(results)
 
 
-@admin_blueprint.route('/card_list_html', methods=['GET'])
+@admin_blueprint.route('/account_card/', methods=['GET'])
 @admin_required
-def card_list_html():
+def account_card():
+    page = request.args.get('page')
+    limit = request.args.get('limit')
+    user_name = request.args.get('user_name')
+    card_info = SqlDataNative().search_alias_data('', user_name)
+    page_list = list()
+    task_info = list(reversed(card_info))
+    for i in range(0, len(task_info), int(limit)):
+        page_list.append(task_info[i:i + int(limit)])
+    results = dict()
+    results['data'] = page_list[int(page) - 1]
+    results['count'] = len(card_info)
+    results['code'] = RET.OK
+    results['msg'] = MSG.OK
+    return jsonify(results)
+
+
+@admin_blueprint.route('/account_card_list', methods=['GET'])
+@admin_required
+def account_card_list():
+    attribution = request.args.get('user_name')
+    context = dict()
+    context['user_name'] = attribution
+    return render_template('admin/card_list.html', **context)
+
+
+@admin_blueprint.route('/middle_info_html', methods=['GET'])
+@admin_required
+def middle_info_html():
     user_id = request.args.get('user_id')
     middle_user_id = SqlData().middle_user_id(name=user_id)
     middle_data = SqlData().middle_user_data(middle_id=middle_user_id)
@@ -1096,14 +1126,20 @@ def index():
     admin_name = g.admin_name
     # spent = SqlData().search_trans_sum_admin()
     # sum_balance = SqlData().search_user_sum_balance()
-    sum_balance = SqlDataNative().count_admin_decline()
+    decline = SqlDataNative().count_admin_decline()
+    card_remain = SqlDataNative().search_sum_remain()
+    sum_top = SqlData().search_table_sum('sum_balance', 'account', '')
+    sum_remain = SqlData().search_table_sum('balance', 'account', '')
     card_use = SqlDataNative().count_bento_data(sqld="")
     card_no = SqlDataNative().count_bento_data(sqld="where label='已注销'")
     card_un = SqlDataNative().count_bento_data(sqld="where label!='已注销'")
     context = dict()
     context['admin_name'] = admin_name
     # context['spent'] = spent
-    context['advance'] = sum_balance
+    context['advance'] = decline
+    context['sum_top'] = sum_top
+    context['sum_remain'] = sum_remain
+    context['card_remain'] = round(card_remain, 3)
     context['card_use'] = card_use
     context['card_no'] = card_no
     context['card_un'] = card_un

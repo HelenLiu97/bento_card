@@ -57,9 +57,19 @@
         var form = layui.form;
       //监听提交
         form.on('submit(formDemo)', function(data){
-            {#layer.msg(JSON.stringify(data.field));#}
             var data_info = {data:JSON.stringify(data.field)};
             var $ = layui.jquery;
+
+            function sleep(n) {
+                var start = new Date().getTime();
+                //  console.log('休眠前：' + start);
+                while (true) {
+                    if (new Date().getTime() - start > n) {
+                        break;
+                    }
+                }
+                // console.log('休眠后：' + new Date().getTime());
+            }
 
             $.ajax({
 				type : 'POST',
@@ -67,14 +77,17 @@
 				data : data_info,
 				dataType : 'json',
 				success : function(data) {
-				    {#var data1 = JSON.parse(data);#}
 			    	console.log(data.code);
 					// 成功提示框
                     if (data.code == 0){
-                        parent.layer.msg('修改密码成功!', {
+                        layer.msg('修改密码成功!请重新登录！', {
 						icon : 6,
-					});
-					parent.layer.closeAll('iframe'); //关闭弹框
+                        time:1500,
+					}, function () {
+                            layer.close(layer.index);
+                            window.parent.location.reload();
+                        });
+
                     }else if(data.code == 502){
                         parent.layer.msg(data.msg, {
 						icon : 5

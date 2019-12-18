@@ -230,6 +230,7 @@ def finance_required(view_func):
 
     return wraaper
 
+
 def verify_required(view_func):
     """自定义装饰器判断用户是否登录
     使用装饰器装饰函数时，会修改被装饰的函数的__name属性和被装饰的函数的说明文档

@@ -43,6 +43,44 @@ def del_log():
     return jsonify(results)
 
 
+@verify_pay_blueprint.route('/logout/', methods=['GET'])
+def logout():
+    session.pop('verify_pay')
+    return redirect('/verify_pay/')
+
+
+@verify_pay_blueprint.route('/edit_acc/', methods=['GET', 'POST'])
+@verify_required
+def edit_acc():
+    if request.method == 'GET':
+        user_id = request.args.get('user_id')
+        context = dict()
+        context['user_id'] = user_id
+        return render_template('verify_pay/edit_acc.html', **context)
+    if request.method == 'POST':
+        data = json.loads(request.form.get('data'))
+        user_id = data.get('user_id')
+        account = data.get('account')
+        password = data.get('password')
+        if account:
+            res = SqlData().find_in_set('recharge_account', account, 'username')
+            if res:
+                return jsonify({'code': RET.SERVERERROR, 'msg': '账号已存在！请重新命名。'})
+            else:
+                SqlData().update_recharge_account('username', account, int(user_id))
+        if password:
+            SqlData().update_recharge_account('password', password, int(user_id))
+        return jsonify({'code': RET.OK, 'msg': MSG.OK})
+
+
+@verify_pay_blueprint.route('/del_account/', methods=['GET'])
+@verify_required
+def del_account():
+    user_id = request.args.get('user_id')
+    SqlData().del_recharge_acc(int(user_id))
+    return jsonify({'code': RET.OK, 'msg': MSG.OK})
+
+
 @verify_pay_blueprint.route('/all_account/', methods=['GET'])
 @verify_required
 def all_account():
@@ -207,7 +245,6 @@ def top_up():
 
             # 更新pay_log的订单的充值状态
             SqlData().update_pay_status('已充值', t, cus_id, pay_time)
-
 
             phone = SqlData().search_user_field_name('phone_num', cus_name)
             mid_phone = SqlData().search_pay_code('phone', cus_name, pay_time)

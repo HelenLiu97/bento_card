@@ -13,11 +13,9 @@ from flask import render_template, request, jsonify, session, g
 from tools_me.mysql_tools import SqlData
 from apps.bento_create_card.main_create_card import main_createcard, CreateCard, get_bento_data
 from apps.bento_create_card.sqldata_native import SqlDataNative
-from apps.bento_create_card.sqldata import BentoCard
-from apps.bento_create_card.sqldata import session as Sql_Session
-from apps.bento_create_card.main_transactionrecord import main_alias_datas, TransactionRecord
 from apps.bento_create_card.main_recharge import main_transaction_data, RechargeCard
 logging.basicConfig(level=logging.INFO, format='%(asctime)s :: %(levelname)s :: %(message)s', filename="error.log")
+
 
 @user_blueprint.route('/refund/', methods=['POST'])
 @login_required
@@ -133,6 +131,7 @@ def all_trans():
     # results = {"code": RET.OK, "msg": MSG.OK, "count": len(data), "data": page_list[int(page)-1]}
     return jsonify(results)
 
+
 @user_blueprint.route('/bento_decline/', methods=['GET'])
 @login_required
 def bento_decline():
@@ -237,6 +236,7 @@ def card_remain():
         results['code'] = RET.SERVERERROR
         results['msg'] = MSG.SERVERERROR
         return jsonify(results)
+
 
 @user_blueprint.route('/account_trans/', methods=['GET'])
 @login_required
@@ -429,6 +429,7 @@ def create_some():
         results = {"code": RET.SERVERERROR, "msg": str(e)}
         return jsonify(results)
 
+
 # 单张卡
 @user_blueprint.route('/create_card/', methods=['POST'])
 @login_required
@@ -619,14 +620,14 @@ def change_phone():
         results['msg'] = MSG.SERVERERROR
         return jsonify(results)
 
+
 # 卡的交易记录
 @user_blueprint.route('/one_card_detail', methods=['GET'])
 # @login_required
 def one_detail():
     try:
         context = {}
-        info_dict={}
-        info_list=[]
+        info_list = []
         card_no = request.args.get('card_no')
         """
         if "****" in card_no:
@@ -670,6 +671,7 @@ def one_detail():
 @login_required
 def change_detail():
     return render_template('user/edit_account.html')
+
 
 # 余额
 @user_blueprint.route('/card_info', methods=['GET'])
@@ -752,6 +754,8 @@ def change_pass():
         return jsonify(results)
     try:
         SqlData().update_user_field('password', new_pass_one, g.user_id)
+        session.pop('user_id')
+        session.pop('name')
         return jsonify(results)
     except Exception as e:
         logging.error(e)

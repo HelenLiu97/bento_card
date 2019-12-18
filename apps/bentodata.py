@@ -14,8 +14,6 @@ from flask import render_template, request, jsonify, session, g
 from tools_me.mysql_tools import SqlData
 from apps.bento_create_card.main_create_card import main_createcard, CreateCard, get_bento_data
 from apps.bento_create_card.sqldata_native import SqlDataNative
-from apps.bento_create_card.sqldata import BentoCard
-from apps.bento_create_card.sqldata import session as Sql_Session
 from apps.bento_create_card.main_transactionrecord import main_alias_datas, TransactionRecord
 from apps.bento_create_card.main_recharge import main_transaction_data, RechargeCard
 from flask.views import MethodView

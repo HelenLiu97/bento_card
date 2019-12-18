@@ -22,11 +22,11 @@
 <div class="layui-form-item" style="display: none">
     <label class="layui-form-label">隐藏域</label>
     <div class="layui-input-block">
-        <input type ="text" name="user_id"  id="user_id" value="{{ user_id }}">
+        <input type ="text" name="user_name"  id="user_name" value="{{ user_name }}">
     </div>
 </div>
 
-<table class="layui-hide" id="task_list" lay-filter="task_list"></table>
+<table class="layui-hide" id="card_list" lay-filter="card_list"></table>
 <script type="text/html" id="barDemo">
 {#    <a class="layui-btn layui-btn-xs" lay-event="edit">编辑</a>#}
     <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">取消</a>
@@ -41,14 +41,14 @@
             , $ = layui.jquery;
 
 
-        table.on('rowDouble(task_list)', function(obj){
+        table.on('rowDouble(card_list)', function(obj){
         var data = obj.data;
             layer.open({
                 type: 2
                 ,offset: 'r' //具体配置参考：http://www.layui.com/doc/modules/layer.html#offset
                 ,skin:'layui-layer-demo'
                 ,id: 'layerUser'//防止重复弹出
-                ,title: '卡号为 ' + data.card + ' 的详细信息'
+                ,title: '卡号为 ' + data.card_no + ' 的详细信息'
                 ,area: ['40%','80%']
                 ,anim: 2
                 ,shadeClose:true
@@ -74,26 +74,27 @@
             });
         });
 
-        var u_id = $('#user_id').val();
+        var user_name = $('#user_name').val();
 
 
         //执行一个 table 实例
         table.render({
-            elem: '#task_list'
+            elem: '#card_list'
             , height: ''
-            , url: '/admin/card_info/?u_id=' + u_id //数据接口
-            , title: '订单列表'
+            , url: '/admin/account_card/?user_name=' + user_name //数据接口
+            , title: '客户卡列表'
             , limit: 50
             , toolbar: true //开启工具栏，此处显示默认图标，可以自定义模板，详见文档
             , totalRow: true //开启合计行
             , cols: [[ //表头
                 {type:'numbers'}
-                , {field: 'card_no', title: '卡号', align: 'center', sort: true,  totalRowText: '合计：'}
-                , {field: 'card_name', title: '卡名', align: 'center', sort: true,}
+                , {field: 'card_no', title: '卡号', align: 'center', sort: true,}
+                , {field: 'act_time', title: '最近操作时间', align: 'center', sort: true,}
+                , {field: 'card_name', title: '卡姓名', align: 'center', sort: true}
+                , {field: 'label', title: '标签', align: 'center', sort: true}
                 , {field: 'expire', title: '有效期', align: 'center', sort: true}
                 , {field: 'cvv', title: '安全码', align: 'center', sort: true}
-                , {field: 'label', title: '标签', align: 'center', sort: true}
-                , {field: 'act_time', title: '建卡时间', align: 'center', sort: true}
+                , {field: 'remain', title: '余额', align: 'center', sort: true}
             ]]
             , id: 'task_list'
             , page: true

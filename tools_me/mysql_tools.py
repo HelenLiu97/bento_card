@@ -398,7 +398,7 @@ class SqlData(object):
 
     # 验证登录
     def search_admin_login(self, account, password):
-        sql = "SELECT id, name FROM admin WHERE BINARY account='{}' AND BINARY password='{}'".format(account, password)
+        sql = "SELECT id, name FROM admin_info WHERE BINARY account='{}' AND BINARY password='{}'".format(account, password)
         self.cursor.execute(sql)
         rows = self.cursor.fetchall()
         return rows[0][0], rows[0][1]
@@ -1027,6 +1027,7 @@ class SqlData(object):
         data = []
         for row in rows:
             data.append({
+                "user_id": row[0],
                 "name": row[1],
                 "username": row[2],
                 "password": row[3],
@@ -1145,6 +1146,42 @@ class SqlData(object):
             })
 
         return data
+
+    def search_table_sum(self, field, table, sql_line):
+        sql = "SELECT SUM({}) FROM {} {}".format(field, table, sql_line)
+        self.cursor.execute(sql)
+        rows = self.cursor.fetchall()
+        return rows[0][0]
+
+    def del_recharge_acc(self, user_id):
+        sql = "DELETE FROM recharge_account WHERE id = {}".format(user_id)
+        try:
+            self.cursor.execute(sql)
+            self.connect.commit()
+        except Exception as e:
+            self.connect.rollback()
+        self.close_connect()
+
+    # 判断字符是否已包含在字段内
+    def find_in_set(self, table, value, field):
+        sql = "SELECT * FROM {} WHERE find_in_set('{}', {})".format(table, value, field)
+        self.cursor.execute(sql)
+        rows = self.cursor.fetchall()
+        if rows:
+            return True
+        else:
+            return False
+
+    # 更新用户的某一个字段信息(str)
+    def update_recharge_account(self, field, value, user_id):
+        sql = "UPDATE recharge_account SET {} = '{}' WHERE id = {}".format(field, value, user_id)
+        try:
+            self.cursor.execute(sql)
+            self.connect.commit()
+        except Exception as e:
+            logging.error("更新充值用户字段" + field + "失败!" + str(e))
+            self.connect.rollback()
+        self.close_connect()
 
 
 if __name__ == "__main__":

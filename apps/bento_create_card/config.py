@@ -41,25 +41,25 @@ def bento_data(card_alias, card_amount, attribution):
             "MONDAY","TUESDAY",
             "WEDNESDAY","THURSDAY",
             "FRIDAY","SATURDAY","SUNDAY"],
-        "allowedCategories":[
-            {"transactionCategoryId":7,"name":"Business Services","type":"SPENDING","group":"Services","description":"Photography, Secretarial, Computer Consulting, etc.","mccs":[],"bentoType":"com.bentoforbusiness.entity.card.TransactionCategory","id":7},
+        "allowedCategories": [
+            {"transactionCategoryId": 7, "name": "Business Services", "type": "SPENDING", "group": "Services", "description": "Photography, Secretarial, Computer Consulting, etc.","mccs":[],"bentoType":"com.bentoforbusiness.entity.card.TransactionCategory","id":7},
 
-            {"transactionCategoryId":8,"name":"Professional Services","type":"SPENDING","group":"Services","description":"Insurance, Legal, Real Estate, Doctors, Medical, etc.","mccs":[],"bentoType":"com.bentoforbusiness.entity.card.TransactionCategory","id":8},
+            {"transactionCategoryId": 8, "name": "Professional Services", "type": "SPENDING", "group": "Services", "description": "Insurance, Legal, Real Estate, Doctors, Medical, etc.","mccs":[],"bentoType":"com.bentoforbusiness.entity.card.TransactionCategory","id":8},
 
-            {"transactionCategoryId":16,"name":"Financial Services","type":"SPENDING","group":"Services","description":"Money order, OTC Cash Disbursement, etc.","mccs":[],"bentoType":"com.bentoforbusiness.entity.card.TransactionCategory","id":16},
+            {"transactionCategoryId": 16, "name": "Financial Services", "type": "SPENDING", "group": "Services", "description": "Money order, OTC Cash Disbursement, etc.","mccs":[],"bentoType":"com.bentoforbusiness.entity.card.TransactionCategory", "id":16},
 
-            {"transactionCategoryId":17,"name":"Amusement and Entertainment","type":"SPENDING","group":"Food & Drink","description":"Movie Theaters, Pool Halls, Bowling Alleys, etc.","mccs":[],"bentoType":"com.bentoforbusiness.entity.card.TransactionCategory","id":17}
+            {"transactionCategoryId": 17, "name": "Amusement and Entertainment", "type": "SPENDING", "group": "Food & Drink", "description":"Movie Theaters, Pool Halls, Bowling Alleys, etc.","mccs":[],"bentoType":"com.bentoforbusiness.entity.card.TransactionCategory", "id": 17}
         ],
         "billingAddress":
             {
-                "id":91308,
-                "street":"61 Oxbow Rd",
-                "city":"FRAMINGHAM",
-                "country":"US",
-                "zipCode":"01701",
-                "state":"MA",
-                "addressType":"BUSINESS_ADDRESS",
-                "bentoType":"com.bentoforbusiness.entity.business.BusinessAddress"
+                "id": 91308,
+                "street": "1709 Elmwood Dr",
+                "city": "Harlingen",
+                "country": "US",
+                "zipCode": "78550",
+                "state": "TX",
+                "addressType": "BUSINESS_ADDRESS",
+                "bentoType": "com.bentoforbusiness.entity.business.BusinessAddress"
             }
     }
     if attribution == "杨经理FB1" or attribution == "gt":
@@ -85,13 +85,13 @@ def RefreshToken():
         "token": token.headers.get("authorization"),
         "time": datetime.now().hour
     }
-    with open("/bento_web_version/apps/bento_create_card/product_key.txt", "w") as f:
+    with open("/bento_web_version2/apps/bento_create_card/product_key.txt", "w") as f:
         f.write(json.dumps(d))
     return d.get("token")
 
 
 def GetToken():
-    with open("/bento_web_version/apps/bento_create_card/product_key.txt", "r") as f:
+    with open("/bento_web_version2/apps/bento_create_card/product_key.txt", "r") as f:
         token = f.read()
     if json.loads(token).get("time") != datetime.now().hour:
         bento_token = RefreshToken()

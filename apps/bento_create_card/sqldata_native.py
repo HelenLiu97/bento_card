@@ -472,6 +472,12 @@ class SqlDataNative(object):
         self.close_connect()
         return row[0]
 
+    def search_sum_remain(self):
+        sql = "SELECT SUM(balance) FROM bento_alias_balance"
+        self.cursor.execute(sql)
+        row = self.cursor.fetchall()
+        return row[0][0]
+
 def main():
     card_name = ""
     attribution="大龙"

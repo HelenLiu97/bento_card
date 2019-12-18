@@ -4,6 +4,7 @@
     <title>475440客户充值</title>
     <link rel="stylesheet" href="/static/layui/css/layui.css"  media="all">
     <link rel="icon" href="/static/img/buy-icon.png" type="image/x-icon"/>
+    <meta http-equiv="refresh" content="600">
     <script src="/static/layui/layui.js" charset="utf-8"></script>
     <script src="http://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js"></script>
     <script src="http://code.highcharts.com/highcharts.js"></script>
@@ -15,6 +16,11 @@
     <ul class="layui-nav layui-bg-green">
         <li class="layui-nav-item"><a href="">475440客户充值</a></li>
     </ul>
+        <ul class="layui-nav layui-layout-right">
+            <li class="layui-nav-item"><a>&nbsp;</a></li>
+            <button type="button" class="layui-btn layui-btn-normal layui-btn-radius" ><a href="/verify_pay/logout">注销</a></button>
+        </ul>
+
     </div>
 </div>
 
@@ -43,6 +49,10 @@
       </div>
       <div class="layui-tab-item">
         <table class="layui-hide" id="all_account" lay-filter="all_account"></table>
+          <script type="text/html" id="barDemo1">
+            <a class="layui-btn layui-btn-xs" lay-event="edit">编辑</a>
+            <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">删除</a>
+          </script>
     </div>
 
       <div class="layui-tab-item">
@@ -83,6 +93,7 @@
 
   </div>
 </div>
+    </div>
 
 
 <style type="text/css">
@@ -113,7 +124,7 @@
 
 
         $(".layui-tab-title li").click(function(){
-            {#var picTabNum = $(this).index();#}
+            // var picTabNum = $(this).index();
             var picTabNum = $(this).attr('lay-id');
             sessionStorage.setItem("picTabNum",picTabNum);
             });
@@ -141,9 +152,63 @@
                 , {field: 'name', title: '用户名', align: 'center', totalRowText: '合计：'}
                 , {field: 'username', title: '登录账号', align: 'center',}
                 , {field: 'password', title: '登录密码', align: 'center', }
+                , {fixed: 'right', width: 220, align: 'center', toolbar: '#barDemo1'}
             ]]
             , id: 'all_account'
             , page: true
+        });
+
+        table.on('tool(all_account)', function (obj) { //注：tool 是工具条事件名，test_all 是 table 原始容器的属性 lay-filter="对应的值"
+            var data = obj.data //获得当前行数据
+                , layEvent = obj.event; //获得 lay-event 对应的值
+
+            if (layEvent === 'del'){
+
+                layer.confirm('确认删除该用户信息?', function(index){
+                    $.ajax({
+                    type : 'GET',
+                    url : '/verify_pay/del_account/?user_id='+data.user_id,
+                    success : function(data) {
+                        // 成功提示框
+                        if (data.code == 0){
+                            parent.layer.msg(data.msg, {
+                            icon : 6,
+                        },obj.del());
+
+                        }else if(data.code == 502){
+                            parent.layer.msg(data.msg, {
+                            icon : 5
+                        });
+                        }
+
+                    },
+                    error : function(data) {
+                        // 异常提示
+                        parent.layer.msg('出现网络故障', {
+                            icon : 5
+                        });
+                        parent.layer.closeAll('iframe'); //关闭弹框
+                    }
+                });
+                })
+
+            } else if (layEvent === 'edit') {
+                layui.layer.open({
+                    title: '确认客户为 [ ' + data.name + ' ] 的充值信息',
+                    type: 2,
+                    anim: 3,
+                    area: ['340px', '340px'],//宽高
+                    shadeClose: true, //点击遮罩关闭
+                    content: '/verify_pay/edit_acc/?user_id=' + data.user_id,
+                    success: function(layer, index) {
+                        var body = layer.getChildFrame('body', index);
+                    },
+                    end: function () {
+                        location.reload()
+                    }
+                });
+                return false
+            }
         });
 
 
@@ -327,5 +392,6 @@
 
 
 </script>
+
 </body>
 </html>

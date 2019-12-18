@@ -31,7 +31,7 @@
   <div class="layui-header layui-bg-black" >
     <div class="layui-logo">Welcome to BenTo</div>
     <ul class="layui-nav layui-layout-right">
-        <li class="layui-nav-item"><span style="font-weight: normal;font-size: 16px;color: ghostwhite;">decline的数量 </span><span style="font-weight: normal;font-size: 16px;color: lightgoldenrodyellow"> {{ advance }}</span></li>
+        <li class="layui-nav-item"><span style="font-weight: normal;font-size: 16px;color: #D1EEEE;">客户总充值 </span><span style="font-weight: normal;font-size: 16px;color: lightgoldenrodyellow"> {{ sum_top }}</span>&nbsp;&nbsp;&nbsp;&nbsp;<span style="font-weight: normal;font-size: 16px;color: #F0F8FF;">客户可分配 </span><span style="font-weight: normal;font-size: 16px;color: lightgoldenrodyellow"> {{ sum_remain }}</span>&nbsp;&nbsp;&nbsp;&nbsp;<span style="font-weight: normal;font-size: 16px;color: #EDEDED;">客户卡总余额 </span><span style="font-weight: normal;font-size: 16px;color: lightgoldenrodyellow"> {{ card_remain }}</span>&nbsp;&nbsp;&nbsp;&nbsp;<span style="font-weight: normal;font-size: 16px;color: ghostwhite;">decline的数量 </span><span style="font-weight: normal;font-size: 16px;color: lightgoldenrodyellow"> {{ advance }}</span></li>
       <li class="layui-nav-item">
         <a href="javascript:">
           {{ admin_name }}
@@ -111,8 +111,6 @@
         <script type="text/html" id="barDemo">
             <a class="layui-btn layui-btn-xs" lay-event="top_up">充值</a>
             <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="edit">编辑</a>
-{#            <a class="layui-btn layui-btn-normal layui-btn-xs" lay-event="lock">冻结</a>#}
-{#            <a class="layui-btn layui-btn-warm layui-btn-xs" lay-event="del">删卡</a>#}
         </script>
     </div>
 
@@ -735,7 +733,6 @@ Welcome to BenTo
             , toolbar: '#toolbarDemo'
             , limit:50
             , limits:[50,100,150,200,250,300,350,400,450,500]
-            {#toolbar: "r" //开启工具栏，此处显示默认图标，可以自定义模板，详见文档#}
             , totalRow: true //开启合计行
             , cols: [[ //表头
                 {type:'numbers'}
@@ -854,7 +851,7 @@ Welcome to BenTo
                 //, {field: 'max_top', title: '最高充值金额', align: 'center', sort: true,}
                 , {field: 'card_num', title: '开卡数量', align: 'center', sort: true,totalRow:true,style: "color: #000000"}
                 , {field: 'in_card_num', title: '已开卡数量', align: 'center', sort: true,totalRow:true,style: "color: #000000"}
-		, {field: 'del_card_num', title: '已删卡数量', align: 'center', sort: true,totalRow:true,style: "color: #000000"}
+		        , {field: 'del_card_num', title: '已删卡数量', align: 'center', sort: true,totalRow:true,style: "color: #000000"}
                 , {field: 'out_money', title: '总消费金额', align: 'center', sort: true, totalRow:true,style: "color: red"}
                 , {field: 'account_all_money', title: '卡的总余额', align: 'center', sort: true, totalRow:true,style: "color: red"}
                 , {field: 'balance', title: '账户余额', align: 'center', sort: true, totalRow:true, style: "color: purple"}
@@ -935,7 +932,7 @@ Welcome to BenTo
                 , {field: 'name', title: '客户', align: 'center', sort: true,  totalRowText: '合计：'}
                 , {field: 'pay_num', title: '流水号', align: 'center', sort: true,}
                 , {field: 'time', title: '充值时间', align: 'center', sort: true, }
-		, {field: 'trans_type', title: '充值类型', align: 'center', sort: true, style:'color: #104E8B'}
+		        , {field: 'trans_type', title: '充值类型', align: 'center', sort: true, style:'color: #104E8B'}
                 , {field: 'money', title: '充值金额', align: 'center', sort: true, totalRow: true,style:'color: red'}
                 , {field: 'before_balance', title: '充值前余额', align: 'center', sort: true, totalRow: true}
                 , {field: 'balance', title: '充值后余额', align: 'center', sort: true, totalRow: true}
@@ -1155,7 +1152,7 @@ Welcome to BenTo
                 ,area: ['90%','88%']
                 ,anim: 2
                 ,shadeClose:true
-                ,content: '/admin/card_list_html?user_id=' + data.u_id
+                ,content: '/admin/account_card_list?user_name=' + data.name
                 ,btn: '关闭全部'
                 ,btnAlign: 'c' //按钮居中a
                 ,shade:  [0.8, '#393D49'] //弹框背景选项
@@ -1180,7 +1177,7 @@ Welcome to BenTo
                 ,area: ['90%','80%']
                 ,anim: 2
                 ,shadeClose:true
-                ,content: '/admin/card_list_html?user_id=' + data.name
+                ,content: '/admin/middle_info_html?user_id=' + data.name
                 ,btn: '关闭全部'
                 ,btnAlign: 'c' //按钮居中a
                 ,shade:  [0.8, '#393D49'] //弹框背景选项
@@ -1419,7 +1416,6 @@ Welcome to BenTo
             });
 
          form.on('submit(sea_account)', function(data){
-            {#var data_info = {data:JSON.stringify(data.field)};#}
              var $ = layui.jquery;
              var data_info = $('#s_acc_name').val();
              table.reload("account_info", {

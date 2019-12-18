@@ -59,8 +59,6 @@ app.register_blueprint(bentodata_blueprint)
 from apps.finance import finance_blueprint
 app.register_blueprint(finance_blueprint)
 
-from apps.study_html import study_blueprint
-app.register_blueprint(study_blueprint)
 
 if not app.debug:
     if not os.path.exists('logs'):
