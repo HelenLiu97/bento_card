@@ -1,7 +1,5 @@
 import logging
 from datetime import timedelta
-from logging.handlers import RotatingFileHandler
-import os
 from flask import Flask
 from flask_cache import Cache
 from tools_me.parameter import DIR_PATH
@@ -60,6 +58,7 @@ from apps.finance import finance_blueprint
 app.register_blueprint(finance_blueprint)
 
 
+'''
 if not app.debug:
     if not os.path.exists('logs'):
         os.mkdir('logs')
@@ -69,4 +68,4 @@ if not app.debug:
     app.logger.addHandler(file_handler)
     app.logger.setLevel(logging.INFO)
     app.logger.info('bento startup')
-
+'''

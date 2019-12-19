@@ -1,8 +1,6 @@
 import pymysql
 import logging
 
-from tools_me.parameter import TRANS_TYPE, DO_TYPE
-
 logging.basicConfig(level=logging.INFO, format='%(asctime)s :: %(levelname)s :: %(message)s', filename="error.log")
 
 

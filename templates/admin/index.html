@@ -30,6 +30,9 @@
 <div class="layui-layout layui-layout-admin">
   <div class="layui-header layui-bg-black" >
     <div class="layui-logo">Welcome to BenTo</div>
+      <ul class="layui-nav layui-layout-left">
+          <li class="layui-nav-item"> <span style="font-weight: normal;font-size: 16px;color: ghostwhite;">卡总余额统计时间： </span><span style="font-weight: normal;font-size: 16px;color: palevioletred;">{{ up_remain_time }}</span> </li>
+      </ul>
     <ul class="layui-nav layui-layout-right">
         <li class="layui-nav-item"><span style="font-weight: normal;font-size: 16px;color: #D1EEEE;">客户总充值 </span><span style="font-weight: normal;font-size: 16px;color: lightgoldenrodyellow"> {{ sum_top }}</span>&nbsp;&nbsp;&nbsp;&nbsp;<span style="font-weight: normal;font-size: 16px;color: #F0F8FF;">客户可分配 </span><span style="font-weight: normal;font-size: 16px;color: lightgoldenrodyellow"> {{ sum_remain }}</span>&nbsp;&nbsp;&nbsp;&nbsp;<span style="font-weight: normal;font-size: 16px;color: #EDEDED;">客户卡总余额 </span><span style="font-weight: normal;font-size: 16px;color: lightgoldenrodyellow"> {{ card_remain }}</span>&nbsp;&nbsp;&nbsp;&nbsp;<span style="font-weight: normal;font-size: 16px;color: ghostwhite;">decline的数量 </span><span style="font-weight: normal;font-size: 16px;color: lightgoldenrodyellow"> {{ advance }}</span></li>
       <li class="layui-nav-item">

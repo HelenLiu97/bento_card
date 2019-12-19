@@ -593,6 +593,14 @@ def account_html():
     bento_allias_balance = SqlDataNative().select_alias_balance(attribution=user_name)
     context['all_money'] = bento_allias_balance
 
+    # 查询上次卡余额统计时间
+    card_remain_time = SqlData().search_admin_field('up_remain_time')
+    if card_remain_time:
+        up_remain_time = str(card_remain_time)
+    else:
+        up_remain_time = '上次获取时间异常'
+    context['up_remain_time'] = up_remain_time
+
     if label:
         context["bento_label"] = label[0]
     else:

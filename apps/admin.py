@@ -961,7 +961,7 @@ def edit_parameter():
             return jsonify(results)
 
 
-@admin_blueprint.route('/account_info', methods=['GET'])
+@admin_blueprint.route('/account_info/', methods=['GET'])
 @admin_required
 def account_info():
     page = request.args.get('page')
@@ -1015,6 +1015,8 @@ def account_card():
     limit = request.args.get('limit')
     user_name = request.args.get('user_name')
     card_info = SqlDataNative().search_alias_data('', user_name)
+    if not card_info:
+        return jsonify({'code:': RET.SERVERERROR, 'msg': MSG.NODATA})
     page_list = list()
     task_info = list(reversed(card_info))
     for i in range(0, len(task_info), int(limit)):
@@ -1143,8 +1145,10 @@ def index():
     card_use = SqlDataNative().count_bento_data(sqld="")
     card_no = SqlDataNative().count_bento_data(sqld="where label='已注销'")
     card_un = SqlDataNative().count_bento_data(sqld="where label!='已注销'")
+    up_remain_time = SqlData().search_admin_field('up_remain_time')
     context = dict()
     context['admin_name'] = admin_name
+    context['up_remain_time'] = up_remain_time
     # context['spent'] = spent
     context['advance'] = decline
     context['sum_top'] = sum_top
