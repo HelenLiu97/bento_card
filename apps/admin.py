@@ -18,6 +18,28 @@ from . import admin_blueprint
 from config import cache
 
 
+@admin_blueprint.route('/edit_bank_money/', methods=['POST'])
+@admin_required
+def edit_bank_money():
+    bank_number = request.form.get('bank_number')
+    money = request.form.get('money')
+    bank_number = [bank_number]
+    SqlData().update_bank_top(bank_number, money)
+    return jsonify({'code': RET.OK, 'msg': MSG.OK})
+
+
+@admin_blueprint.route('/lock_bank/', methods=['GET'])
+@admin_required
+def lock_bank():
+    bank_number = request.args.get('bank_number')
+    status = SqlData().search_bank_status(bank_number)
+    if status == 0:
+        SqlData().update_bank_status(bank_number, 1)
+    else:
+        SqlData().update_bank_status(bank_number, 0)
+    return jsonify({'code': RET.OK, 'msg': MSG.OK})
+
+
 @admin_blueprint.route('/del_bank/', methods=['GET'])
 @admin_required
 def del_bank():
@@ -314,6 +336,13 @@ def account_decline():
         min_today = "{} {}".format(change_today(today_time, -3), "00:00:00")
         three_data = SqlDataNative().count_decline_data(attribution=alias, min_today=min_today, max_today=max_today)
         three_tran_data = SqlDataNative().search_d(alias)
+        if three_tran_data == 0:
+            show = 'F'
+        else:
+            if (three_data / three_tran_data * 100) > 0.1:
+                show = 'T'
+            else:
+                show = 'F'
         alias_data.append({
             "alias": alias,
             "t_data": t_data,
@@ -321,7 +350,8 @@ def account_decline():
             "three_decl": three_data,
             "three_tran": three_tran_data,
             "bili": "{}{}".format(float("%.4f" % (three_data / three_tran_data * 100)),
-                                  "%") if three_tran_data != 0 else 0
+                                  "%") if three_tran_data != 0 else 0,
+            "show": show
         })
     return jsonify({"code": 0, "count": len(alias_data), "data": alias_data, "msg": "SUCCESSFUL"})
 

@@ -1044,8 +1044,8 @@ class SqlData(object):
         return ""
 
     # bank_info
-    def search_bank_info(self):
-        sql = "SELECT * FROM bank_info"
+    def search_bank_info(self, sql_line=''):
+        sql = "SELECT * FROM bank_info {}".format(sql_line)
         self.cursor.execute(sql)
         rows = self.cursor.fetchall()
         data = []
@@ -1055,7 +1055,8 @@ class SqlData(object):
                     "bank_name": row[1],
                     "bank_number": row[2],
                     "bank_address": row[3],
-                    "money": str(row[4])
+                    "money": str(row[4]),
+                    "status": '正常' if row[5] == 0 else '锁定'
                 })
             else:
                 return ""
@@ -1104,6 +1105,23 @@ class SqlData(object):
         row = self.cursor.fetchone()
         self.close_connect()
         return row[0]
+
+    def search_bank_status(self, bank_number):
+        sql = "SELECT status FROM bank_info WHERE bank_number='{}'".format(bank_number)
+        self.cursor.execute(sql)
+        row = self.cursor.fetchone()
+        self.close_connect()
+        return row[0]
+
+    def update_bank_status(self, bank_number, status):
+        sql = "UPDATE bank_info SET status={} WHERE bank_number='{}'".format(status, bank_number)
+        try:
+            self.cursor.execute(sql)
+            self.connect.commit()
+        except Exception as e:
+            logging.error("更新银行收款信息失败" + str(e))
+            self.connect.rollback()
+        self.close_connect()
 
     def update_bank_top(self, bank_number, bank_money):
         sql = "UPDATE bank_info SET money='{}' WHERE bank_number='{}'".format(bank_money, bank_number[0])

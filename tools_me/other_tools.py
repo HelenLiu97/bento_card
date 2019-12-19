@@ -361,5 +361,10 @@ def check_float(string):
             return True
     return False
 
+
+def dic_key(dic):
+    return float(dic['money'])
+
+
 if __name__ == "__main__":
     print(sum_code())

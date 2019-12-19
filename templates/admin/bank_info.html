@@ -22,7 +22,7 @@
 <!--
 <button type="button" class="layui-btn layui-btn-danger" id="test7"><i class="layui-icon"></i>上传图片</button>
 -->
-<table class="layui-hide" id="qr_code" lay-filter="qr_code"> </table>
+<table class="layui-hide" id="qr_code" lay-filter="qr_code"></table>
 
 <div id="details" style="padding: 20px;" lay-filter="detail">
     <form class="layui-form" lay-filter="example" id="example" enctype="multipart/form-data">
@@ -59,8 +59,8 @@
 </div>
 
 <script type="text/html" id="barDemo">
-
-
+    <a class="layui-btn layui-btn-primary layui-btn-xs" lay-event="lock" id="do_lock">锁定</a>
+    <a class="layui-btn layui-btn-xs" lay-event="edit">收款金额</a>
     <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">删除</a>
 </script>
 
@@ -113,6 +113,7 @@
                     , {field: 'bank_number', title: '收款人卡号', align: 'center', sort: true,}
                     , {field: 'bank_address', title: '银行卡归属分行', align: 'center', sort: true,}
                     , {field: 'money', title: '累计金额', align: 'center', sort: true,}
+                    , {field: 'status', title: '状态', align: 'center', sort: true,}
                     , {fixed: 'right', width: 220, align: 'center', toolbar: '#barDemo'}
                 ]]
                 , id: 'qr_code'
@@ -134,7 +135,7 @@
             if (layEvent === 'lock') {
                 $.ajax({
                     type: 'get',
-                    url: '' + data.qr_code,
+                    url: '/admin/lock_bank/?bank_number=' + data.bank_number,
                     dataType: 'json',
                     success: function (data) {
                         // 成功提示框
@@ -185,6 +186,43 @@
                     }
                 });
                 })
+            } else if (layEvent === 'edit'){
+                layer.prompt({title: '编辑当前累计收款金额', value:data.money}, function(num, index){
+
+                    if (isNaN(num)){
+                        layer.msg('请输入数字!')
+                    }else{
+                        $.ajax({
+                            type : 'POST',
+                            url : '/admin/edit_bank_money/',
+                            data : {bank_number:data.bank_number,
+                                    money:num
+                            },
+                            dataType : 'json',
+                            beforeSend:function () {
+                            layer.load(2, {shade: false})
+                            },
+                            success : function(data) {
+                                // 成功提示框
+                                if (data.code == 0){
+                                    layer.closeAll();
+                                    parent.layer.msg(data.msg, {
+                                    icon : 6,
+                                });
+                                location.reload()
+                                }else if(data.code == 502){
+                                    layer.closeAll();
+                                    parent.layer.msg(data.msg, {
+                                    icon : 5
+                                });
+                                }
+
+                            }
+                        });
+                    }
+                    layer.close(index);
+
+                });
             }
         });
 
@@ -201,7 +239,6 @@
         var form = layui.form;
       //监听提交
         form.on('submit(formDemo)', function(data){
-            {#layer.msg(JSON.stringify(data.field));#}
             var data_info = {data:JSON.stringify(data.field)};
             var $ = layui.jquery;
 

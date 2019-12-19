@@ -4,7 +4,7 @@ import re
 import uuid
 from flask import render_template, request, json, jsonify, session, redirect, url_for
 from tools_me.mysql_tools import SqlData
-from tools_me.other_tools import time_str, xianzai_time, pay_required, sum_code
+from tools_me.other_tools import time_str, xianzai_time, pay_required, sum_code, dic_key
 from tools_me.parameter import RET, MSG, DIR_PATH
 from tools_me.send_email import send
 from . import pay_blueprint
@@ -175,11 +175,47 @@ def pay_pic():
                     url = n.get('qr_code')
                     break
 
-        bank_data = SqlData().bank_min_data()
-        # bank_name = "bank_name"
-        # bank_number = "bank_number"
-        # bank_address = "bank_address"
+        # 一下三个循环和判断为处理相同收款人，多个账号，取低于累计20万的中的最小收款账号
+        bank_data = SqlData().search_bank_info(sql_line='WHERE status=0')
+        # bank_info 整理为一个收款人对应多个收款卡号 {'':[],'':[]} 格式
+        bank_info = dict()
+        for n in bank_data:
+            bank_name = n.get('bank_name')
+            if bank_name in bank_info:
+                info_list = bank_info.get(bank_name)
+                info_list.append(n)
+            else:
+                info_list = list()
+                info_list.append(n)
+                bank_info[bank_name] = info_list
+        # sum_money_dict 为统计一个账号一共充值了多少元
+        sum_money_dict = dict()
+        for i in bank_info:
+            value = bank_info.get(i)
+            money = 0
+            for m in value:
+                money += float(m.get('money'))
+            sum_money_dict[i] = money
+        # min_dict 为取出满足累计收款低于20万的账户，且最小的充值战账户
+        min_dict = dict()
+        for acc in sum_money_dict:
+            if sum_money_dict.get(acc) < 200000:
+                min_dict[acc] = sum_money_dict.get(acc)
         context = dict()
+        if len(min_dict) == 0:
+            context['bank_name'] = '无符合要求收款账户！'
+            context['bank_number'] = '请联系管理员处理！'
+            context['bank_address'] = '----------------'
+        else:
+            # 在最小充值账户中取出最小收款卡号推送
+            min_acc = min(zip(min_dict.values(), min_dict.keys()))
+            min_acc = min_acc[1]
+            acc_list = bank_info.get(min_acc)
+            data = min(acc_list, key=dic_key)
+            context['bank_name'] = data.get('bank_name')
+            context['bank_number'] = data.get('bank_number')
+            context['bank_address'] = data.get('bank_address')
+
         context['sum_money'] = sum_money
         context['top_money'] = top_money
         context['cus_name'] = cus_name
@@ -187,9 +223,6 @@ def pay_pic():
         context['phone'] = "{},{}".format(phone, phone2) if phone2 else phone
         context['url'] = url
         context['ex_change'] = ex_change
-        context['bank_name'] = bank_data.get("bank_name")
-        context['bank_number'] = bank_data.get("bank_number")
-        context['bank_address'] = bank_data.get("bank_address")
         return render_template('pay/pay_pic.html', **context)
     if request.method == 'POST':
         '''

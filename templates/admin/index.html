@@ -454,7 +454,7 @@
                </div>
            </form>
  
-          <tablse class="layui-hide" id="account_decl" lay-filter="account_decl"></tablse>
+          <tablse class="layui-table" id="account_de" lay-filter="account_decl"></tablse>
        </div>
 
 	<div class="layui-tab-item">
@@ -608,23 +608,29 @@ Welcome to BenTo
             var series = [];
 
             $.ajax({
-                type : 'GET',
-                url : '/admin/line_chart',
-                dataType : 'json',
-                success : function(data) {
+                type: 'GET',
+                url: '/admin/line_chart',
+                dataType: 'json',
+                success: function (data) {
                     // 成功提示框
-                    if (data.code == 0){
+                    if (data.code == 0) {
                         var info = data.data,
                             column = data.column,
                             xax = data.xAx,
-                            xaxis = {categories:xax,lineWidth: 4};
-                        var c = {name:'合计',data:column, type:'column',pointWidth:10,dataLabels:{enabled:true , style:{color:'#080808',size:50}}};
+                            xaxis = {categories: xax, lineWidth: 4};
+                        var c = {
+                            name: '合计',
+                            data: column,
+                            type: 'column',
+                            pointWidth: 10,
+                            dataLabels: {enabled: true, style: {color: '#080808', size: 50}}
+                        };
                         series.push(c);
-                        for (var i=0; i<info.length;i++){
+                        for (var i = 0; i < info.length; i++) {
                             var name = info[i].name;
                             var data1 = info[i].data;
                             //var s = {name:name,data:data1};
-                            var s = {name:name,data:data1,type:'spline'};
+                            var s = {name: name, data: data1, type: 'spline'};
                             series.push(s)
                         }
                         var json = {};
@@ -637,72 +643,72 @@ Welcome to BenTo
                         json.series = series;
                         json.plotOptions = plotOptions;
                         $('#month').highcharts(json);
-                    }else if(data.code == 502){
+                    } else if (data.code == 502) {
                         parent.layer.msg(data.msg, {
-                        icon : 5
-                    });
+                            icon: 5
+                        });
                     }
 
                 },
-                error : function(data) {
+                error: function (data) {
                     // 异常提示
                     parent.layer.msg('出现网络故障', {
-                        icon : 5
+                        icon: 5
                     });
                 }
             });
         });
 
 
-        $(".layui-tab-title li").click(function(){
+        $(".layui-tab-title li").click(function () {
             var picTabNum = $(this).attr('lay-id');
-            sessionStorage.setItem("picTabNum",picTabNum);
-            });
-            $(function(){
-                var getPicTabNum = sessionStorage.getItem("picTabNum");
-                $(".layui-tab-title li").eq(Number(getPicTabNum)-1).addClass("layui-this").siblings().removeClass("layui-this");
-                $(".layui-tab-content>div>div[id=test_table]>div>table").eq(Number(getPicTabNum)-1).addClass("layui-show").siblings().removeClass("layui-show");
-            });
+            sessionStorage.setItem("picTabNum", picTabNum);
+        });
+        $(function () {
+            var getPicTabNum = sessionStorage.getItem("picTabNum");
+            $(".layui-tab-title li").eq(Number(getPicTabNum) - 1).addClass("layui-this").siblings().removeClass("layui-this");
+            $(".layui-tab-content>div>div[id=test_table]>div>table").eq(Number(getPicTabNum) - 1).addClass("layui-show").siblings().removeClass("layui-show");
+        });
 
         var getPicTabNum = sessionStorage.getItem("picTabNum");
 
 
         element.tabChange('demo', getPicTabNum);
-	laydate.render({
-	    elem: '#bento_time',
-	    range: true
-	});
+        laydate.render({
+            elem: '#bento_time',
+            range: true
+        });
 
         laydate.render({
             elem: '#s_test6'
-            ,range: true
-          });
+            , range: true
+        });
 
         laydate.render({
             elem: '#test7'
-            ,range: true
-          });
+            , range: true
+        });
 
         laydate.render({
             elem: '#test8'
-            ,range: true
-          });
+            , range: true
+        });
         laydate.render({
             elem: '#test9'
-            ,range: true
-          });
+            , range: true
+        });
         laydate.render({
             elem: '#test10'
-            ,range: true
-          });
-	laydate.render({
-	    elem: '#test11',
-	    range: true
-	});
-	laydate.render({
- 	    elem: '#test12',
-	    range: true
-	})
+            , range: true
+        });
+        laydate.render({
+            elem: '#test11',
+            range: true
+        });
+        laydate.render({
+            elem: '#test12',
+            range: true
+        })
 
         //table.render({
         //    elem: '#cus_money_log'
@@ -710,21 +716,21 @@ Welcome to BenTo
         //    , cellMinWidth: '80'
         //    , url: '/admin/cus_log' //数据接口
         //    , title: '客户账户金额表'
-       //     , limit:50
-      //      , limits:[50,100,150,200,250,300,350,400,450,500]
-      //      , toolbar: "r" //开启工具栏，此处显示默认图标，可以自定义模板，详见文档
-      //      , totalRow: true //开启合计行
-      //      , cols: [[ //表头
-      //          {type:'numbers'}
-      //          , {field: 'log_time', title: '记录时间', align: 'center', sort: true,  totalRowText: '合计：'}
-      //          , {field: 'customer', title: '客户', align: 'center', sort: true,}
-      //          , {field: 'balance', title: '余额', align: 'center', sort: true,}
-      //          , {field: 'out_money', title: '总计支出金额', align: 'center', sort: true,}
-      //          , {field: 'sum_balance', title: '总计充值金额', align: 'center', sort: true,}
-      //      ]]
-      //      , id: 'cus_log'
-      //      , page: true
-      //  });
+        //     , limit:50
+        //      , limits:[50,100,150,200,250,300,350,400,450,500]
+        //      , toolbar: "r" //开启工具栏，此处显示默认图标，可以自定义模板，详见文档
+        //      , totalRow: true //开启合计行
+        //      , cols: [[ //表头
+        //          {type:'numbers'}
+        //          , {field: 'log_time', title: '记录时间', align: 'center', sort: true,  totalRowText: '合计：'}
+        //          , {field: 'customer', title: '客户', align: 'center', sort: true,}
+        //          , {field: 'balance', title: '余额', align: 'center', sort: true,}
+        //          , {field: 'out_money', title: '总计支出金额', align: 'center', sort: true,}
+        //          , {field: 'sum_balance', title: '总计充值金额', align: 'center', sort: true,}
+        //      ]]
+        //      , id: 'cus_log'
+        //      , page: true
+        //  });
 
         //执行一个 table 实例
         table.render({
@@ -734,11 +740,11 @@ Welcome to BenTo
             , url: '/admin/card_all' //数据接口
             , title: '卡信息'
             , toolbar: '#toolbarDemo'
-            , limit:50
-            , limits:[50,100,150,200,250,300,350,400,450,500]
+            , limit: 50
+            , limits: [50, 100, 150, 200, 250, 300, 350, 400, 450, 500]
             , totalRow: true //开启合计行
             , cols: [[ //表头
-                {type:'numbers'}
+                {type: 'numbers'}
                 //, {field: 'activation', title: 'cardId', align: 'center', sort: true,  totalRowText: '合计：'}
                 , {field: 'card_no', title: '卡号', align: 'center', sort: true,}
                 //, {field: 'pay_passwd', title: '支付密码', align: 'center', sort: true,}
@@ -753,52 +759,52 @@ Welcome to BenTo
             , page: true
         });
 
-	table.render({
-              elem: '#bento_alltrans'
-              , height: 'full-250'
-              , cellMinWidth: '80'
-              , url: '/admin/all_trans' //数据接口
-              , title: '交易记录表'
-              , limit:100
-              , limits:[100, 200, 300, 400, 500, 600, 700, 800, 900, 1000]
-              , toolbar: "true" //开启工具栏，此处显示默认图标，可以自定义模板，详见文档
-              , totalRow: true //开启合计行
-              , cols: [[ //表头
-                  {type:'numbers'}
-                  ,{type: 'checkbox'}
-                  , {field: 'hand_money', title: '卡的名字', align: 'center', totalRow: true, sort: true}
-                  , {field: 'date', title: '操作日期', align: 'center', sort: true,  totalRowText: '合计：'}
-                  , {field: 'trans_type', title: '交易类型', align: 'center', sort: true,style:'color: green'}
-                  , {field: 'do_type', title: '操作状态', align: 'center', sort: true,}
-                  , {field: 'do_money', title: '操作金额', align: 'center', totalRow: true, sort: true, style:'color: red'}
-                  , {field: 'card_no', title: '卡号', align: 'center', sort: true}
-                  , {field: 'before_balance', title: '归属客户', align: 'center', sort: true}
-              ]]
-             , id: 'bento_alltrans'
-             , page: true
- 
-         });
+        table.render({
+            elem: '#bento_alltrans'
+            , height: 'full-250'
+            , cellMinWidth: '80'
+            , url: '/admin/all_trans' //数据接口
+            , title: '交易记录表'
+            , limit: 100
+            , limits: [100, 200, 300, 400, 500, 600, 700, 800, 900, 1000]
+            , toolbar: "true" //开启工具栏，此处显示默认图标，可以自定义模板，详见文档
+            , totalRow: true //开启合计行
+            , cols: [[ //表头
+                {type: 'numbers'}
+                , {type: 'checkbox'}
+                , {field: 'hand_money', title: '卡的名字', align: 'center', totalRow: true, sort: true}
+                , {field: 'date', title: '操作日期', align: 'center', sort: true, totalRowText: '合计：'}
+                , {field: 'trans_type', title: '交易类型', align: 'center', sort: true, style: 'color: green'}
+                , {field: 'do_type', title: '操作状态', align: 'center', sort: true,}
+                , {field: 'do_money', title: '操作金额', align: 'center', totalRow: true, sort: true, style: 'color: red'}
+                , {field: 'card_no', title: '卡号', align: 'center', sort: true}
+                , {field: 'before_balance', title: '归属客户', align: 'center', sort: true}
+            ]]
+            , id: 'bento_alltrans'
+            , page: true
 
-        table.on('rowDouble(card_all)', function(obj){
-        var data = obj.data;
+        });
+
+        table.on('rowDouble(card_all)', function (obj) {
+            var data = obj.data;
             layer.open({
                 type: 2
-                ,offset: 'r' //具体配置参考：http://www.layui.com/doc/modules/layer.html#offset
-                ,skin:'layui-layer-demo'
-                ,id: 'layerUser'//防止重复弹出
-                ,title: '卡号为 ' + data.card_no + ' 的详细信息'
-                ,area: ['40%','80%']
-                ,anim: 2
-                ,shadeClose:true
-                ,content: '/user/one_card_detail?card_no=' + data.card_name
-                ,btn: '关闭全部'
-                ,btnAlign: 'c' //按钮居中a
-                ,shade:  [0.8, '#393D49'] //弹框背景选项
-                ,success: function(layero, index) {
-                        var body = layer.getChildFrame('body', index);
-                        body.contents().find("#card_num").html(data.card_no);
-                    }
-              });
+                , offset: 'r' //具体配置参考：http://www.layui.com/doc/modules/layer.html#offset
+                , skin: 'layui-layer-demo'
+                , id: 'layerUser'//防止重复弹出
+                , title: '卡号为 ' + data.card_no + ' 的详细信息'
+                , area: ['40%', '80%']
+                , anim: 2
+                , shadeClose: true
+                , content: '/user/one_card_detail?card_no=' + data.card_name
+                , btn: '关闭全部'
+                , btnAlign: 'c' //按钮居中a
+                , shade: [0.8, '#393D49'] //弹框背景选项
+                , success: function (layero, index) {
+                    var body = layer.getChildFrame('body', index);
+                    body.contents().find("#card_num").html(data.card_no);
+                }
+            });
 
             //标注选中样式
             obj.tr.addClass('layui-table-click').siblings().removeClass('layui-table-click');
@@ -811,14 +817,14 @@ Welcome to BenTo
             , cellMinWidth: '80'
             , url: '/admin/account_trans/' //数据接口
             , title: '客户交易记录'
-            , limit:50
-            , limits:[50,100,150,200,250,300,350,400,450,500]
+            , limit: 50
+            , limits: [50, 100, 150, 200, 250, 300, 350, 400, 450, 500]
             , toolbar: "true" //开启工具栏，此处显示默认图标，可以自定义模板，详见文档
             , totalRow: true //开启合计行
             , cols: [[ //表头
-                {type:'numbers'}
-                ,{type: 'checkbox'}
-                , {field: 'cus_name', title: '客户', align: 'center', sort: true,  totalRowText: '合计：'}
+                {type: 'numbers'}
+                , {type: 'checkbox'}
+                , {field: 'cus_name', title: '客户', align: 'center', sort: true, totalRowText: '合计：'}
                 , {field: 'date', title: '操作日期', align: 'center', sort: true,}
                 , {field: 'do_type', title: '操作类型', align: 'center', sort: true,}
                 //, {field: 'num', title: '操作类型', align: 'center', sort: true}
@@ -839,80 +845,108 @@ Welcome to BenTo
             , cellMinWidth: '80'
             , url: '/admin/account_info' //数据接口
             , title: '客户信息'
-            , limit:50
-            , limits:[50,100,150,200,250,300,350,400,450,500]
+            , limit: 50
+            , limits: [50, 100, 150, 200, 250, 300, 350, 400, 450, 500]
             , toolbar: "r" //开启工具栏，此处显示默认图标，可以自定义模板，详见文档
             , totalRow: true //开启合计行
             , cols: [[ //表头
-                {type:'numbers'}
-                , {field: 'name', title: '客户', align: 'center', sort: true,  totalRowText: '合计：'}
+                {type: 'numbers'}
+                , {field: 'name', title: '客户', align: 'center', sort: true, totalRowText: '合计：'}
                 , {field: 'account', title: '账号', align: 'center', sort: true,}
                 , {field: 'password', title: '密码', align: 'center', sort: true,}
                 , {field: 'create_price', title: '开卡费', align: 'center', sort: true,}
                 //, {field: 'refund', title: '取现手续费', align: 'center', sort: true,}
                 , {field: 'min_top', title: '最低充值金额', align: 'center', sort: true,}
                 //, {field: 'max_top', title: '最高充值金额', align: 'center', sort: true,}
-                , {field: 'card_num', title: '开卡数量', align: 'center', sort: true,totalRow:true,style: "color: #000000"}
-                , {field: 'in_card_num', title: '已开卡数量', align: 'center', sort: true,totalRow:true,style: "color: #000000"}
-		        , {field: 'del_card_num', title: '已删卡数量', align: 'center', sort: true,totalRow:true,style: "color: #000000"}
-                , {field: 'out_money', title: '总消费金额', align: 'center', sort: true, totalRow:true,style: "color: red"}
-                , {field: 'account_all_money', title: '卡的总余额', align: 'center', sort: true, totalRow:true,style: "color: red"}
-                , {field: 'balance', title: '账户余额', align: 'center', sort: true, totalRow:true, style: "color: purple"}
-                , {field: 'sum_balance', title: '总充值金额', align: 'center', sort: true, totalRow:true}
+                , {
+                    field: 'card_num',
+                    title: '开卡数量',
+                    align: 'center',
+                    sort: true,
+                    totalRow: true,
+                    style: "color: #000000"
+                }
+                , {
+                    field: 'in_card_num',
+                    title: '已开卡数量',
+                    align: 'center',
+                    sort: true,
+                    totalRow: true,
+                    style: "color: #000000"
+                }
+                , {
+                    field: 'del_card_num',
+                    title: '已删卡数量',
+                    align: 'center',
+                    sort: true,
+                    totalRow: true,
+                    style: "color: #000000"
+                }
+                , {field: 'out_money', title: '总消费金额', align: 'center', sort: true, totalRow: true, style: "color: red"}
+                , {
+                    field: 'account_all_money',
+                    title: '卡的总余额',
+                    align: 'center',
+                    sort: true,
+                    totalRow: true,
+                    style: "color: red"
+                }
+                , {field: 'balance', title: '账户余额', align: 'center', sort: true, totalRow: true, style: "color: purple"}
+                , {field: 'sum_balance', title: '总充值金额', align: 'center', sort: true, totalRow: true}
                 , {fixed: 'right', width: 220, align: 'center', toolbar: '#barDemo'}
             ]]
             , id: 'account_info'
             , page: true
         });
 
-	table.render({
+        table.render({
             elem: '#top_up1'
             , height: 'full-250'
             , cellMinWidth: '80'
             , url: '/admin/bento_refund' //数据接口
             , title: '客户退款记录'
-            , limit:20
+            , limit: 20
             , toolbar: "true" //开启工具栏，此处显示默认图标，可以自定义模板，详见文档
             , totalRow: true //开启合计行
             , cols: [[ //表头
-                {type:'numbers'}
-		, {field: 'name', title: '客户', align: 'center', sort: true,  totalRowText: '合计：'}
+                {type: 'numbers'}
+                , {field: 'name', title: '客户', align: 'center', sort: true, totalRowText: '合计：'}
                 , {field: 'pay_num', title: '卡号', align: 'center', sort: true,}
-                , {field: 'time', title: '充值时间', align: 'center', sort: true, }
-                , {field: 'trans_type', title: '操作类型', align: 'center', sort: true, style:'color: #104E8B'}
-                , {field: 'money', title: '操作金额', align: 'center', sort: true, totalRow: true,style:'color: red'}
+                , {field: 'time', title: '充值时间', align: 'center', sort: true,}
+                , {field: 'trans_type', title: '操作类型', align: 'center', sort: true, style: 'color: #104E8B'}
+                , {field: 'money', title: '操作金额', align: 'center', sort: true, totalRow: true, style: 'color: red'}
                 , {field: 'before_balance', title: '操作前卡余额', align: 'center', sort: true, totalRow: true}
                 , {field: 'balance', title: '操作后卡余额', align: 'center', sort: true, totalRow: true}
                 , {field: 'sum_balance', title: '删卡总金额', align: 'center', sort: true, totalRow: true}
-		, {field: 'sum_refund', title: '转移总金额', align: 'center', sort: true, totalRow: true}
+                , {field: 'sum_refund', title: '转移总金额', align: 'center', sort: true, totalRow: true}
 
             ]]
             , id: 'bento_refund'
             , page: true
         });
 
-	//执行一个 table 实例
-	table.render({
+        //执行一个 table 实例
+        table.render({
             elem: '#bento_decline'
             , height: 'full-250'
             , cellMinWidth: '80'
             , url: '/admin/decline_data' //数据接口
             , title: '交易记录表'
-            , limit:100
-            , limits:[100, 200, 300, 400, 500, 600, 700, 800, 900, 1000]
+            , limit: 100
+            , limits: [100, 200, 300, 400, 500, 600, 700, 800, 900, 1000]
             , toolbar: "true" //开启工具栏，此处显示默认图标，可以自定义模板，详见文档
             , totalRow: true //开启合计行
             , cols: [[ //表头
-                {type:'numbers'}
-                ,{type: 'checkbox'}
+                {type: 'numbers'}
+                , {type: 'checkbox'}
                 , {field: 'hand_money', title: '卡的名字', align: 'center', totalRow: true, sort: true}
-                , {field: 'date', title: '操作日期', align: 'center', sort: true,  totalRowText: '合计：'}
+                , {field: 'date', title: '操作日期', align: 'center', sort: true, totalRowText: '合计：'}
                 //, {field: 'trans_type', title: '交易类型', align: 'center', sort: true,style:'color: green'}
                 , {field: 'do_type', title: '操作类型', align: 'center', sort: true,}
-                , {field: 'do_money', title: '操作金额', align: 'center', totalRow: true, sort: true, style:'color: red'}
+                , {field: 'do_money', title: '操作金额', align: 'center', totalRow: true, sort: true, style: 'color: red'}
                 , {field: 'card_no', title: '卡号', align: 'center', sort: true}
                 , {field: 'before_balance', title: '归属客户', align: 'center', sort: true}
-                , {field: 'reason', title: 'decline原因', align: 'center', sort: true,style:'color: green'}
+                , {field: 'reason', title: 'decline原因', align: 'center', sort: true, style: 'color: green'}
             ]]
             , id: 'bento_decline'
             , page: true
@@ -927,19 +961,19 @@ Welcome to BenTo
             , cellMinWidth: '80'
             , url: '/admin/top_history' //数据接口
             , title: '客户充值记录'
-            , limit:20
+            , limit: 20
             , toolbar: "true" //开启工具栏，此处显示默认图标，可以自定义模板，详见文档
             , totalRow: true //开启合计行
             , cols: [[ //表头
-                {type:'numbers'}
-                , {field: 'name', title: '客户', align: 'center', sort: true,  totalRowText: '合计：'}
+                {type: 'numbers'}
+                , {field: 'name', title: '客户', align: 'center', sort: true, totalRowText: '合计：'}
                 , {field: 'pay_num', title: '流水号', align: 'center', sort: true,}
-                , {field: 'time', title: '充值时间', align: 'center', sort: true, }
-		        , {field: 'trans_type', title: '充值类型', align: 'center', sort: true, style:'color: #104E8B'}
-                , {field: 'money', title: '充值金额', align: 'center', sort: true, totalRow: true,style:'color: red'}
+                , {field: 'time', title: '充值时间', align: 'center', sort: true,}
+                , {field: 'trans_type', title: '充值类型', align: 'center', sort: true, style: 'color: #104E8B'}
+                , {field: 'money', title: '充值金额', align: 'center', sort: true, totalRow: true, style: 'color: red'}
                 , {field: 'before_balance', title: '充值前余额', align: 'center', sort: true, totalRow: true}
                 , {field: 'balance', title: '充值后余额', align: 'center', sort: true, totalRow: true}
-	 	, {field: 'sum_balance', title: '总充值金额', align: 'center', sort: true, totalRow: true}
+                , {field: 'sum_balance', title: '总充值金额', align: 'center', sort: true, totalRow: true}
             ]]
             , id: 'top_history'
             , page: true
@@ -951,12 +985,12 @@ Welcome to BenTo
             , cellMinWidth: '80'
             , url: '/admin/middle_info' //数据接口
             , title: '中介信息'
-            , limit:20
+            , limit: 20
             , toolbar: "true" //开启工具栏，此处显示默认图标，可以自定义模板，详见文档
             , totalRow: true //开启合计行
             , cols: [[ //表头
-                {type:'numbers'}
-                , {field: 'name', title: '中介名', align: 'center', sort: true,  totalRowText: '合计：'}
+                {type: 'numbers'}
+                , {field: 'name', title: '中介名', align: 'center', sort: true, totalRowText: '合计：'}
                 , {field: 'cus_num', title: '客户数量', align: 'center', sort: true,}
                 , {field: 'account', title: '账号', align: 'center', sort: true,}
                 , {field: 'password', title: '密码', align: 'center', sort: true,}
@@ -968,39 +1002,42 @@ Welcome to BenTo
             , id: 'pay_history'
             , page: true
         });
-	 
-	//account decline
-	table.render({
-              elem: '#account_decl'
-              , height: 'full-250'
-              , cellMinWidth: '80'
-              , url: '/admin/account_decline' //数据接口
-              , title: '交易记录表'
-              , limit:100
-              , limits:[100, 200, 300, 400, 500, 600, 700, 800, 900, 1000]
-              , toolbar: "true" //开启工具栏，此处显示默认图标，可以自定义模板，详见文档
-              , totalRow: true //开启合计行
-              , cols: [[ //表头
-                  {type:'numbers'}
-                  ,{type: 'checkbox'}
-                  , {field: 'alias', title: '客户名', align: 'center', totalRow: true, sort: true}
-                  , {field: 'decl', title: 'decline数量', align: 'center', sort: true,  totalRowText: '合计：'}
-                  , {field: 't_data', title: '所有卡交易数量', align: 'center', sort: true,style:'color: green'}
-                  , {field: 'three_decl', title: '三天内所有decline数量', align: 'center', sort: true,style:'color: green'}
-                  , {field: 'three_tran', title: '三天内所有交易数量', align: 'center', sort: true,style:'color: green'}
-                  , {field: 'bili', title: '三天decline比', align: 'center', sort: true,}
-              ]]
-             , id: 'account_decl'
-             , page: true
-             , done: function (res, curr, count) {
-                for (var i = 0; i < res.data.length; i++) {
-                    if (res.data[i].pay_cus == '已支付') {
-                        $('table tbody tr td a[id=pay]').eq(i).css('display', 'none')
+
+
+        //account decline
+        table.render({
+            elem: '#account_de'
+            , height: 'full-250'
+            , cellMinWidth: '80'
+            , url: '/admin/account_decline' //数据接口
+            , title: '交易记录表'
+            , limit: 100
+            , limits: [100, 200, 300, 400, 500, 600, 700, 800, 900, 1000]
+            , toolbar: "true" //开启工具栏，此处显示默认图标，可以自定义模板，详见文档
+            , totalRow: true //开启合计行
+            , cols: [[ //表头
+                {type: 'numbers'}
+                , {type: 'checkbox'}
+                , {field: 'alias', title: '客户名', align: 'center', sort: true}
+                , {field: 'decl', title: 'decline数量', align: 'center', sort: true}
+                , {field: 't_data', title: '所有卡交易数量', align: 'center', sort: true, style: 'color: green'}
+                , {field: 'three_decl', title: '三天内所有decline数量', align: 'center', sort: true, style: 'color: green'}
+                , {field: 'three_tran', title: '三天内所有交易数量', align: 'center', sort: true, style: 'color: green'}
+                , {field: 'bili', title: '三天decline比', align: 'center', sort: true,}
+            ]]
+            , id: 'account_decl'
+            ,done: function (res, curr, count) {
+                for (var i=0;i<res.data.length;i++)   //遍历返回数据
+                {
+                    if(res.data[i].show!='')    //设置条件
+                    {
+                        console.log('yes');
+                        $("tr[data-index='"+ i +"']").attr({'style':"color:red"})
                     }
                 }
             }
- 
-         });
+            ,page: true
+        });
 
         //执行一个 table 实例
         table.render({
@@ -1009,19 +1046,19 @@ Welcome to BenTo
             , cellMinWidth: '80'
             , url: '/admin/middle_money' //数据接口
             , title: '中介费统计表'
-            , limit:50
-            , limits:[50,100,150,200,250,300,350,400,450,500]
+            , limit: 50
+            , limits: [50, 100, 150, 200, 250, 300, 350, 400, 450, 500]
             , toolbar: "r" //开启工具栏，此处显示默认图标，可以自定义模板，详见文档
             , totalRow: true //开启合计行
             , cols: [[ //表头
-                {type:'numbers'}
-                , {field: 'name', title: '中介名称', align: 'center', sort: true,  totalRowText: '合计：'}
+                {type: 'numbers'}
+                , {field: 'name', title: '中介名称', align: 'center', sort: true, totalRowText: '合计：'}
                 , {field: 'start_time', title: '开始时间(周三)', align: 'center', sort: true,}
-                , {field: 'end_time', title: '结束时间(周二)', align: 'center', sort: true, }
-                , {field: 'card_num', title: '开卡量', align: 'center', sort: true,totalRow:true}
-                , {field: 'create_price', title: '开卡费', align: 'center', sort: true,totalRow:true}
+                , {field: 'end_time', title: '结束时间(周二)', align: 'center', sort: true,}
+                , {field: 'card_num', title: '开卡量', align: 'center', sort: true, totalRow: true}
+                , {field: 'create_price', title: '开卡费', align: 'center', sort: true, totalRow: true}
                 , {field: 'create_time', title: '系统统计时间', align: 'center', sort: true,}
-                , {field: 'sum_money', title: '提成总额', align: 'center', style:"color:red;", sort: true, totalRow:true}
+                , {field: 'sum_money', title: '提成总额', align: 'center', style: "color:red;", sort: true, totalRow: true}
                 , {field: 'pay_status', title: '是否支付提成', align: 'center', sort: true}
                 , {field: 'pay_time', title: '终端确认时间', align: 'center', sort: true}
                 , {fixed: 'right', width: 160, align: 'center', toolbar: '#middle_money_bar'}
@@ -1029,12 +1066,12 @@ Welcome to BenTo
             , id: 'card_info'
             , page: true
             , done: function (res, curr, count) {
-                    for (var i = 0; i < res.data.length; i++) {
-                        if (res.data[i].pay_status == '已确认') {
-                            $('table tbody tr td a[id=pay]').eq(i).css('display', 'none')
-                        }
+                for (var i = 0; i < res.data.length; i++) {
+                    if (res.data[i].pay_status == '已确认') {
+                        $('table tbody tr td a[id=pay]').eq(i).css('display', 'none')
                     }
                 }
+            }
         });
 
         table.on('tool(middle_money)', function (obj) {
@@ -1053,7 +1090,7 @@ Welcome to BenTo
                             // 成功提示框
                             if (data.code == 0) {
                                 parent.layer.msg(data.msg, {
-                                    icon: 6,time:1000
+                                    icon: 6, time: 1000
                                 });
                                 location.reload()
                             } else if (data.code == 502) {
@@ -1072,25 +1109,26 @@ Welcome to BenTo
                     });
                 });
 
-            }});
+            }
+        });
 
-        table.on('rowDouble(middle_money)', function(obj){
-        var data = obj.data;
+        table.on('rowDouble(middle_money)', function (obj) {
+            var data = obj.data;
             layer.open({
                 type: 2
-                ,offset: 'auto' //具体配置参考：http://www.layui.com/doc/modules/layer.html#offset
-                ,skin:'layui-layer-demo'
-                ,id: 'layerUser'//防止重复弹出
-                ,title: '提成总额明细'
-                ,area: ['20%','30%']
-                ,anim: 3
-                ,shadeClose:true
-                ,content: '/middle/money_detail?info_id=' + data.id
-                ,btn: '关闭全部'
-                ,btnAlign: 'c' //按钮居中a
-                ,shade:  [0.8, '#393D49'] //弹框背景选项
+                , offset: 'auto' //具体配置参考：http://www.layui.com/doc/modules/layer.html#offset
+                , skin: 'layui-layer-demo'
+                , id: 'layerUser'//防止重复弹出
+                , title: '提成总额明细'
+                , area: ['20%', '30%']
+                , anim: 3
+                , shadeClose: true
+                , content: '/middle/money_detail?info_id=' + data.id
+                , btn: '关闭全部'
+                , btnAlign: 'c' //按钮居中a
+                , shade: [0.8, '#393D49'] //弹框背景选项
 
-              });
+            });
 
             //标注选中样式
             obj.tr.addClass('layui-table-click').siblings().removeClass('layui-table-click');
@@ -1098,100 +1136,99 @@ Welcome to BenTo
 
 
         //监听右侧导航栏点击事件
-        $('#make_vir').on('click',function () {
-           element.tabChange('demo', 1);
+        $('#make_vir').on('click', function () {
+            element.tabChange('demo', 1);
         });
 
-        $('#make_vir_some').on('click',function () {
-           element.tabChange('demo', 2);
+        $('#make_vir_some').on('click', function () {
+            element.tabChange('demo', 2);
         });
-        $('#all_vir').on('click',function () {
-           element.tabChange('demo', 3);
+        $('#all_vir').on('click', function () {
+            element.tabChange('demo', 3);
         });
-        $('#cus_trans').on('click',function () {
-           element.tabChange('demo', 4);
+        $('#cus_trans').on('click', function () {
+            element.tabChange('demo', 4);
         });
         //$('#cus_log').on('click',function () {
         //   element.tabChange('demo', 5);
         //});
-        $('#add_acc').on('click',function () {
-           element.tabChange('demo', 6);
+        $('#add_acc').on('click', function () {
+            element.tabChange('demo', 6);
         });
-        $('#add_mid').on('click',function () {
-           element.tabChange('demo', 7);
+        $('#add_mid').on('click', function () {
+            element.tabChange('demo', 7);
         });
-        $('#mid_info').on('click',function () {
-           element.tabChange('demo', 8);
+        $('#mid_info').on('click', function () {
+            element.tabChange('demo', 8);
         });
-        $('#mid_money').on('click',function () {
-           element.tabChange('demo', 9);
+        $('#mid_money').on('click', function () {
+            element.tabChange('demo', 9);
         });
-        $('#card_admin').on('click',function () {
-           element.tabChange('demo', 10);
+        $('#card_admin').on('click', function () {
+            element.tabChange('demo', 10);
         });
-	$('#bento_refund').on('click',function () {
-           element.tabChange('demo', 11);
+        $('#bento_refund').on('click', function () {
+            element.tabChange('demo', 11);
         });
-	$('#decline_da').on('click', function(){
-	   element.tabChange('demo', 12)	
-	});
-	$('#account_decline').on('click', function(){
+        $('#decline_da').on('click', function () {
+            element.tabChange('demo', 12)
+        });
+        $('#account_decline').on('click', function () {
             element.tabChange('demo', 13)
-         });
-	$('#account_alltrans').on('click', function(){
-             element.tabChange('demo', 14)
-         });
+        });
+        $('#account_alltrans').on('click', function () {
+            element.tabChange('demo', 14)
+        });
 
 
-
-        table.on('rowDouble(account_all)', function(obj){
-        var data = obj.data;
+        table.on('rowDouble(account_all)', function (obj) {
+            var data = obj.data;
             layer.open({
                 type: 2
-                ,offset: 'auto' //具体配置参考：http://www.layui.com/doc/modules/layer.html#offset
-                ,skin:'layui-layer-demo'
-                ,id: 'account_info'//防止重复弹出
-                ,title: '客户为 ' + data.name + ' 的卡信息'
-                ,area: ['90%','88%']
-                ,anim: 2
-                ,shadeClose:true
-                ,content: '/admin/account_card_list?user_name=' + data.name
-                ,btn: '关闭全部'
-                ,btnAlign: 'c' //按钮居中a
-                ,shade:  [0.8, '#393D49'] //弹框背景选项
-                ,success: function(layero, index) {
-                        var body = layer.getChildFrame('body', index);
-                        body.contents().find("#user_id").val(data.u_id);
-                    }
-              });
+                , offset: 'auto' //具体配置参考：http://www.layui.com/doc/modules/layer.html#offset
+                , skin: 'layui-layer-demo'
+                , id: 'account_info'//防止重复弹出
+                , title: '客户为 ' + data.name + ' 的卡信息'
+                , area: ['90%', '88%']
+                , anim: 2
+                , shadeClose: true
+                , content: '/admin/account_card_list?user_name=' + data.name
+                , btn: '关闭全部'
+                , btnAlign: 'c' //按钮居中a
+                , shade: [0.8, '#393D49'] //弹框背景选项
+                , success: function (layero, index) {
+                    var body = layer.getChildFrame('body', index);
+                    body.contents().find("#user_id").val(data.u_id);
+                }
+            });
 
             //标注选中样式
             obj.tr.addClass('layui-table-click').siblings().removeClass('layui-table-click');
         });
 
-        table.on('rowDouble(middle_info)', function(obj){
-        var data = obj.data;
+        table.on('rowDouble(middle_info)', function (obj) {
+            var data = obj.data;
             layer.open({
                 type: 2
-                ,offset: 'auto'
-                ,skin:'layui-layer-demo'
-                ,id: 'account_info'//防止重复弹出
-                ,title: '客户为 ' + data.name + ' 的详细信息'
-                ,area: ['90%','80%']
-                ,anim: 2
-                ,shadeClose:true
-                ,content: '/admin/middle_info_html?user_id=' + data.name
-                ,btn: '关闭全部'
-                ,btnAlign: 'c' //按钮居中a
-                ,shade:  [0.8, '#393D49'] //弹框背景选项
-                ,success: function(layero, index) {
-                        var body = layer.getChildFrame('body', index);
-                        body.contents().find("#card_num").html(data.card_num);
-                        body.contents().find("#card_name").html(data.card_name);
-                        body.contents().find("#card_exp").html(data.card_exp);
-                        body.contents().find("#cvv").html(data.cvv);
-                    }
-              });
+                , offset: 'auto'
+                , skin: 'layui-layer-demo'
+                , id: 'account_info'//防止重复弹出
+                , title: '客户为 ' + data.name + ' 的详细信息'
+                , area: ['90%', '80%']
+                , anim: 2
+                , shadeClose: true
+                , content: '/admin/middle_info_html?user_id=' + data.name
+                , btn: '关闭全部'
+                , btnAlign: 'c' //按钮居中a
+                , shade: [0.8, '#393D49'] //弹框背景选项
+                , success: function (layero, index) {
+                    var body = layer.getChildFrame('body', index);
+                    body.contents().find("#card_num").html(data.card_num);
+                    body.contents().find("#card_name").html(data.card_name);
+                    body.contents().find("#card_exp").html(data.card_exp);
+                    body.contents().find("#cvv").html(data.cvv);
+                }
+            });
 
             //标注选中样式
             obj.tr.addClass('layui-table-click').siblings().removeClass('layui-table-click');
@@ -1202,40 +1239,37 @@ Welcome to BenTo
         $('#user_info').on('click', function () {
             layer.open({
                 type: 2
-                ,title: false //不显示标题栏
-                ,closeBtn: false
-                ,area: ['500px','390px']
-                ,shade: 0.8
-                ,id: 'user_detail' //设定一个id，防止重复弹出
-                ,btn: ['关闭']
-                ,shadeClose: true
-                ,btnAlign: 'c'
-                ,moveType: 1 //拖拽模式，0或者1
-                ,content: '/admin/admin_info'
+                , title: false //不显示标题栏
+                , closeBtn: false
+                , area: ['500px', '390px']
+                , shade: 0.8
+                , id: 'user_detail' //设定一个id，防止重复弹出
+                , btn: ['关闭']
+                , shadeClose: true
+                , btnAlign: 'c'
+                , moveType: 1 //拖拽模式，0或者1
+                , content: '/admin/admin_info'
 
-              });
+            });
         });
 
         //修改账号密码
         $('#change_word').on('click', function () {
             layer.open({
                 type: 2
-                ,title: false //不显示标题栏s
-                ,closeBtn: false
-                ,area: ['500px','400px']
-                ,shade: 0.8
-                ,shadeClose:true
-                ,id: 'change_pass' //设定一个id，防止重复弹出
-                ,btn: ['关闭']
-                ,btnAlign: 'c'
-                ,moveType: 1 //拖拽模式，0或者1
-                ,content: '/admin/change_pass'
+                , title: false //不显示标题栏s
+                , closeBtn: false
+                , area: ['500px', '400px']
+                , shade: 0.8
+                , shadeClose: true
+                , id: 'change_pass' //设定一个id，防止重复弹出
+                , btn: ['关闭']
+                , btnAlign: 'c'
+                , moveType: 1 //拖拽模式，0或者1
+                , content: '/admin/change_pass'
 
-              });
+            });
         });
-
-	
-
 
 
         //监听行工具事件
@@ -1244,36 +1278,36 @@ Welcome to BenTo
                 , layEvent = obj.event; //获得 lay-event 对应的值
 
             if (layEvent === 'top_up') {
-                layer.prompt({title: '请输入充值金额'}, function(num, index){
+                layer.prompt({title: '请输入充值金额'}, function (num, index) {
 
-                    if (isNaN(num)){
+                    if (isNaN(num)) {
                         layer.msg('请输入数字!')
-                    }else{
+                    } else {
 
                         $.ajax({
-                            type : 'POST',
-                            url : '/admin/top_up',
-                            data : {'money':num, 'name': data.name},
-                            dataType : 'json',
-                            success : function(data) {
+                            type: 'POST',
+                            url: '/admin/top_up',
+                            data: {'money': num, 'name': data.name},
+                            dataType: 'json',
+                            success: function (data) {
                                 // 成功提示框
-                                if (data.code == 0){
+                                if (data.code == 0) {
                                     parent.layer.msg(data.msg, {
-                                    icon : 6,
-                                });
+                                        icon: 6,
+                                    });
                                     parent.layer.closeAll('iframe'); //关闭弹框
                                     window.parent.location.reload()
-                                }else if(data.code == 502){
+                                } else if (data.code == 502) {
                                     parent.layer.msg(data.msg, {
-                                    icon : 5
-                                });
+                                        icon: 5
+                                    });
                                 }
 
                             },
-                            error : function(data) {
+                            error: function (data) {
                                 // 异常提示
                                 parent.layer.msg('出现网络故障', {
-                                    icon : 5
+                                    icon: 5
                                 });
                                 parent.layer.closeAll('iframe'); //关闭弹框
                             }
@@ -1283,7 +1317,7 @@ Welcome to BenTo
                     layer.close(index);
 
                 });
-            } else if (layEvent === 'lock'){
+            } else if (layEvent === 'lock') {
                 layer.msg('冻结卡操作!')
             } else if (layEvent === 'edit') {
                 layui.layer.open({
@@ -1293,7 +1327,7 @@ Welcome to BenTo
                     area: ['20%', '35%'],//宽高
                     shadeClose: true, //点击遮罩关闭
                     content: '/admin/edit_parameter',
-                    success: function(layero, index) {
+                    success: function (layero, index) {
                         var body = layer.getChildFrame('body', index);
                         body.contents().find("#name_str").val(data.name)
                     }
@@ -1301,7 +1335,6 @@ Welcome to BenTo
                 return false
             }
         });
-
 
 
         table.on('tool(middle_info)', function (obj) {
@@ -1316,12 +1349,12 @@ Welcome to BenTo
                     area: ['27%', '30%'],//宽高
                     shadeClose: true, //点击遮罩关闭
                     content: '/admin/acc_to_middle',
-                    success: function(layero, index) {
+                    success: function (layero, index) {
                         var body = layer.getChildFrame('body', index);
                         body.contents().find("#name").val(data.name)
                     }
                 });
-            } else if (layEvent === 'lock'){
+            } else if (layEvent === 'lock') {
                 layer.msg('冻结卡操作!')
             } else if (layEvent === 'edit') {
                 layui.layer.open({
@@ -1331,7 +1364,7 @@ Welcome to BenTo
                     area: ['20%', '35%'],//宽高
                     shadeClose: true, //点击遮罩关闭
                     content: '/admin/edit_parameter',
-                    success: function(layero, index) {
+                    success: function (layero, index) {
                         var body = layer.getChildFrame('body', index);
                         body.contents().find("#name_str").val(data.name)
                     }
@@ -1353,215 +1386,215 @@ Welcome to BenTo
             }
         });
 
-        form.on('submit(formDemo)', function(data){
-            var data_info = {data:JSON.stringify(data.field)};
+        form.on('submit(formDemo)', function (data) {
+            var data_info = {data: JSON.stringify(data.field)};
             var $ = layui.jquery;
             $.ajax({
-				type : 'POST',
-				url : '/admin/add_account/',
-				data : data_info,
-				dataType : 'json',
-				success : function(data) {
-					// 成功提示框
-                    if (data.code == 0){
+                type: 'POST',
+                url: '/admin/add_account/',
+                data: data_info,
+                dataType: 'json',
+                success: function (data) {
+                    // 成功提示框
+                    if (data.code == 0) {
                         parent.layer.msg("添加成功!请刷新界面!", {
-						icon : 6,
-					});
+                            icon: 6,
+                        });
 
-                    }else if(data.code == 502){
+                    } else if (data.code == 502) {
                         parent.layer.msg(data.msg, {
-						icon : 5
-					});
+                            icon: 5
+                        });
                     }
 
-				},
-				error : function(data) {
-					// 异常提示
-					parent.layer.msg('出现网络故障', {
-						icon : 5
-					});
-					parent.layer.closeAll('iframe'); //关闭弹框
-				}
-			});
-			return false;
+                },
+                error: function (data) {
+                    // 异常提示
+                    parent.layer.msg('出现网络故障', {
+                        icon: 5
+                    });
+                    parent.layer.closeAll('iframe'); //关闭弹框
+                }
             });
+            return false;
+        });
 
-        form.on('submit(add_middle)', function(data){
-            var data_info = {data:JSON.stringify(data.field)};
+        form.on('submit(add_middle)', function (data) {
+            var data_info = {data: JSON.stringify(data.field)};
             var $ = layui.jquery;
             $.ajax({
-				type : 'POST',
-				url : '/admin/add_middle/',
-				data : data_info,
-				dataType : 'json',
-				success : function(data) {
-					// 成功提示框
-                    if (data.code == 0){
+                type: 'POST',
+                url: '/admin/add_middle/',
+                data: data_info,
+                dataType: 'json',
+                success: function (data) {
+                    // 成功提示框
+                    if (data.code == 0) {
                         parent.layer.msg(data.msg, {
-						icon : 6,
-					});
+                            icon: 6,
+                        });
 
-                    }else if(data.code == 502){
+                    } else if (data.code == 502) {
                         parent.layer.msg(data.msg, {
-						icon : 5
-					});
+                            icon: 5
+                        });
                     }
-				},
-				error : function(data) {
-					// 异常提示
-					parent.layer.msg('出现网络故障', {
-						icon : 5
-					});
-					parent.layer.closeAll('iframe'); //关闭弹框
-				}
-			});
-			return false;
+                },
+                error: function (data) {
+                    // 异常提示
+                    parent.layer.msg('出现网络故障', {
+                        icon: 5
+                    });
+                    parent.layer.closeAll('iframe'); //关闭弹框
+                }
             });
-
-         form.on('submit(sea_account)', function(data){
-             var $ = layui.jquery;
-             var data_info = $('#s_acc_name').val();
-             table.reload("account_info", {
-                 page: {
-                   curr: 1 //重新从第 1 页开始
-                 },where: {
-                     customer:data_info,
-                   }
-               }, '/admin/account_info');
             return false;
-         });
+        });
 
-         form.on('submit(sea_payed)', function(data){
+        form.on('submit(sea_account)', function (data) {
+            var $ = layui.jquery;
+            var data_info = $('#s_acc_name').val();
+            table.reload("account_info", {
+                page: {
+                    curr: 1 //重新从第 1 页开始
+                }, where: {
+                    customer: data_info,
+                }
+            }, '/admin/account_info');
+            return false;
+        });
 
-             var $ = layui.jquery;
-             var acc_name = $('#acc_name').val(),
+        form.on('submit(sea_payed)', function (data) {
+
+            var $ = layui.jquery;
+            var acc_name = $('#acc_name').val(),
                 order_num = $('#order_num').val(),
                 time_range = $('#s_test6').val();
-             table.reload("top_history", {
-                 page: {
-                   curr: 1 //重新从第 1 页开始
-                 },where: {
-                     acc_name:acc_name,
-                     order_num:order_num,
-                     time_range:time_range,
-                   }
-               }, '/admin/top_history');
-            return false;
-         });
-
-	form.on('submit(sea_account_decl)', function(data){
-
-              var $ = layui.jquery;
-              var acc_name = $('#account_decline_name').val();
-              table.reload("account_decl", {
-                  page: {
+            table.reload("top_history", {
+                page: {
                     curr: 1 //重新从第 1 页开始
-                  },where: {
-                      acc_name:acc_name,
-                    }
-                }, '/admin/account_decline');
-             return false;
-          });
+                }, where: {
+                    acc_name: acc_name,
+                    order_num: order_num,
+                    time_range: time_range,
+                }
+            }, '/admin/top_history');
+            return false;
+        });
 
-	form.on('submit(sea_decline)', function(data){
+        form.on('submit(sea_account_decl)', function (data) {
 
-             var $ = layui.jquery;
-             var acc_name = $('#decline_name').val(),
+            var $ = layui.jquery;
+            var acc_name = $('#account_decline_name').val();
+            table.reload("account_decl", {
+                page: {
+                    curr: 1 //重新从第 1 页开始
+                }, where: {
+                    acc_name: acc_name,
+                }
+            }, '/admin/account_decline');
+            return false;
+        });
+
+        form.on('submit(sea_decline)', function (data) {
+
+            var $ = layui.jquery;
+            var acc_name = $('#decline_name').val(),
                 order_num = $('#decline_num').val(),
                 time_range = $('#test10').val();
-             table.reload("bento_decline", {
-                 page: {
-                   curr: 1 //重新从第 1 页开始
-                 },where: {
-                     acc_name:acc_name,
-                     order_num:order_num,
-                     time_range:time_range,
-                   }
-               }, '/admin/decline_data');
+            table.reload("bento_decline", {
+                page: {
+                    curr: 1 //重新从第 1 页开始
+                }, where: {
+                    acc_name: acc_name,
+                    order_num: order_num,
+                    time_range: time_range,
+                }
+            }, '/admin/decline_data');
             return false;
-         });
+        });
 
-	//addff
-	form.on('submit(bt_refund)', function(data){
+        //addff
+        form.on('submit(bt_refund)', function (data) {
 
-             var $ = layui.jquery;
-             var acc_name = $('#bento_name').val(),
+            var $ = layui.jquery;
+            var acc_name = $('#bento_name').val(),
                 order_num = $('#bento_num').val(),
                 time_range = $('#bento_time').val();
-             table.reload("bento_refund", {
-                 page: {
-                   curr: 1 //重新从第 1 页开始
-                 },where: {
-                     acc_name:acc_name,
-                     order_num:order_num,
-                     time_range:time_range,
-                   }
-               }, '/admin/bento_refund');
-            return false;
-         });
-
-         form.on('submit(sea_card)', function(data){
-
-             var $ = layui.jquery;
-             var field = $('#field').val(),
-                 value = $('#value').val();
-             table.reload("card_all", {
-                 page: {
-                   curr: 1 //重新从第 1 页开始
-                 },where: {
-                     field: field,
-                     value: value,
-                   }
-               }, '/admin/card_all');
-            return false;
-         });
-
-         form.on('submit(cus_trans)', function(data){
-             var $ = layui.jquery;
-             var cus_name = $("#cus_name").val(),
-                 trans_card = $('#trans_card').val(),
-                 trans_type = $('#trans_type').val(),
-                 trans_do_type = $('#bento_do_type').val(),
-                 time_range = $('#test8').val();
-             table.reload("cus_trans_log", {
-                 page: {
-                   curr: 1 //重新从第 1 页开始
-                 },where: {
-                     cus_name:cus_name,
-                     trans_card: trans_card,
-                     time_range:time_range,
-                     trans_type:trans_type,
-                     trans_do_type: trans_do_type,
-                   }
-               }, '/admin/account_trans/');
-            return false;
-         });
-	
-	form.on('submit(sea_alltrans)', function(data){
-
-              var $ = layui.jquery;
-              var acc_name = $('#account_transname').val(),
-                 order_num = $('#account_transcard').val(),
-		 trans_status = $('#account_transtatus').val(),
-                 time_range = $('#test12').val();
-              table.reload("bento_alltrans", {
-                  page: {
+            table.reload("bento_refund", {
+                page: {
                     curr: 1 //重新从第 1 页开始
-                  },where: {
-                      acc_name:acc_name,
-                      order_num:order_num,
-		    	trans_status: trans_status,
-                      time_range:time_range,
-                    }
-                }, '/admin/all_trans');
-             return false;
-          });
+                }, where: {
+                    acc_name: acc_name,
+                    order_num: order_num,
+                    time_range: time_range,
+                }
+            }, '/admin/bento_refund');
+            return false;
+        });
 
-	
-         //form.on('submit(cus_log_ter)', function(data){
-         //    var $ = layui.jquery;
-         //    var cus_name = $("#cus_name_log").val(),
-         //        time_range = $('#test9').val();
+        form.on('submit(sea_card)', function (data) {
+
+            var $ = layui.jquery;
+            var field = $('#field').val(),
+                value = $('#value').val();
+            table.reload("card_all", {
+                page: {
+                    curr: 1 //重新从第 1 页开始
+                }, where: {
+                    field: field,
+                    value: value,
+                }
+            }, '/admin/card_all');
+            return false;
+        });
+
+        form.on('submit(cus_trans)', function (data) {
+            var $ = layui.jquery;
+            var cus_name = $("#cus_name").val(),
+                trans_card = $('#trans_card').val(),
+                trans_type = $('#trans_type').val(),
+                trans_do_type = $('#bento_do_type').val(),
+                time_range = $('#test8').val();
+            table.reload("cus_trans_log", {
+                page: {
+                    curr: 1 //重新从第 1 页开始
+                }, where: {
+                    cus_name: cus_name,
+                    trans_card: trans_card,
+                    time_range: time_range,
+                    trans_type: trans_type,
+                    trans_do_type: trans_do_type,
+                }
+            }, '/admin/account_trans/');
+            return false;
+        });
+
+        form.on('submit(sea_alltrans)', function (data) {
+
+            var $ = layui.jquery;
+            var acc_name = $('#account_transname').val(),
+                order_num = $('#account_transcard').val(),
+                trans_status = $('#account_transtatus').val(),
+                time_range = $('#test12').val();
+            table.reload("bento_alltrans", {
+                page: {
+                    curr: 1 //重新从第 1 页开始
+                }, where: {
+                    acc_name: acc_name,
+                    order_num: order_num,
+                    trans_status: trans_status,
+                    time_range: time_range,
+                }
+            }, '/admin/all_trans');
+            return false;
+        });
+
+
+        //form.on('submit(cus_log_ter)', function(data){
+        //    var $ = layui.jquery;
+        //    var cus_name = $("#cus_name_log").val(),
+        //        time_range = $('#test9').val();
         //     table.reload("cus_log", {
         //         page: {
         //           curr: 1 //重新从第 1 页开始
@@ -1569,92 +1602,92 @@ Welcome to BenTo
         //             cus_name:cus_name,
         //             time_range:time_range,
         //           }
-       //        }, '/admin/cus_log');
-       //     return false;
-       //  });
+        //        }, '/admin/cus_log');
+        //     return false;
+        //  });
 
-    });
 
-	$('#notice').on('click', function () {
+        $('#notice').on('click', function () {
             layer.open({
                 type: 2
-                ,title: false //不显示标题栏s
-                ,closeBtn: false
-                ,area: ['500px','300px']
-                ,shade: 0.8
-                ,shadeClose:true
-                ,id: 'exchange_notice' //设定一个id，防止重复弹出
-                ,btn: ['关闭']
-                ,btnAlign: 'c'
-                ,moveType: 1 //拖拽模式，0或者1
-                ,content: '/admin/notice_edit/'
-              });
+                , title: false //不显示标题栏s
+                , closeBtn: false
+                , area: ['500px', '300px']
+                , shade: 0.8
+                , shadeClose: true
+                , id: 'exchange_notice' //设定一个id，防止重复弹出
+                , btn: ['关闭']
+                , btnAlign: 'c'
+                , moveType: 1 //拖拽模式，0或者1
+                , content: '/admin/notice_edit/'
+            });
         });
 
-	$('#qr_code').on('click', function () {
+        $('#qr_code').on('click', function () {
             layer.open({
                 type: 2
-                ,title: false //不显示标题栏s
-                ,closeBtn: false
-                ,area: ['80%','80%']
-                ,shade: 0.8
-                ,shadeClose:true
-                ,id: 'exchange_notice' //设定一个id，防止重复弹出
-                ,btn: ['关闭']
-                ,btnAlign: 'c'
-                ,moveType: 1 //拖拽模式，0或者1
-                ,content: '/admin/qr_code/'
-              });
+                , title: false //不显示标题栏s
+                , closeBtn: false
+                , area: ['80%', '80%']
+                , shade: 0.8
+                , shadeClose: true
+                , id: 'exchange_notice' //设定一个id，防止重复弹出
+                , btn: ['关闭']
+                , btnAlign: 'c'
+                , moveType: 1 //拖拽模式，0或者1
+                , content: '/admin/qr_code/'
+            });
         });
 
-	$('#top_msg').on('click', function () {
+        $('#top_msg').on('click', function () {
             layer.open({
                 type: 2
-                ,title: false //不显示标题栏s
-                ,closeBtn: false
-                ,area: ['80%','80%']
-                ,shade: 0.8
-                ,shadeClose:true
-                ,id: 'exchange_notice' //设定一个id，防止重复弹出
-                ,btn: ['关闭']
-                ,btnAlign: 'c'
-                ,moveType: 1 //拖拽模式，0或者1
-                ,content: '/admin/top_msg/'
-              });
+                , title: false //不显示标题栏s
+                , closeBtn: false
+                , area: ['80%', '80%']
+                , shade: 0.8
+                , shadeClose: true
+                , id: 'exchange_notice' //设定一个id，防止重复弹出
+                , btn: ['关闭']
+                , btnAlign: 'c'
+                , moveType: 1 //拖拽模式，0或者1
+                , content: '/admin/top_msg/'
+            });
         });
 
-	$('#bank_msg').on('click', function () {
+        $('#bank_msg').on('click', function () {
             layer.open({
                 type: 2
-                ,title: false //不显示标题栏s
-                ,closeBtn: false
-                ,area: ['80%','80%']
-                ,shade: 0.8
-                ,shadeClose:true
-                ,id: 'exchange_notice' //设定一个id，防止重复弹出
-                ,btn: ['关闭']
-                ,btnAlign: 'c'
-                ,moveType: 1 //拖拽模式，0或者1
-                ,content: '/admin/bank_msg/'
-              });
+                , title: false //不显示标题栏s
+                , closeBtn: false
+                , area: ['80%', '80%']
+                , shade: 0.8
+                , shadeClose: true
+                , id: 'exchange_notice' //设定一个id，防止重复弹出
+                , btn: ['关闭']
+                , btnAlign: 'c'
+                , moveType: 1 //拖拽模式，0或者1
+                , content: '/admin/bank_msg/'
+            });
         });
 
-	$('#exchange').on('click', function () {
+        $('#exchange').on('click', function () {
             layer.open({
                 type: 2
-                ,title: false //不显示标题栏s
-                ,closeBtn: false
-                ,area: ['500px','400px']
-                ,shade: 0.8
-                ,shadeClose:true
-                ,id: 'exchange_money' //设定一个id，防止重复弹出
-                ,btn: ['关闭']
-                ,btnAlign: 'c'
-                ,moveType: 1 //拖拽模式，0或者1
-                ,content: '/admin/ex_change/'
+                , title: false //不显示标题栏s
+                , closeBtn: false
+                , area: ['500px', '400px']
+                , shade: 0.8
+                , shadeClose: true
+                , id: 'exchange_money' //设定一个id，防止重复弹出
+                , btn: ['关闭']
+                , btnAlign: 'c'
+                , moveType: 1 //拖拽模式，0或者1
+                , content: '/admin/ex_change/'
 
-              });
+            });
         });
+    })
 
 </script>
 </body>
