@@ -23,8 +23,7 @@ from config import cache
 def edit_bank_money():
     bank_number = request.form.get('bank_number')
     money = request.form.get('money')
-    bank_number = [bank_number]
-    SqlData().update_bank_top(bank_number, money)
+    SqlData().update_bank_day_top(bank_number, float(money))
     return jsonify({'code': RET.OK, 'msg': MSG.OK})
 
 
@@ -339,7 +338,7 @@ def account_decline():
         if three_tran_data == 0:
             show = 'F'
         else:
-            if (three_data / three_tran_data * 100) > 0.1:
+            if (three_data / three_tran_data) > 0.1:
                 show = 'T'
             else:
                 show = 'F'
@@ -667,9 +666,13 @@ def card_info():
 @admin_required
 def acc_to_middle():
     if request.method == 'GET':
-        cus_list = SqlData().search_cus_list()
+        middle_id = request.args.get('middle_id')
+        middle_sql = "WHERE middle_id=" + middle_id + ""
+        cus_list = SqlData().search_cus_list(sql_line=middle_sql)
+        null_list = SqlData().search_cus_list(sql_line="WHERE middle_id is null")
         context = dict()
         context['cus_list'] = cus_list
+        context['null_list'] = null_list
         return render_template('admin/acc_to_middle.html', **context)
     if request.method == 'POST':
         results = {"code": RET.OK, "msg": MSG.OK}
@@ -677,38 +680,41 @@ def acc_to_middle():
         name = data.get('name')
         field = data.get('field')
         value = data.get('value')
-        bind_cus = data.get('bind_cus')
-        del_cus = data.get('del_cus')
         if value:
-            if field == 'card_price':
+            if field != 'account' and field != 'password':
                 try:
                     value = float(value)
-                    SqlData().update_middle_field_int('card_price', value, name)
+                    SqlData().update_middle_field_int(field, value, name)
                 except:
                     return jsonify({'code': RET.SERVERERROR, 'msg': '提成输入值错误!请输入数字类型!'})
             else:
                 SqlData().update_middle_field_str(field, value, name)
 
+        bind_cus = [k for k, v in data.items() if v == 'on']
+        del_cus = [k for k, v in data.items() if v == 'off']
+
         if bind_cus:
-            middle_id_now = SqlData().search_user_field_name('middle_id', bind_cus)
-            # 判断该客户是否已经绑定中介账号
-            if middle_id_now:
-                results['code'] = RET.SERVERERROR
-                results['msg'] = '该客户已经绑定中介!请解绑后重新绑定!'
-                return jsonify(results)
-            middle_id = SqlData().search_middle_name('id', name)
-            user_id = SqlData().search_user_field_name('id', bind_cus)
-            SqlData().update_user_field_int('middle_id', middle_id, user_id)
+            for i in bind_cus:
+                middle_id_now = SqlData().search_user_field_name('middle_id', i)
+                # 判断该客户是否已经绑定中介账号
+                if middle_id_now:
+                    results['code'] = RET.SERVERERROR
+                    results['msg'] = '该客户已经绑定中介!请解绑后重新绑定!'
+                    return jsonify(results)
+                middle_id = SqlData().search_middle_name('id', name)
+                user_id = SqlData().search_user_field_name('id', i)
+                SqlData().update_user_field_int('middle_id', middle_id, user_id)
         if del_cus:
-            user_id = SqlData().search_user_field_name('id', del_cus)
-            middle_id_now = SqlData().search_user_field_name('middle_id', del_cus)
-            middle_id = SqlData().search_middle_name('id', name)
-            # 判断这个客户是不是当前中介的客户,不是则无权操作
-            if middle_id_now != middle_id:
-                results['code'] = RET.SERVERERROR
-                results['msg'] = '该客户不是当前中介客户!无权删除!'
-                return jsonify(results)
-            SqlData().update_user_field_int('middle_id', 'NULL', user_id)
+            for i in del_cus:
+                user_id = SqlData().search_user_field_name('id', i)
+                middle_id_now = SqlData().search_user_field_name('middle_id', i)
+                middle_id = SqlData().search_middle_name('id', name)
+                # 判断这个客户是不是当前中介的客户,不是则无权操作
+                if middle_id_now != middle_id:
+                    results['code'] = RET.SERVERERROR
+                    results['msg'] = '该客户不是当前中介客户!无权删除!'
+                    return jsonify(results)
+                SqlData().update_user_field_int('middle_id', 'NULL', user_id)
         return jsonify(results)
 
 
@@ -741,19 +747,21 @@ def add_middle():
         account = data.get('account')
         password = data.get('password')
         phone_num = data.get('phone_num')
-        create_price = float(data.get('create_price'))
-        note = data.get('note1')
+        price_one = float(data.get('price_one'))
+        price_two = float(data.get('price_two'))
+        price_three = float(data.get('price_three'))
         ret = SqlData().search_middle_ed(name)
         if ret:
             results['code'] = RET.SERVERERROR
             results['msg'] = '该中介名已存在!'
             return jsonify(results)
-        ret = re.match(r"^1[35789]\d{9}$", phone_num)
-        if not ret:
-            results['code'] = RET.SERVERERROR
-            results['msg'] = '请输入符合规范的电话号码!'
-            return jsonify(results)
-        SqlData().insert_middle(account, password, name, phone_num, create_price, note)
+        if phone_num:
+            ret = re.match(r"^1[35789]\d{9}$", phone_num)
+            if not ret:
+                results['code'] = RET.SERVERERROR
+                results['msg'] = '请输入符合规范的电话号码!'
+                return jsonify(results)
+        SqlData().insert_middle(account, password, name, phone_num, price_one, price_two, price_three)
         return jsonify(results)
     except Exception as e:
         logging.error(e)

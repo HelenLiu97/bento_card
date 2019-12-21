@@ -112,6 +112,7 @@
                     , {field: 'bank_name', title: '收款人姓名', align: 'center',}
                     , {field: 'bank_number', title: '收款人卡号', align: 'center', sort: true,}
                     , {field: 'bank_address', title: '银行卡归属分行', align: 'center', sort: true,}
+                    , {field: 'day_money', title: '今日金额', align: 'center', sort: true,}
                     , {field: 'money', title: '累计金额', align: 'center', sort: true,}
                     , {field: 'status', title: '状态', align: 'center', sort: true,}
                     , {fixed: 'right', width: 220, align: 'center', toolbar: '#barDemo'}
@@ -187,7 +188,7 @@
                 });
                 })
             } else if (layEvent === 'edit'){
-                layer.prompt({title: '编辑当前累计收款金额', value:data.money}, function(num, index){
+                layer.prompt({title: '编辑今日收款金额', value:data.day_money}, function(num, index){
 
                     if (isNaN(num)){
                         layer.msg('请输入数字!')

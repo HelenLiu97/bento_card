@@ -194,7 +194,7 @@ def pay_pic():
             value = bank_info.get(i)
             money = 0
             for m in value:
-                money += float(m.get('money'))
+                money += float(m.get('day_money'))
             sum_money_dict[i] = money
         # min_dict 为取出满足累计收款低于20万的账户，且最小的充值战账户
         min_dict = dict()

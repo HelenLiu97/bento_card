@@ -343,7 +343,7 @@ class SqlData(object):
         return account_list
 
     def search_card_count(self, account_id, time_range):
-        sql = "SELECT COUNT(*) FROM card_info WHERE account_id={} {}".format(account_id, time_range)
+        sql = "SELECT COUNT(*) FROM account_trans WHERE account_id={} AND do_type='开卡' {}".format(account_id, time_range)
         self.cursor.execute(sql)
         rows = self.cursor.fetchall()
         return rows[0][0]
@@ -524,8 +524,9 @@ class SqlData(object):
         rows = self.cursor.fetchall()
         return rows[0][0]
 
-    def insert_middle(self, account, password, name, phone_num, card_price, note):
-        sql = "INSERT INTO middle(account, password, name, phone_num, card_price, note) VALUES ('{}','{}','{}','{}',{},'{}')".format(account, password, name, phone_num, card_price, note)
+    def insert_middle(self, account, password, name, phone_num, price_one, price_two, price_three):
+        sql = "INSERT INTO middle(account, password, name, phone_num, price_one, price_two, price_three) " \
+              "VALUES ('{}','{}','{}','{}',{},{},{})".format(account, password, name, phone_num, price_one, price_two, price_three)
         try:
             self.cursor.execute(sql)
             self.connect.commit()
@@ -533,7 +534,6 @@ class SqlData(object):
             logging.error("添加中介失败!" + str(e))
             self.connect.rollback()
         self.close_connect()
-
 
     def search_middle_info(self):
         sql = "SELECT * FROM middle"
@@ -545,12 +545,15 @@ class SqlData(object):
         for i in rows:
             info_dict = dict()
             middle_id = i[0]
+            info_dict['middle_id'] = middle_id
             info_dict['cus_num'] = self.search_acc_middle(middle_id)
             info_dict['account'] = i[1]
             info_dict['password'] = i[2]
             info_dict['name'] = i[3]
             info_dict['phone_num'] = i[4]
-            info_dict['card_price'] = i[5]
+            info_dict['price_one'] = i[5]
+            info_dict['price_two'] = i[6]
+            info_dict['price_three'] = i[7]
             info_list.append(info_dict)
         return info_list
 
@@ -560,8 +563,8 @@ class SqlData(object):
         rows = self.cursor.fetchall()
         return rows[0][0]
 
-    def search_cus_list(self):
-        sql = "SELECT name FROM account"
+    def search_cus_list(self, sql_line=""):
+        sql = "SELECT name FROM account {}".format(sql_line)
         self.cursor.execute(sql)
         rows = self.cursor.fetchall()
         cus_list = list()
@@ -1055,8 +1058,9 @@ class SqlData(object):
                     "bank_name": row[1],
                     "bank_number": row[2],
                     "bank_address": row[3],
-                    "money": str(row[4]),
-                    "status": '正常' if row[5] == 0 else '锁定'
+                    "day_money": str(row[4]),
+                    "money": str(row[5]),
+                    "status": '正常' if row[6] == 0 else '锁定'
                 })
             else:
                 return ""
@@ -1095,7 +1099,7 @@ class SqlData(object):
                     "bank_name": row[1],
                     "bank_number": row[2],
                     "bank_address": row[3],
-                    "money": row[4]
+                    "day_money": row[4]
                 }
 
     # bank_update
@@ -1124,7 +1128,17 @@ class SqlData(object):
         self.close_connect()
 
     def update_bank_top(self, bank_number, bank_money):
-        sql = "UPDATE bank_info SET money='{}' WHERE bank_number='{}'".format(bank_money, bank_number[0])
+        sql = "UPDATE bank_info SET money='{}',day_money=day_money+{} WHERE bank_number='{}'".format(bank_money, float(bank_money), bank_number[0])
+        try:
+            self.cursor.execute(sql)
+            self.connect.commit()
+        except Exception as e:
+            logging.error("更新银行收款信息失败" + str(e))
+            self.connect.rollback()
+        self.close_connect()
+
+    def update_bank_day_top(self, bank_number, bank_money):
+        sql = "UPDATE bank_info SET day_money={}  WHERE bank_number='{}'".format(bank_money, bank_number)
         try:
             self.cursor.execute(sql)
             self.connect.commit()

@@ -1,7 +1,7 @@
 import json
 import logging
 import datetime
-from .mysql_tools import SqlData
+from mysql_tools import SqlData
 
 
 def xianzai_time():
@@ -36,9 +36,16 @@ def sum_middle_money():
         middle_list = SqlData().search_middle_id()
 
         info_dict = dict()
+        card_price = 0
         for middle_id in middle_list:
-            card_price = SqlData().search_middle_field('card_price', middle_id)
             account_list = SqlData().search_user_field_middle(middle_id)
+            if len(account_list) <= 3:
+                price_field = 'price_one'
+            elif 3 < len(account_list) < 7:
+                price_field = 'price_two'
+            else:
+                price_field = 'price_three'
+            card_price = SqlData().search_middle_field(price_field, middle_id)
             one_cus = list()
             if account_list:
                 for u in account_list:
@@ -54,7 +61,6 @@ def sum_middle_money():
         for i in _middle_list:
             card_num = 0
             sum_money = 0
-            card_price = SqlData().search_middle_field('card_price', i)
             detail = info_dict.get(i)
             for one in detail:
                 num = one.get('count')

@@ -34,7 +34,9 @@
                     <option value="account" selected="账号"></option>
                     <option value="account" >账号</option>
                     <option value="password" >密码</option>
-                    <option value="card_price" >开卡提成</option>
+                    <option value="price_one" >0-3客户</option>
+                    <option value="price_two" >4-6客户</option>
+                    <option value="price_three" >7以上客户</option>
                   </select>
                 </div>
           </div>
@@ -49,28 +51,22 @@
 
 
          <div class="layui-form-item">
-          <label class="layui-form-label">绑定客户:</label>
-          <div class="layui-input-block">
-            <select name="bind_cus" lay-search="">
-              <option value="">直接选择或搜索选择</option>
-              {% for i in cus_list %}
-                <option value="{{ i }}">{{ i }}</option>
-              {% endfor %}
-            </select>
+            <label class="layui-form-label">绑定客户:</label>
+            <div class="layui-input-block">
+                {% for i in null_list %}
+                <input type="checkbox" name="{{ i }}" lay-skin="primary"  title="{{ i }}">
+                {% endfor %}
+            </div>
           </div>
-        </div>
 
         <div class="layui-form-item">
-          <label class="layui-form-label">解绑客户:</label>
-          <div class="layui-input-block">
-            <select name="del_cus" lay-search="">
-              <option value="">直接选择或搜索选择</option>
-              {% for i in cus_list %}
-                <option value="{{ i }}">{{ i }}</option>
-              {% endfor %}
-            </select>
+            <label class="layui-form-label">解绑客户:</label>
+            <div class="layui-input-block">
+                {% for i in cus_list %}
+                <input type="checkbox" name="{{ i }}" lay-skin="primary"  value="off" title="{{ i }}">
+                {% endfor %}
+            </div>
           </div>
-        </div>
 
         <div class="layui-form-item">
             <div class="layui-input-block">

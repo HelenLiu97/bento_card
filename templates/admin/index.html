@@ -91,7 +91,7 @@
       <li lay-id="12">卡的decline记录</li>
       <li lay-id="13">用户decline比例记录</li>
       <li lay-id="14">用户详细消费记录</li>
-	
+
   </ul>
   <div class="layui-tab-content" style="height: 100%;">
       <div class="layui-tab-item layui-show">
@@ -277,7 +277,7 @@
             <div class="layui-form-item">
                 <label class="layui-form-label">最高充值金额</label>
                 <div class="layui-input-inline">
-                    <input type="number" id="max_top" name="max_top" placeholder="最高充值到卡的金额" autocomplete="off" 
+                    <input type="number" id="max_top" name="max_top" placeholder="最高充值到卡的金额" autocomplete="off"
                            class="layui-input">
                 </div>
             </div>
@@ -309,13 +309,13 @@
                 <label class="layui-form-label">姓   名</label>
                 <div class="layui-input-inline">
                     <input type="text" name="name" required lay-verify="required" placeholder="客户姓名" autocomplete="off"
-                           class="layui-input"  id="name">
+                           class="layui-input">
                 </div>
             </div>
             <div class="layui-form-item">
                 <label class="layui-form-label">账   号</label>
                 <div class="layui-input-inline">
-                    <input type="text" id="account" name="account" required lay-verify="required" placeholder="客户登录账号" autocomplete="off"
+                    <input type="text" name="account" required lay-verify="required" placeholder="客户登录账号" autocomplete="off"
                            class="layui-input">
                 </div>
             </div>
@@ -323,7 +323,7 @@
             <div class="layui-form-item">
                 <label class="layui-form-label">密   码</label>
                 <div class="layui-input-inline">
-                    <input type="text" id="password" name="password" placeholder="客户登录密码" required lay-verify="required" autocomplete="off"
+                    <input type="text" name="password" placeholder="客户登录密码" required lay-verify="required" autocomplete="off"
                            class="layui-input">
                 </div>
             </div>
@@ -331,23 +331,31 @@
             <div class="layui-form-item">
                 <label class="layui-form-label">电   话</label>
                 <div class="layui-input-inline">
-                    <input type="number" id="phone_num" name="phone_num" placeholder="接收短息通知号码"  autocomplete="off"
+                    <input type="number" name="phone_num" placeholder="接收短息通知号码"  autocomplete="off"
                            class="layui-input">
                 </div>
             </div>
 
             <div class="layui-form-item">
-                <label class="layui-form-label">开卡利润</label>
+                <label class="layui-form-label">0-3个客户</label>
                 <div class="layui-input-inline">
-                    <input type="number" id="create_price" name="create_price" placeholder="开一张卡中介多少钱" required lay-verify="required" autocomplete="off"
+                    <input type="number" name="price_one" placeholder="开一张卡中介多少钱" required lay-verify="required" autocomplete="off"
                            class="layui-input">
                 </div>
             </div>
 
             <div class="layui-form-item">
-                <label class="layui-form-label">开卡数量</label>
+                <label class="layui-form-label">4-6个客户</label>
                 <div class="layui-input-inline">
-                    <input type="text" id="note1" name="note1" autocomplete="off" placeholder="可开卡的数量"
+                    <input type="number" name="price_two" placeholder="开一张卡中介多少钱" required lay-verify="required" autocomplete="off"
+                           class="layui-input">
+                </div>
+            </div>
+
+            <div class="layui-form-item">
+                <label class="layui-form-label">7个以上客户</label>
+                <div class="layui-input-inline">
+                    <input type="number" name="price_three" placeholder="开一张卡中介多少钱" required lay-verify="required" autocomplete="off"
                            class="layui-input">
                 </div>
             </div>
@@ -359,13 +367,11 @@
             </div>
         </form>
     </div>
+  </div>
 
-      </div>
       <div class="layui-tab-item">
           <tablse class="layui-hide" id="middle_info" lay-filter="middle_info"></tablse>
           <script type="text/html" id="middle_bar">
-{#            <a class="layui-btn layui-btn-xs" lay-event="top_up">充值</a>#}
-{#            <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="edit">编辑</a>#}
             <a class="layui-btn layui-btn-normal layui-btn-xs" lay-event="mid_edit">编辑</a>
             <a class="layui-btn layui-btn-warm layui-btn-xs" lay-event="del">提成</a>
         </script>
@@ -391,7 +397,7 @@
                           <option value="card_cus">标签</option>
                           <option value="card_no">卡号</option>
                           <option value="account_no">客户名</option>
-			<option value="card_name">卡名</option>
+			              <option value="card_name">卡名</option>
                         </select>
                       </div>
                      </div>
@@ -453,7 +459,7 @@
                 <button class="layui-btn layui-btn-primary" >重置</button>
                </div>
            </form>
- 
+
           <tablse class="layui-table" id="account_de" lay-filter="account_decl"></tablse>
        </div>
 
@@ -477,13 +483,13 @@
                   时间范围:
                   <div class="layui-inline">
                   <input type="text" class="layui-input" id="test12" placeholder=" - ">
-              </div>	
+              </div>
 
               <button class="layui-btn" lay-submit="" lay-filter="sea_alltrans" type="submit">搜索</button>
               <button class="layui-btn layui-btn-primary" >重置</button>
              </div>
          </form>
- 
+
           <tablse class="layui-hide" id="bento_alltrans" lay-filter="bento_alltrans"></tablse>
       </div>
 
@@ -983,7 +989,7 @@ Welcome to BenTo
             elem: '#middle_info'
             , height: 'full-250'
             , cellMinWidth: '80'
-            , url: '/admin/middle_info' //数据接口
+            , url: '/admin/middle_info/' //数据接口
             , title: '中介信息'
             , limit: 20
             , toolbar: "true" //开启工具栏，此处显示默认图标，可以自定义模板，详见文档
@@ -995,8 +1001,9 @@ Welcome to BenTo
                 , {field: 'account', title: '账号', align: 'center', sort: true,}
                 , {field: 'password', title: '密码', align: 'center', sort: true,}
                 , {field: 'phone_num', title: '电话', align: 'center', sort: true}
-                , {field: 'card_price', title: '开卡提成', align: 'center', sort: true}
-                , {field: 'balance', title: '备注', align: 'center', sort: true}
+                , {field: 'price_one', title: '0-3客户量', align: 'center', sort: true}
+                , {field: 'price_two', title: '4-6客户量', align: 'center', sort: true}
+                , {field: 'price_three', title: '7以上客户量', align: 'center', sort: true}
                 , {fixed: 'right', width: 220, align: 'center', toolbar: '#middle_bar'}
             ]]
             , id: 'pay_history'
@@ -1017,7 +1024,6 @@ Welcome to BenTo
             , totalRow: true //开启合计行
             , cols: [[ //表头
                 {type: 'numbers'}
-                , {type: 'checkbox'}
                 , {field: 'alias', title: '客户名', align: 'center', sort: true}
                 , {field: 'decl', title: 'decline数量', align: 'center', sort: true}
                 , {field: 't_data', title: '所有卡交易数量', align: 'center', sort: true, style: 'color: green'}
@@ -1026,17 +1032,20 @@ Welcome to BenTo
                 , {field: 'bili', title: '三天decline比', align: 'center', sort: true,}
             ]]
             , id: 'account_decl'
+            ,page: true
             ,done: function (res, curr, count) {
+                var that = this.elem.next();
                 for (var i=0;i<res.data.length;i++)   //遍历返回数据
                 {
-                    if(res.data[i].show!='')    //设置条件
+                    if(res.data[i].show=='T')    //设置条件
                     {
-                        console.log('yes');
-                        $("tr[data-index='"+ i +"']").attr({'style':"color:red"})
+                        var tr = that.find(".layui-table-box tbody tr[data-index='" + i + "']");
+                          tr.css("background-color", "yellow");
+                          tr.find(".laytable-cell-9-0-6").css("color","red");
                     }
                 }
             }
-            ,page: true
+
         });
 
         //执行一个 table 实例
@@ -1324,7 +1333,7 @@ Welcome to BenTo
                     title: '修改客户为 [ ' + data.name + ' ] 的相关信息',
                     type: 2,
                     anim: 3,
-                    area: ['20%', '35%'],//宽高
+                    area: ['20%', '40%'],//宽高
                     shadeClose: true, //点击遮罩关闭
                     content: '/admin/edit_parameter',
                     success: function (layero, index) {
@@ -1346,9 +1355,9 @@ Welcome to BenTo
                     title: '修改中介为 [ ' + data.name + ' ] 的相关信息',
                     type: 2,
                     anim: 3,
-                    area: ['27%', '30%'],//宽高
+                    area: ['27%', '50%'],//宽高
                     shadeClose: true, //点击遮罩关闭
-                    content: '/admin/acc_to_middle',
+                    content: '/admin/acc_to_middle/?middle_id='+data.middle_id,
                     success: function (layero, index) {
                         var body = layer.getChildFrame('body', index);
                         body.contents().find("#name").val(data.name)
@@ -1421,6 +1430,7 @@ Welcome to BenTo
 
         form.on('submit(add_middle)', function (data) {
             var data_info = {data: JSON.stringify(data.field)};
+            // console.log(data_info);
             var $ = layui.jquery;
             $.ajax({
                 type: 'POST',

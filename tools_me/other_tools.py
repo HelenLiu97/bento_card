@@ -363,7 +363,7 @@ def check_float(string):
 
 
 def dic_key(dic):
-    return float(dic['money'])
+    return float(dic['day_money'])
 
 
 if __name__ == "__main__":
