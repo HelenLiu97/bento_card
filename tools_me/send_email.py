@@ -37,16 +37,18 @@ def send(context, pic_list, msg_to):
         img.add_header('Content-ID', imgid)
         msg.attach(img)
         index += 1
-
-    try:
-        s = smtplib.SMTP_SSL("smtp.qq.com", 465)  # 邮件服务器及端口号
-        s.login(msg_from, passwd)
-        s.sendmail(msg_from, msg_to, msg.as_string())
-        return True
-    except Exception as e:
-        logging.error(e)
-        return False
-
-
+    send_num = 0
+    while send_num < 100:
+        try:
+            s = smtplib.SMTP_SSL("smtp.qq.com", 465)  # 邮件服务器及端口号
+            s.login(msg_from, passwd)
+            s.sendmail(msg_from, msg_to, msg.as_string())
+            break
+        except Exception as e:
+            logging.error(e)
+            continue
+        finally:
+            send_num += 1
+    return True
 
 

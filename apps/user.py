@@ -221,6 +221,7 @@ def del_account():
                                              operating_log="原有金额{}, 卡上余额{}, 现有额度{}, 删卡退款".format(before_balance,
                                                                                                  availableAmount,
                                                                                                  balance))
+        SqlDataNative().update_bento_label('已注销', cardnumber.strip())
         return jsonify(
             {"code": RET.OK, "msg": "原有金额{}, 卡上余额{}, 现有额度{}".format(before_balance, availableAmount, balance)})
     else:

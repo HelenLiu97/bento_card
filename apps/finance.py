@@ -5,9 +5,9 @@ import logging
 import operator
 import time
 from apps.bento_create_card.public import change_today
-from tools_me.other_tools import finance_required
+from tools_me.other_tools import finance_required, sum_code, xianzai_time
 from tools_me.parameter import RET, MSG
-from flask import render_template, request, jsonify, session, g, url_for, redirect
+from flask import render_template, request, jsonify, session, url_for, redirect
 from tools_me.mysql_tools import SqlData
 from apps.bento_create_card.sqldata_native import SqlDataNative
 from apps.bento_create_card.main_transactionrecord import TransactionRecord
@@ -69,6 +69,50 @@ class FinanceIndex(MethodView):
         context['card_no'] = card_no
         context['card_un'] = card_un
         return render_template('finance/index.html', **context)
+
+
+@finance_blueprint.route('/add_account/', methods=['POST'])
+@finance_required
+def add_account():
+    results = {"code": RET.OK, "msg": MSG.OK}
+    try:
+        data = json.loads(request.form.get('data'))
+        name = data.get('name')
+        account = data.get('account')
+        password = data.get('password')
+        phone_num = data.get('phone_num')
+        create_price = float(data.get('create_price'))
+        refund = float(data.get('refund'))
+        min_top = float(data.get('min_top'))
+        max_top = float(30000)
+        note = data.get('note')
+        ed_name = SqlData().search_user_field_name('account', name)
+        if ed_name:
+            results['code'] = RET.SERVERERROR
+            results['msg'] = '该用户名已存在!'
+            return jsonify(results)
+        if phone_num:
+            ret = re.match(r"^1[35789]\d{9}$", phone_num)
+            if not ret:
+                results['code'] = RET.SERVERERROR
+                results['msg'] = '请输入符合规范的电话号码!'
+                return jsonify(results)
+        else:
+            phone_num = ""
+        SqlData().insert_account(account, password, phone_num, name, create_price, refund, min_top, max_top, note)
+        # 创建用户后插入充值数据
+        pay_num = sum_code()
+        t = xianzai_time()
+        user_id = SqlData().search_user_field_name('id', account)
+        SqlData().insert_top_up(pay_num, t, 0, 0, 0, user_id)
+        SqlData().insert_account_trans(date=t, trans_type="充值", do_type="支出", num=0, card_no=0, do_money=0,
+                                       hand_money=0, before_balance=0, balance=0, account_id=user_id)
+        return jsonify(results)
+    except Exception as e:
+        logging.error(e)
+        results['code'] = RET.SERVERERROR
+        results['msg'] = MSG.SERVERERROR
+        return jsonify(results)
 
 
 @finance_blueprint.route('/account_info/', methods=['GET'])

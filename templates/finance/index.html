@@ -54,8 +54,8 @@
       <li lay-id="3">给客户充值记录</li>
       <li lay-id="11">客户退款记录</li>
       <li lay-id="4">客户自己的充值记录</li>
-      <!--<li lay-id="5">客户历史余额记录</li>
       <li lay-id="6">新增客户</li>
+      <!--<li lay-id="5">客户历史余额记录</li>
       <li lay-id="7">新增中介</li>
       <li lay-id="8">中介管理</li>
       <li lay-id="9">中介提成</li>-->
@@ -185,7 +185,7 @@
           <table class="layui-hide" id="cus_money_log" lay-filter="cus_money_log"></table>
       </div>
     -->
-    <!--
+
     <div class="layui-tab-item">
 
         <div class="divForm">
@@ -272,7 +272,7 @@
     </div>
 
     </div>
-
+    <!--
       <div class="layui-tab-item">
 
           <div class="divForm">
@@ -640,10 +640,10 @@ Welcome to BenTo
 
 
         element.tabChange('demo', getPicTabNum);
-	laydate.render({
-	    elem: '#bento_time',
-	    range: true
-	});
+        laydate.render({
+            elem: '#bento_time',
+            range: true
+        });
 
         laydate.render({
             elem: '#s_test6'
@@ -674,7 +674,40 @@ Welcome to BenTo
 	laydate.render({
  	    elem: '#test12',
 	    range: true
-	})
+	});
+
+	form.on('submit(formDemo)', function (data) {
+            var data_info = {data: JSON.stringify(data.field)};
+            var $ = layui.jquery;
+            $.ajax({
+                type: 'POST',
+                url: '/finance/add_account/',
+                data: data_info,
+                dataType: 'json',
+                success: function (data) {
+                    // 成功提示框
+                    if (data.code == 0) {
+                        parent.layer.msg("添加成功!请刷新界面!", {
+                            icon: 6,
+                        });
+
+                    } else if (data.code == 502) {
+                        parent.layer.msg(data.msg, {
+                            icon: 5
+                        });
+                    }
+
+                },
+                error: function (data) {
+                    // 异常提示
+                    parent.layer.msg('出现网络故障', {
+                        icon: 5
+                    });
+                    parent.layer.closeAll('iframe'); //关闭弹框
+                }
+            });
+            return false;
+        });
 
         //table.render({
         //    elem: '#cus_money_log'
