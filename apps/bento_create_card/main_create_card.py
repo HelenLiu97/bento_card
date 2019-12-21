@@ -32,6 +32,7 @@ class CreateCard(object):
                                                card_validity=user_data.get("expiration"), attribution=attribution,
                                                create_time=time.strftime('%Y-%m-%d %H:%M:%S',
                                                                          time.localtime(time.time())))
+            self.billing_address(user_data.get("cardId"))
             """
             d = BentoCard(alias=user_data.get("alias"), card_id=user_data.get("cardId"), card_amount=card_amount, card_number=user_data.get("pan"),
                           card_cvv=user_data.get("cvv"), label=label,card_validity=user_data.get("expiration"),attribution=attribution, 
@@ -67,6 +68,24 @@ class CreateCard(object):
             "expiration": response.json().get("expiration")
         }
 
+    def billing_address(self, card_id):
+        url = "https://api.bentoforbusiness.com/cards/{}/billingaddress".format(card_id)
+        data = {
+                "id": 91308,
+                "street": "1709 Elmwood Dr",
+                "city": "Harlingen",
+                "country": "US",
+                "zipCode": "78550",
+                "state": "TX",
+                "addressType": "BUSINESS_ADDRESS",
+                "bentoType": "com.bentoforbusiness.entity.business.BusinessAddress"
+            }
+        respone = requests.put(url, headers=self.headers, data=json.dumps(data))
+        if respone.status_code == 200:
+            return True
+        else:
+            return False
+
 
 # 单张开卡
 def main_createcard(limit_num, card_amount, label, attribution):
@@ -83,12 +102,6 @@ def main_createcard(limit_num, card_amount, label, attribution):
         return c
 
 
-# uo查询卡信息
-def inquire_card(cardid):
-    s = SqlDataNative().search_data(limit_num=limit_num)
-    print(s)
-
-
 def get_bento_data(cardid):
     pan = CreateCard().get_pan(cardid)
     expiration = CreateCard().get_expiration(cardid)
@@ -101,7 +114,7 @@ def get_bento_data(cardid):
 
 if __name__ == "__main__":
     s = CreateCard()
-    s.create_card('abcd', '1', 'test', 'helen')
+    s.billing_address(9898)
     print(s)
     # main(limit_num=3, card_amount=300, label="杨经理kevin")
     pass

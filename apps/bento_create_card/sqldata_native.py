@@ -345,7 +345,7 @@ class SqlDataNative(object):
                         "hand_money": rows[0],
                         "trans_type": row.get("payee").get("name"),
                         "do_type": row.get("status"),
-                        "do_money": row.get("amount"),
+                        "do_money": 0 if row.get('status') == 'DECLINED' else row.get('amount'),
                         "card_no": row.get("card").get("lastFour"),
                         "before_balance": rows[2],
                         "date": time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(row.get("transactionDate") / 1000)),

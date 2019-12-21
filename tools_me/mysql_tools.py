@@ -1127,8 +1127,8 @@ class SqlData(object):
             self.connect.rollback()
         self.close_connect()
 
-    def update_bank_top(self, bank_number, bank_money):
-        sql = "UPDATE bank_info SET money='{}',day_money=day_money+{} WHERE bank_number='{}'".format(bank_money, float(bank_money), bank_number[0])
+    def update_bank_top(self, bank_number, once_money, bank_money):
+        sql = "UPDATE bank_info SET money='{}',day_money=day_money+{} WHERE bank_number='{}'".format(bank_money, once_money, bank_number[0])
         try:
             self.cursor.execute(sql)
             self.connect.commit()

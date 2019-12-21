@@ -236,7 +236,7 @@ def top_up():
                 bank_number = pattern.findall(bank_address)
                 bank_money = SqlData().search_bank_top(bank_number)
                 update_money = float(pay_money) + float(bank_money)
-                SqlData().update_bank_top(bank_number, update_money)
+                SqlData().update_bank_top(bank_number, float(pay_money), update_money)
             else:
                 # 更新首款码收款金额
                 # pay_money = SqlData().search_pay_code('pay_money', cus_name, pay_time)

@@ -474,14 +474,16 @@
               <div class="layui-inline">
                   <input type="text"  class="layui-input" name="account_transcard" id="account_transcard" autocomplete="off">
               </div>
-	          操作状态:
+                  交易类型:
+              <div class="layui-inline">
+                  <input type="text"  class="layui-input" name="trans_store" id="trans_store" autocomplete="off">
+              </div>
+	                操作状态:
               <div class="layui-inline">
                   <input type="text"  class="layui-input" name="account_transtatus" id="account_transtatus" autocomplete="off">
               </div>
-
-
                   时间范围:
-                  <div class="layui-inline">
+              <div class="layui-inline">
                   <input type="text" class="layui-input" id="test12" placeholder=" - ">
               </div>
 
@@ -782,7 +784,7 @@ Welcome to BenTo
                 , {field: 'date', title: '操作日期', align: 'center', sort: true, totalRowText: '合计：'}
                 , {field: 'trans_type', title: '交易类型', align: 'center', sort: true, style: 'color: green'}
                 , {field: 'do_type', title: '操作状态', align: 'center', sort: true,}
-                , {field: 'do_money', title: '操作金额', align: 'center', totalRow: true, sort: true, style: 'color: red'}
+                , {field: 'do_money', title: '交易金额', align: 'center', totalRow: true, sort: true, style: 'color: red'}
                 , {field: 'card_no', title: '卡号', align: 'center', sort: true}
                 , {field: 'before_balance', title: '归属客户', align: 'center', sort: true}
             ]]
@@ -1585,6 +1587,7 @@ Welcome to BenTo
             var $ = layui.jquery;
             var acc_name = $('#account_transname').val(),
                 order_num = $('#account_transcard').val(),
+                trans_store = $('#trans_store').val(),
                 trans_status = $('#account_transtatus').val(),
                 time_range = $('#test12').val();
             table.reload("bento_alltrans", {
@@ -1595,6 +1598,7 @@ Welcome to BenTo
                     order_num: order_num,
                     trans_status: trans_status,
                     time_range: time_range,
+                    trans_store: trans_store,
                 }
             }, '/admin/all_trans');
             return false;

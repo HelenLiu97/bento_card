@@ -245,23 +245,71 @@ def all_trans():
     time_range = request.args.get("time_range")
     # 操作状态
     trans_status = request.args.get("trans_status")
+    # 交易类型
+    trans_store = request.args.get("trans_store")
 
     args_list = []
     data = SqlDataNative().bento_alltrans()
-    print(data)
-    new_data = []
     results = {"code": RET.OK, "msg": MSG.OK, "count": 0, "data": ""}
     if len(data) == 0:
         results["MSG"] = MSG.NODATA
         return jsonify(results)
 
+    # 下列判断为判断是否有搜索条件根据条件过滤
+    acc_list = list()
     if acc_name:
-        args_list.append(acc_name)
+        # args_list.append(acc_name)
+        for i in data:
+            cus = i.get('before_balance')
+            if acc_name == cus:
+                acc_list.append(i)
+    else:
+        acc_list = data
+
+    order_list = list()
     if order_num:
-        args_list.append(order_num)
+        # args_list.append(order_num)
+        for c in acc_list:
+            card_name = c.get('hand_money')
+            if order_num in card_name:
+                order_list.append(c)
+    else:
+        order_list = acc_list
+
+    trans_list = list()
     if trans_status:
         args_list.append(trans_status)
+        for i in order_list:
+            do_type = i.get('do_type')
+            if trans_status in do_type:
+                trans_list.append(i)
+    else:
+        trans_list = order_list
 
+    time_list = list()
+    if time_range:
+        min_time = time_range.split(' - ')[0] + ' 00:00:00'
+        max_time = time_range.split(' - ')[1] + ' 23:59:59'
+        min_tuple = datetime.datetime.strptime(min_time, '%Y-%m-%d %H:%M:%S')
+        max_tuple = datetime.datetime.strptime(max_time, '%Y-%m-%d %H:%M:%S')
+        for d in data:
+            dat = datetime.datetime.strptime(d.get("date"), '%Y-%m-%d %H:%M:%S')
+            if min_tuple < dat < max_tuple:
+                time_list.append(d)
+    else:
+        time_list = trans_list
+
+    store_list = list()
+    if trans_store:
+        for i in time_list:
+            trans_type = i.get('trans_type')
+            if trans_store in trans_type:
+                store_list.append(i)
+    else:
+        store_list = trans_list
+
+
+    '''
     if args_list and time_range == "":
         for d in data:
             if set(args_list) < set(d.values()):
@@ -284,11 +332,11 @@ def all_trans():
             dat = datetime.datetime.strptime(d.get("date"), '%Y-%m-%d %H:%M:%S')
             if min_tuple < dat and max_tuple > dat:
                 new_data.append(d)
-
+    '''
+    if not store_list:
+        return jsonify({'code': RET.OK, 'msg': MSG.NODATA})
     page_list = list()
-    if new_data:
-        data = sorted(new_data, key=operator.itemgetter("date"))
-    data = sorted(data, key=operator.itemgetter("date"))
+    data = sorted(store_list, key=operator.itemgetter("date"))
     data = list(reversed(data))
     for i in range(0, len(data), int(limit)):
         page_list.append(data[i: i + int(limit)])
