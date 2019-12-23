@@ -348,60 +348,58 @@ def all_trans():
 @admin_blueprint.route('/account_decline', methods=['GET'])
 @admin_required
 def account_decline():
+    # 当前用户较少不采取分页
     page = request.args.get('page')
     limit = request.args.get('limit')
 
-    alias_name = request.args.get("account_decline_name")
-    alias_data = []
-    if alias_name:
-        one_t_data = SqlDataNative().account_sum_transaction(attribution=alias_name)
-        one_decline_data = SqlDataNative().account_sum_decline_transaction(attribution=alias_name)
-
-        # 获取decline数量
+    alias_name = request.args.get("acc_name")
+    data = SqlDataNative().bento_alltrans()
+    acc_sum_trans = dict()
+    for i in data:
+        cus = i.get('before_balance')
+        if cus not in acc_sum_trans:
+            cus_dict = dict()
+            cus_dict[cus] = {'decl': 0, 't_data': 0, 'three_decl': 0, 'three_tran': 0}
+            acc_sum_trans.update(cus_dict)
+    for n in data:
+        date = n.get('date')
+        do_type = n.get('do_type')
+        cus = n.get('before_balance')
+        value = {'t_data': acc_sum_trans.get(cus).get('t_data') + 1}
+        acc_sum_trans.get(cus).update(value)
+        if do_type == 'DECLINED':
+            value = {'decl': acc_sum_trans.get(cus).get('decl') + 1}
+            acc_sum_trans.get(cus).update(value)
         today_time = time.strftime('%Y-%m-%d', time.localtime(time.time()))
-        max_today = "{} {}".format(change_today(today_time, 0), "23:59:59")
-        min_today = "{} {}".format(change_today(today_time, -3), "00:00:00")
-        three_data = SqlDataNative().count_decline_data(attribution=alias_name, min_today=min_today,
-                                                        max_today=max_today)
-
-        alias_data.append({
-            "alias": alias_name,
-            "t_data": one_t_data,
-            "decl": one_decline_data,
-            "three_decl": three_data,
-            "three_tran": 0,
-            "bili": "{}{}".format(float("%.4f" % (three_data / one_t_data)), "%") if one_t_data != 0 else 0
-        })
-        return jsonify({"code": 0, "count": len(alias_data), "data": alias_data, "msg": "SUCCESSFUL"})
-
-    alias_list = SqlDataNative().bento_all_alias()
-    for alias in alias_list:
-        t_data = SqlDataNative().account_sum_transaction(attribution=alias)
-        decline_data = SqlDataNative().account_sum_decline_transaction(attribution=alias)
-        # 获取decline数量
-        today_time = time.strftime('%Y-%m-%d', time.localtime(time.time()))
-        max_today = "{} {}".format(change_today(today_time, 0), "23:59:59")
-        min_today = "{} {}".format(change_today(today_time, -3), "00:00:00")
-        three_data = SqlDataNative().count_decline_data(attribution=alias, min_today=min_today, max_today=max_today)
-        three_tran_data = SqlDataNative().search_d(alias)
-        if three_tran_data == 0:
-            show = 'F'
+        max_today = datetime.datetime.strptime("{} {}".format(change_today(today_time, 0), "23:59:59"),
+                                               '%Y-%m-%d %H:%M:%S')
+        min_today = datetime.datetime.strptime("{} {}".format(change_today(today_time, -3), "23:59:59"),
+                                               '%Y-%m-%d %H:%M:%S')
+        trans_t = datetime.datetime.strptime(date, '%Y-%m-%d %H:%M:%S')
+        if min_today <= trans_t <= max_today:
+            value = {'three_tran': acc_sum_trans.get(cus).get('three_tran') + 1}
+            acc_sum_trans.get(cus).update(value)
+        if min_today < trans_t < max_today and do_type == 'DECLINED':
+            value = {'three_decl': acc_sum_trans.get(cus).get('three_decl') + 1}
+            acc_sum_trans.get(cus).update(value)
+    res = list()
+    for n in acc_sum_trans:
+        value = acc_sum_trans.get(n)
+        value['alias'] = n
+        value['bili'] = "{} {}".format(float("%.4f" % (value.get('three_decl') / value.get('three_tran') * 100)),
+                                  "%") if value.get('three_tran') != 0 else 0,
+        if value.get('three_tran') != 0 and value.get('three_decl') / value.get('three_tran') > 0.1:
+            value['show'] = 'T'
         else:
-            if (three_data / three_tran_data) > 0.1:
-                show = 'T'
-            else:
-                show = 'F'
-        alias_data.append({
-            "alias": alias,
-            "t_data": t_data,
-            "decl": decline_data,
-            "three_decl": three_data,
-            "three_tran": three_tran_data,
-            "bili": "{}{}".format(float("%.4f" % (three_data / three_tran_data * 100)),
-                                  "%") if three_tran_data != 0 else 0,
-            "show": show
-        })
-    return jsonify({"code": 0, "count": len(alias_data), "data": alias_data, "msg": "SUCCESSFUL"})
+            value['show'] = 'F'
+        res.append(value)
+    if alias_name:
+        res_alias = list()
+        for i in res:
+            if alias_name in i.get('alias'):
+                res_alias.append(i)
+        return jsonify({"code": 0, "count": len(res_alias), "data": res_alias, "msg": "SUCCESSFUL"})
+    return jsonify({"code": 0, "count": len(res), "data": res, "msg": "SUCCESSFUL"})
 
 
 @admin_blueprint.route('/decline_data', methods=['GET'])
