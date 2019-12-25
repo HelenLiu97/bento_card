@@ -560,7 +560,7 @@
               elem: '#bento_alltrans'
               , height: 'full-250'
               , cellMinWidth: '80'
-              , url: '/user/all_trans' //数据接口
+              , url: '/user/all_trans/' //数据接口
               , title: '交易记录表'
               , limit:100
               , limits:[100, 200, 300, 400, 500, 600, 700, 800, 900, 1000]
@@ -570,6 +570,8 @@
                   {type:'numbers'}
                   ,{type: 'checkbox'}
                   , {field: 'hand_money', title: '卡的名字', align: 'center', totalRow: true, sort: true}
+                  , {field: 'label', title: '标签', align: 'center', totalRow: true, sort: true,style:'color: #008B8B'}
+                  , {field: 'card_num', title: '卡号', align: 'center', totalRow: true, sort: true}
                   , {field: 'date', title: '操作日期', align: 'center', sort: true,  totalRowText: '合计：'}
                   , {field: 'trans_type', title: '交易类型', align: 'center', sort: true,style:'color: green'}
                   , {field: 'do_type', title: '操作类型', align: 'center', sort: true,}
@@ -627,6 +629,8 @@
                 {type:'numbers'}
                 ,{type: 'checkbox'}
                 , {field: 'hand_money', title: '卡的名字', align: 'center', totalRow: true, sort: true}
+                , {field: 'label', title: '标签', align: 'center', totalRow: true, sort: true,style:'color: #008B8B'}
+                , {field: 'card_num', title: '卡号', align: 'center', totalRow: true, sort: true}
                 , {field: 'date', title: '操作日期', align: 'center', sort: true,  totalRowText: '合计：'}
                 , {field: 'trans_type', title: '交易类型', align: 'center', sort: true,style:'color: green'}
                 //, {field: 'do_type', title: '操作状态', align: 'center', sort: true,}

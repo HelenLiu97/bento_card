@@ -270,6 +270,8 @@ class SqlDataNative(object):
         for i in rows:
             data.append({
                 "hand_money": i[1],
+                'label': self.search_card_number('label', i[1]),
+                'card_num': self.search_card_number('card_number', i[1]),
                 "date": str(i[5]),
                 "trans_type": i[2],
                 "do_type": i[4],
@@ -333,19 +335,26 @@ class SqlDataNative(object):
                 data.append(row[0])
         return data
 
+    def search_card_number(self, field, alias):
+        sql = "SELECT {} FROM bento_create_card WHERE alias='{}'".format(field, alias)
+        self.cursor.execute(sql)
+        row = self.cursor.fetchone()
+        return row
+
     def bento_alltrans(self):
         import json
         import time
         sql = "select alias, transactions_data,attribution from bento_user_decline where transactions_data_len != 0"
         self.cursor.execute(sql)
         i = self.cursor.fetchall()
-        self.close_connect()
         data = []
         for rows in i:
             try:
                 for row in json.loads(rows[1]):
                     data.append({
                         "hand_money": rows[0],
+                        "card_num": self.search_card_number("card_number", rows[0]),
+                        "label": self.search_card_number("label", rows[0]),
                         "trans_type": row.get("payee").get("name"),
                         "do_type": row.get("status"),
                         "do_money": 0 if row.get('status') == 'DECLINED' else row.get('amount'),
@@ -356,8 +365,10 @@ class SqlDataNative(object):
                     # print(data)
                     # time.sleep(5)
             except Exception as e:
+                print(e)
                 logging.warning(str(e))
                 continue
+        self.close_connect()
         return data
 
     def one_bento_alltrans(self, alias):
@@ -367,13 +378,14 @@ class SqlDataNative(object):
             alias)
         self.cursor.execute(sql)
         i = self.cursor.fetchall()
-        self.close_connect()
         data = []
         for rows in i:
             try:
                 for row in json.loads(rows[1]):
                     data.append({
                         "hand_money": rows[0],
+                        "label": self.search_card_number("label", rows[0]),
+                        "card_num": self.search_card_number("card_number", rows[0]),
                         "trans_type": row.get("payee").get("name"),
                         "do_type": row.get("status"),
                         "do_money": row.get("amount"),
@@ -384,6 +396,7 @@ class SqlDataNative(object):
             except Exception as e:
                 logging.warning(str(e))
                 continue
+        self.close_connect()
         return data
 
     def bento_notice(self):

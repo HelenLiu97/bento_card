@@ -86,6 +86,11 @@ class CreateCard(object):
         else:
             return False
 
+    def get_card_list(self):
+        url = "https://api.bentoforbusiness.com/cards?index=0&limit=0"
+        res = requests.get(url, headers=self.headers)
+        crads = res.json().get('cards')
+        # 返回未注销的所有卡信息(详细信息参数api文档card-list接口)
 
 # 单张开卡
 def main_createcard(limit_num, card_amount, label, attribution):
@@ -114,7 +119,6 @@ def get_bento_data(cardid):
 
 if __name__ == "__main__":
     s = CreateCard()
-    s.billing_address(9898)
-    print(s)
+    s.get_card_list()
     # main(limit_num=3, card_amount=300, label="杨经理kevin")
     pass

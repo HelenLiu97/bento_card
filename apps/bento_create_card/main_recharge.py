@@ -8,7 +8,7 @@ from apps.bento_create_card.config import bento_data, GetToken, cut_list, change
 logging.basicConfig(level=logging.INFO, format='%(asctime)s :: %(levelname)s :: %(message)s', filename="error.log")
 
 
-class RechargeCard():
+class RechargeCard(object):
     def __init__(self):
         self.headers = {
             "Content-Type": "application/json",
@@ -156,4 +156,4 @@ def main_transaction_data(cards, alias):
 
 if __name__ == "__main__":
     # r = RechargeCard().recharge(cardnumber="9845", recharge_amount=0.1, alias="Margie Simpson")
-    RechargeCard().test()
+    pass

@@ -249,7 +249,13 @@ def all_trans():
     trans_store = request.args.get("trans_store")
 
     args_list = []
-    data = SqlDataNative().bento_alltrans()
+    ca_data = cache.get('all_trans')
+    # 设置缓存处理查询到的大量数据(6小时)
+    if ca_data:
+        data = ca_data
+    else:
+        data = SqlDataNative().bento_alltrans()
+        cache.set('all_trans', data, timeout=60*60*6)
     results = {"code": RET.OK, "msg": MSG.OK, "count": 0, "data": ""}
     if len(data) == 0:
         results["MSG"] = MSG.NODATA
@@ -280,7 +286,7 @@ def all_trans():
     if trans_status:
         args_list.append(trans_status)
         for i in order_list:
-            do_type = i.get('do_type')
+            do_type = i.get('card_num')
             if trans_status in do_type:
                 trans_list.append(i)
     else:
@@ -351,55 +357,61 @@ def account_decline():
     # 当前用户较少不采取分页
     page = request.args.get('page')
     limit = request.args.get('limit')
-
     alias_name = request.args.get("acc_name")
-    data = SqlDataNative().bento_alltrans()
-    acc_sum_trans = dict()
-    for i in data:
-        cus = i.get('before_balance')
-        if cus not in acc_sum_trans:
-            cus_dict = dict()
-            cus_dict[cus] = {'decl': 0, 't_data': 0, 'three_decl': 0, 'three_tran': 0}
-            acc_sum_trans.update(cus_dict)
-    for n in data:
-        date = n.get('date')
-        do_type = n.get('do_type')
-        cus = n.get('before_balance')
-        value = {'t_data': acc_sum_trans.get(cus).get('t_data') + 1}
-        acc_sum_trans.get(cus).update(value)
-        if do_type == 'DECLINED':
-            value = {'decl': acc_sum_trans.get(cus).get('decl') + 1}
+    ca_data = cache.get('decline_data')
+    if not ca_data:
+        data = SqlDataNative().bento_alltrans()
+        acc_sum_trans = dict()
+        for i in data:
+            cus = i.get('before_balance')
+            if cus not in acc_sum_trans:
+                cus_dict = dict()
+                cus_dict[cus] = {'decl': 0, 't_data': 0, 'three_decl': 0, 'three_tran': 0}
+                acc_sum_trans.update(cus_dict)
+        for n in data:
+            date = n.get('date')
+            do_type = n.get('do_type')
+            cus = n.get('before_balance')
+            value = {'t_data': acc_sum_trans.get(cus).get('t_data') + 1}
             acc_sum_trans.get(cus).update(value)
-        today_time = time.strftime('%Y-%m-%d', time.localtime(time.time()))
-        max_today = datetime.datetime.strptime("{} {}".format(change_today(today_time, 0), "23:59:59"),
-                                               '%Y-%m-%d %H:%M:%S')
-        min_today = datetime.datetime.strptime("{} {}".format(change_today(today_time, -3), "23:59:59"),
-                                               '%Y-%m-%d %H:%M:%S')
-        trans_t = datetime.datetime.strptime(date, '%Y-%m-%d %H:%M:%S')
-        if min_today <= trans_t <= max_today:
-            value = {'three_tran': acc_sum_trans.get(cus).get('three_tran') + 1}
-            acc_sum_trans.get(cus).update(value)
-        if min_today < trans_t < max_today and do_type == 'DECLINED':
-            value = {'three_decl': acc_sum_trans.get(cus).get('three_decl') + 1}
-            acc_sum_trans.get(cus).update(value)
-    res = list()
-    for n in acc_sum_trans:
-        value = acc_sum_trans.get(n)
-        value['alias'] = n
-        value['bili'] = "{} {}".format(float("%.4f" % (value.get('three_decl') / value.get('three_tran') * 100)),
-                                  "%") if value.get('three_tran') != 0 else 0,
-        if value.get('three_tran') != 0 and value.get('three_decl') / value.get('three_tran') > 0.1:
-            value['show'] = 'T'
-        else:
-            value['show'] = 'F'
-        res.append(value)
-    if alias_name:
-        res_alias = list()
-        for i in res:
-            if alias_name in i.get('alias'):
-                res_alias.append(i)
-        return jsonify({"code": 0, "count": len(res_alias), "data": res_alias, "msg": "SUCCESSFUL"})
-    return jsonify({"code": 0, "count": len(res), "data": res, "msg": "SUCCESSFUL"})
+            if do_type == 'DECLINED':
+                value = {'decl': acc_sum_trans.get(cus).get('decl') + 1}
+                acc_sum_trans.get(cus).update(value)
+            today_time = time.strftime('%Y-%m-%d', time.localtime(time.time()))
+            max_today = datetime.datetime.strptime("{} {}".format(change_today(today_time, 0), "23:59:59"),
+                                                   '%Y-%m-%d %H:%M:%S')
+            min_today = datetime.datetime.strptime("{} {}".format(change_today(today_time, -3), "23:59:59"),
+                                                   '%Y-%m-%d %H:%M:%S')
+            trans_t = datetime.datetime.strptime(date, '%Y-%m-%d %H:%M:%S')
+            if min_today <= trans_t <= max_today:
+                value = {'three_tran': acc_sum_trans.get(cus).get('three_tran') + 1}
+                acc_sum_trans.get(cus).update(value)
+            if min_today < trans_t < max_today and do_type == 'DECLINED':
+                value = {'three_decl': acc_sum_trans.get(cus).get('three_decl') + 1}
+                acc_sum_trans.get(cus).update(value)
+        res = list()
+        for n in acc_sum_trans:
+            value = acc_sum_trans.get(n)
+            value['alias'] = n
+            value['bili'] = "{} {}".format(float("%.4f" % (value.get('three_decl') / value.get('three_tran') * 100)),
+                                      "%") if value.get('three_tran') != 0 else 0,
+            if value.get('three_tran') != 0 and value.get('three_decl') / value.get('three_tran') > 0.1:
+                value['show'] = 'T'
+            else:
+                value['show'] = 'F'
+            res.append(value)
+            # 设置缓存
+        cache.set('decline_data', res, timeout=60 * 60 * 6)
+
+    else:
+        res = ca_data
+        if alias_name:
+            res_alias = list()
+            for i in res:
+                if alias_name in i.get('alias'):
+                    res_alias.append(i)
+            return jsonify({"code": 0, "count": len(res_alias), "data": res_alias, "msg": "SUCCESSFUL"})
+        return jsonify({"code": 0, "count": len(res), "data": res, "msg": "SUCCESSFUL"})
 
 
 @admin_blueprint.route('/decline_data', methods=['GET'])

@@ -478,7 +478,7 @@
               <div class="layui-inline">
                   <input type="text"  class="layui-input" name="trans_store" id="trans_store" autocomplete="off">
               </div>
-	                操作状态:
+	                卡号:
               <div class="layui-inline">
                   <input type="text"  class="layui-input" name="account_transtatus" id="account_transtatus" autocomplete="off">
               </div>
@@ -781,12 +781,14 @@ Welcome to BenTo
                 {type: 'numbers'}
                 , {type: 'checkbox'}
                 , {field: 'hand_money', title: '卡的名字', align: 'center', totalRow: true, sort: true}
+                , {field: 'card_num', title: '卡号', align: 'center', totalRow: true, sort: true}
+                , {field: 'label', title: '卡标签', align: 'center', totalRow: true, sort: true, style:'color: #008B8B'}
                 , {field: 'date', title: '操作日期', align: 'center', sort: true, totalRowText: '合计：'}
                 , {field: 'trans_type', title: '交易类型', align: 'center', sort: true, style: 'color: green'}
                 , {field: 'do_type', title: '操作状态', align: 'center', sort: true,}
                 , {field: 'do_money', title: '交易金额', align: 'center', totalRow: true, sort: true, style: 'color: red'}
                 , {field: 'card_no', title: '卡号', align: 'center', sort: true}
-                , {field: 'before_balance', title: '归属客户', align: 'center', sort: true}
+                , {field: 'before_balance', title: '归属客户', align: 'center', sort: true, style:'color:#836FFF'}
             ]]
             , id: 'bento_alltrans'
             , page: true

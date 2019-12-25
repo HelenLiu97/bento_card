@@ -162,7 +162,7 @@ def all_trans():
     data = SqlDataNative().one_bento_alltrans(alias=user_name)
     results = {"code": RET.OK, "msg": MSG.OK, "count": 0, "data": ""}
     if len(data) == 0:
-        results["MSG"] = MSG.MODATA
+        results["MSG"] = MSG.NODATA
         return jsonify(results)
     args_list = []
     new_data = []
