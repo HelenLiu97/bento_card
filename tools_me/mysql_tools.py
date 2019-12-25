@@ -24,6 +24,16 @@ class SqlData(object):
         if self.connect:
             self.connect.close()
 
+    # 查询某个值在某个字段中
+    def search_value_in(self, table_name, value, field):
+        sql = "select * from {} where find_in_set('{}',{})".format(table_name, value, field)
+        self.cursor.execute(sql)
+        row = self.cursor.fetchone()
+        if row:
+            return True
+        else:
+            return False
+
     # 一下是用户方法-----------------------------------------------------------------------------------------------------
 
     # 登录查询
@@ -36,6 +46,20 @@ class SqlData(object):
             user_data['user_id'] = rows[0][0]
             user_data['password'] = rows[0][1]
             user_data['name'] = rows[0][2]
+            return user_data
+        except Exception as e:
+            return '账号或密码错误!'
+
+    # 查询客户子账号登录
+    def search_user_vice_info(self, user_name):
+        sql = "SELECT id, v_password,account_id FROM vice_account WHERE BINARY v_account = '{}'".format(user_name)
+        self.cursor.execute(sql)
+        rows = self.cursor.fetchall()
+        try:
+            user_data = dict()
+            user_data['user_id'] = rows[0][2]
+            user_data['password'] = rows[0][1]
+            user_data['vice_id'] = rows[0][0]
             return user_data
         except Exception as e:
             return '账号或密码错误!'
@@ -271,6 +295,47 @@ class SqlData(object):
         return rows[0]
         # hand_money = rows[0][1]
         # sum_money = do_money + hand_money
+
+    def insert_account_vice(self, v_account, v_password, c_card, c_s_card, top_up, refund, del_card, up_label, account_id):
+        sql = "INSERT INTO vice_account(v_account, v_password, c_card, c_s_card, top_up, refund, del_card, up_label," \
+              " account_id) VALUES ('{}','{}','{}','{}','{}','{}','{}','{}',{})".format(v_account, v_password, c_card,
+                                                                                  c_s_card, top_up, refund, del_card,
+                                                                                  up_label, account_id)
+
+        self.cursor.execute(sql)
+        self.connect.commit()
+        self.close_connect()
+
+    def update_account_vice(self, v_account, v_password, c_card, c_s_card, top_up, refund, del_card, up_label, account_id):
+        sql = "UPDATE vice_account SET v_account='{}',v_password='{}', c_card='{}', c_s_card='{}',top_up='{}'," \
+              "refund='{}',del_card='{}',up_label='{}' WHERE account_id={}".format(v_account, v_password, c_card,
+                                                                                   c_s_card, top_up, refund, del_card,
+                                                                                   up_label, account_id)
+        try:
+            self.cursor.execute(sql)
+            self.connect.commit()
+        except Exception as e:
+            logging.error("更新子账号信息失败!" + str(e))
+            self.connect.rollback()
+        self.close_connect()
+
+    def search_acc_vice(self, user_id):
+        sql = "SELECT * FROM vice_account WHERE account_id={}".format(user_id)
+        self.cursor.execute(sql)
+        row = self.cursor.fetchone()
+        vice = dict()
+        if row:
+            vice['vice_id'] = row[0]
+            vice['v_account'] = row[1]
+            vice['v_password'] = row[2]
+            vice['c_card'] = row[3]
+            vice['c_s_card'] = row[4]
+            vice['top_up'] = row[5]
+            vice['refund'] = row[6]
+            vice['del_card'] = row[7]
+            vice['up_label'] = row[8]
+            vice['account_id'] = row[9]
+        return vice
 
     # 一下是中介使用方法-------------------------------------------------------------------------------------------------
 

@@ -14,10 +14,8 @@
     <div class="layui-header">
         <ul class="layui-nav layui-layout-right">
           <li class="layui-nav-item" lay-unselect="" style="float: right">
-            <a href="javascript:"><img src="/static/img/logo.png" class="layui-nav-img">{{ name }}</a>
+            <a href="javascript:">{{ name }}</a>
             <dl class="layui-nav-child">
-              <dd><a href="javascript:" id="middle_info">基本信息</a></dd>
-              <dd><a href="javascript:" id="change_phone">修改电话</a></dd>
               <dd><a href="/middle/logout">注    销</a></dd>
             </dl>
           </li>
@@ -34,9 +32,6 @@
   <div class="layui-tab-content" style="height: 100px;">
     <div class="layui-tab-item layui-show">
         <div id="today" style="width: 100%; height: 800px; margin: 0 auto"></div>
-
-        <hr class="layui-bg-gray" style="height: 100px;">
-        <div id="week" style="width: 100%; height: 800px; margin: 0 auto"></div>
     </div>
     <div class="layui-tab-item">
         <table class="layui-hide" id="customer_info" lay-filter="customer_info"></table>
@@ -127,7 +122,6 @@
         });
 
         $(".layui-tab-title li").click(function(){
-            {#var picTabNum = $(this).index();#}
             var picTabNum = $(this).attr('lay-id');
             sessionStorage.setItem("picTabNum",picTabNum);
             });
@@ -148,15 +142,12 @@
                 type: 'spline'
             };
             var title = {
-                text: '今日开卡总量折线图'
+                text: '近30天客户开卡统计'
             };
             var subtitle = {
                 text: '说明: 每条线代表不同客户!'
             };
-            var xAxis = {
-                categories: ['00:00-06:00', '06:00-12:00', '12:00-18:00', '18:00-23:59'],
-                lineWidth: 4
-            };
+
             var yAxis = {
                 title: {
                     text: '开卡数量:'
@@ -166,7 +157,7 @@
                         return this.value;
                     }
                 },
-                lineWidth: 4
+                lineWidth: 4,
             };
             var tooltip = {
                 crosshairs: true,
@@ -181,20 +172,33 @@
                     }
                 }
             };
+
             var series = [];
 
             $.ajax({
-                type : 'GET',
-                url : '/middle/line_chart/?today=yes',
-                dataType : 'json',
-                success : function(data) {
+                type: 'GET',
+                url: '/middle/line_chart',
+                dataType: 'json',
+                success: function (data) {
                     // 成功提示框
-                    if (data.code == 0){
-                        var info = data.data;
-                        for (var i=0; i<info.length;i++){
+                    if (data.code == 0) {
+                        var info = data.data,
+                            column = data.column,
+                            xax = data.xAx,
+                            xaxis = {categories: xax, lineWidth: 4};
+                        var c = {
+                            name: '合计',
+                            data: column,
+                            type: 'column',
+                            pointWidth: 10,
+                            dataLabels: {enabled: true, style: {color: '#080808', size: 50}}
+                        };
+                        series.push(c);
+                        for (var i = 0; i < info.length; i++) {
                             var name = info[i].name;
                             var data1 = info[i].data;
-                            var s = {name:name,data:data1};
+                            //var s = {name:name,data:data1};
+                            var s = {name: name, data: data1, type: 'spline'};
                             series.push(s)
                         }
                         var json = {};
@@ -202,105 +206,22 @@
                         json.title = title;
                         json.subtitle = subtitle;
                         json.tooltip = tooltip;
-                        json.xAxis = xAxis;
+                        json.xAxis = xaxis;
                         json.yAxis = yAxis;
                         json.series = series;
                         json.plotOptions = plotOptions;
                         $('#today').highcharts(json);
-                    }else if(data.code == 502){
+                    } else if (data.code == 502) {
                         parent.layer.msg(data.msg, {
-                        icon : 5
-                    });
+                            icon: 5
+                        });
                     }
 
                 },
-                error : function(data) {
+                error: function (data) {
                     // 异常提示
                     parent.layer.msg('出现网络故障', {
-                        icon : 5
-                    });
-                }
-            });
-
-        });
-
-
-        <!-- 此为本周开卡折线图js -->
-        $(document).ready(function () {
-            var chart = {
-                type: 'spline'
-            };
-            var title = {
-                text: '本周数量统计。tip:周三到周二(七天)'
-            };
-            var subtitle = {
-                text: '说明: 每条线代表不同客户!'
-            };
-            var xAxis = {
-                categories: ['周三', '周四', '周五', '周六', '周日', '周一', '周二'],
-                lineWidth: 4
-            };
-            var yAxis = {
-                title: {
-                    text: '开卡数量:'
-                },
-                labels: {
-                    formatter: function () {
-                        return this.value;
-                    }
-                },
-                lineWidth: 4
-            };
-            var tooltip = {
-                crosshairs: true,
-                shared: true
-            };
-            var plotOptions = {
-                spline: {
-                    marker: {
-                        radius: 4,
-                        lineColor: '#666666',
-                        lineWidth: 1
-                    }
-                }
-            };
-            var series = [];
-
-            $.ajax({
-                type : 'GET',
-                url : '/middle/line_chart/?week=yes',
-                dataType : 'json',
-                success : function(data) {
-                    // 成功提示框
-                    if (data.code == 0){
-                        var info = data.data;
-                        for (var i=0; i<info.length;i++){
-                            var name = info[i].name;
-                            var data1 = info[i].data;
-                            var s = {name:name,data:data1};
-                            series.push(s)
-                        }
-                        var json = {};
-                        json.chart = chart;
-                        json.title = title;
-                        json.subtitle = subtitle;
-                        json.tooltip = tooltip;
-                        json.xAxis = xAxis;
-                        json.yAxis = yAxis;
-                        json.series = series;
-                        json.plotOptions = plotOptions;
-                        $('#week').highcharts(json);
-                    }else if(data.code == 502){
-                        parent.layer.msg(data.msg, {
-                        icon : 5
-                    });
-                    }
-
-                },
-                error : function(data) {
-                    // 异常提示
-                    parent.layer.msg('出现网络故障', {
-                        icon : 5
+                        icon: 5
                     });
                 }
             });
@@ -320,8 +241,6 @@
                 {type:'numbers'}
                 , {field: 'name', title: '客户姓名', align: 'center', totalRowText: '合计：'}
                 , {field: 'card_num', title: '共计开卡数量', align: 'center', totalRow:true}
-                , {field: 'sum_balance', title: '共计充值余额', align: 'center', totalRow:true}
-                , {field: 'balance', title: '账户剩余余额', align: 'center', totalRow:true}
             ]]
             , id: 'card_info'
             , page: true

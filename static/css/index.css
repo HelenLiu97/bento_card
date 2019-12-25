@@ -37,7 +37,7 @@
 }
 .btn{
     position: absolute;
-    top: 18.5rem;
+    top: 23.5rem;
     right: 3.9rem;
     border: none;
     color: #fff;
@@ -89,6 +89,14 @@ input{
      right:4rem;
      display: flex;	
 }
+.main_vice{
+     position: absolute;
+     top: 17.8rem;
+     right: 4rem;
+     display: flex;
+     margin-right: 51px;
+}
+
 
 #yonghu img{
 	height: 30px;

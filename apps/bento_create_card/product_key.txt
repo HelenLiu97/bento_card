@@ -1,1 +1,1 @@
-{"token": "Bearer NC3FVsQnQ--VZMkcksFmPl0JdsWoFUwp3ZHMJbsR8I4", "time": 16}
+{"token": null, "time": 12}

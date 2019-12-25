@@ -7,11 +7,15 @@ from tools_me.parameter import DIR_PATH
 app = Flask(__name__)
 # 使用缓存,缓存大量查出来的信息
 # cache = Cache(app, config={'CACHE_TYPE': 'simple'})
-cache = Cache(app, config={'CACHE_TYPE': 'simple'}, with_jinja2_ext=False)
+cache = Cache(app, config={'CACHE_TYPE': 'redis',
+                           'CACHE_REDIS_HOST': '127.0.0.1',
+                           'CACHE_REDIS_PORT': 6379,
+                           'CACHE_REDIS_DB': '',
+                           'CACHE_REDIS_PASSWORD': ''}, with_jinja2_ext=False)
 
 app.config['SECRET_KEY'] = 'Gute9878934'
 
-app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(days=7)
+app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(seconds=60*60*12)
 
 app.app_context().push()
 # CSRFProtect(app)

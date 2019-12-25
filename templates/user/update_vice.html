@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <title>添加订单界面</title>
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <link rel="stylesheet" href="/static/layui/css/layui.css" media="all">
+    <script src="/static/layui/layui.js"></script>
+    <style>
+        body {
+            margin: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div id="details" style="padding: 20px;" lay-filter="detail">
+    <form class="layui-form layui-form-pane" lay-filter="example" id="example" enctype="multipart/form-data">
+        <div class="layui-form-item">
+            <label class="layui-form-label">账号： </label>
+            <div class="layui-input-block">
+                <input type="text" name="account" required lay-verify="required" placeholder="长度大于6位" autocomplete="off"
+                       class="layui-input"  id="account" value="{{ account }}">
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">密码：</label>
+            <div class="layui-input-block">
+                <input type="text" id="password" name="password" required lay-verify="required" placeholder="长度大于6位" autocomplete="off"
+                       class="layui-input" value="{{ password }}">
+            </div>
+        </div>
+
+        <div class="layui-form-item">
+            <label class="layui-form-label">创建卡：</label>
+            <div class="layui-input-block">
+              <input type="checkbox" name="c_card" lay-skin="switch" lay-text="ON|OFF" {{ c_card }}>
+            </div>
+        </div>
+
+        <div class="layui-form-item">
+            <label class="layui-form-label">批量建卡：</label>
+            <div class="layui-input-block">
+              <input type="checkbox" name="c_s_card" lay-skin="switch" lay-text="ON|OFF" {{ c_s_card }}>
+            </div>
+        </div>
+
+        <div class="layui-form-item">
+            <label class="layui-form-label">卡充值：</label>
+            <div class="layui-input-block">
+              <input type="checkbox" name="top_up" lay-skin="switch" lay-text="ON|OFF" {{ top_up }}>
+            </div>
+        </div>
+
+        <div class="layui-form-item">
+            <label class="layui-form-label">卡退款：</label>
+            <div class="layui-input-block">
+              <input type="checkbox" name="refund" lay-skin="switch" lay-text="ON|OFF" {{ refund }}>
+            </div>
+        </div>
+
+        <div class="layui-form-item">
+            <label class="layui-form-label">删卡：</label>
+            <div class="layui-input-block">
+              <input type="checkbox" name="del_card" lay-skin="switch" lay-text="ON|OFF" {{ del_card }}>
+            </div>
+        </div>
+
+        <div class="layui-form-item">
+            <label class="layui-form-label">更新标签：</label>
+            <div class="layui-input-block">
+              <input type="checkbox" name="up_label" lay-skin="switch" lay-text="ON|OFF" {{ up_label }}>
+            </div>
+        </div>
+
+
+        <div class="layui-form-item">
+            <div class="layui-input-block">
+                <button class="layui-btn layui-btn-radius" lay-submit="" lay-filter="formDemo" id="sub" type="submit">确认</button>
+            </div>
+        </div>
+    </form>
+</div>
+<script src="/static/layui/layui.all.js"></script>
+<script>
+    layui.use(['form','laydate'], function(){
+        var form = layui.form;
+        var laydate = layui.laydate;
+
+
+      //监听提交
+        form.on('submit(formDemo)', function(data){
+            var data_info = {data:JSON.stringify(data.field)};
+            var $ = layui.jquery;
+            $.ajax({
+				type : 'POST',
+				url : '/user/update_vice/',
+				data : data_info,
+				dataType : 'json',
+				success : function(data) {
+                    if (data.code == 0){
+                        layer.msg(data.msg, {
+						icon : 6,
+                        time: 2500,
+					}, function () {
+                            layer.close(layer.index);
+                        });
+                    }else if(data.code == 502){
+                        parent.layer.msg(data.msg, {
+						icon : 5
+					});
+                    }
+				},
+				error : function(data) {
+					// 异常提示
+					parent.layer.msg('出现网络故障', {
+						icon : 5
+					});
+					parent.layer.closeAll('iframe'); //关闭弹框
+				}
+			});
+			return false;
+            });
+
+        laydate.render({
+            elem: '#reg_time',
+            trigger: 'click',
+            type: 'datetime',
+            theme: 'molv',
+            value: new Date(),
+        });
+
+        laydate.render({
+            elem: '#sizeof',
+            trigger: 'click',
+            type: 'datetime',
+            theme: 'molv',
+            value: new Date(),
+        });
+
+    });
+</script>
+</body>
+</html>

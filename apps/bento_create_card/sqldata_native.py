@@ -84,10 +84,11 @@ class SqlDataNative(object):
             for i in rows:
                 data.append({
                     # "card_no": "{}{}".format("\t",i[3]),
-                    "card_no": "{}{}".format("\t", i[3]) if i[8] != "已注销" else "{}{}".format("****", i[3][-4:]),
+                    "card_no": "{}{}".format("\t", i[3]) if i[10] != "已注销" else "{}{}".format("****", i[3][-4:]),
                     "act_time": str(i[7]),
                     "card_name": i[1],
                     "label": i[8],
+                    "status": i[10],
                     "cvv": "{}{}".format("\t", i[5]),
                     "expire": i[6],
                     "number": n,
@@ -216,10 +217,11 @@ class SqlDataNative(object):
         try:
             for i in rows:
                 data.append({
-                    "card_no": "{}{}".format("\t", i[3]) if i[8] != "已注销" else "{}{}".format("****", i[3][-4:]),
+                    "card_no": "{}{}".format("\t", i[3]) if i[10] != "已注销" else "{}{}".format("****", i[3][-4:]),
                     "act_time": str(i[7]),
                     "card_name": i[1],
                     "label": i[8],
+                    "status": i[10],
                     "cvv": "{}{}".format("\t", i[5]),
                     "expire": i[6],
                     "number": n,
@@ -240,7 +242,8 @@ class SqlDataNative(object):
 
     def insert_new_account(self, alias, card_id, card_amount, card_number, card_cvv, label, card_validity, attribution,
                            create_time):
-        sql = "INSERT INTO bento_create_card(alias, card_id, card_amount, card_number, card_cvv, label, card_validity, attribution, create_time) VALUES('{}', '{}', '{}', '{}', '{}', '{}', '{}', '{}', '{}')".format(
+        sql = "INSERT INTO bento_create_card(alias, card_id, card_amount, card_number, card_cvv, label, card_validity," \
+              " attribution, create_time, card_status) VALUES('{}', '{}', '{}', '{}', '{}', '{}', '{}', '{}', '{}','正常')".format(
             alias, card_id, card_amount, card_number, card_cvv, label, card_validity, attribution, create_time)
         try:
             self.cursor.execute(sql)
@@ -429,7 +432,18 @@ class SqlDataNative(object):
         return i[0]
 
     def update_bento_label(self, label_name, card_no):
-        sql = "UPDATE bento_create_card SET label='{}' WHERE card_number='{}'".format(label_name, card_no.strip())
+        sql = "UPDATE bento_create_card SET label='{}' WHERE alias='{}'".format(label_name, card_no.strip())
+        try:
+            self.cursor.execute(sql)
+            self.connect.commit()
+        except Exception as e:
+            logging.error("update label failed" + str(e))
+            self.connect.rollback()
+        self.close_connect()
+
+    def update_bento_status(self, status, card_no):
+        sql = "UPDATE bento_create_card SET card_status='{}' WHERE card_number='{}'".format(status, card_no.strip())
+        print(sql)
         try:
             self.cursor.execute(sql)
             self.connect.commit()

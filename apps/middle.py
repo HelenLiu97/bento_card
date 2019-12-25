@@ -2,6 +2,7 @@ import json
 import logging
 import operator
 
+from config import cache
 from tools_me.mysql_tools import SqlData
 from flask import request, render_template, jsonify, session, g
 from tools_me.other_tools import middle_required, get_nday_list, now_year, now_day, date_to_week, wed_to_tu
@@ -129,67 +130,52 @@ def task_list():
 # 查询折线图数据(today, week, month)
 @middle_blueprint.route('/line_chart/', methods=['GET'])
 @middle_required
+@cache.cached(timeout=60*60*12, key_prefix='middle_line')
 def test():
-    today = request.args.get('today')
-    week = request.args.get('week')
+    day_num = 30
+    day_list = get_nday_list(day_num)
     middle_id = g.middle_id
-    if today:
-        n_day = now_day()
-        one_time_range = "AND act_time BETWEEN '" + n_day + ' 00:00:00' + "'" + " and '" + n_day + " 05:59:59'"
-        two_time_range = "AND act_time BETWEEN '" + n_day + ' 06:00:00' + "'" + " and '" + n_day + " 11:59:59'"
-        three_time_range = "AND act_time BETWEEN '" + n_day + ' 12:00:00' + "'" + " and '" + n_day + " 17:59:59'"
-        four_time_range = "AND act_time BETWEEN '" + n_day + ' 16:00:00' + "'" + " and '" + n_day + " 23:59:59'"
+    account_list = SqlData().search_user_field_middle(middle_id)
+    data = list()
+    if account_list:
+        for u_id in account_list:
+            info_dict = dict()
+            count_list = list()
+            for i in day_list:
+                sql_str = "AND do_date BETWEEN '{} 00:00:00' AND '{} 23:59:59'".format(i, i)
+                alias = u_id.get("id")
+                card_count = SqlData().bento_chart_data(alias=alias, time_range=sql_str)
+                if card_count == 0:
+                    card_count = ""
+                count_list.append(card_count)
+            info_dict['name'] = u_id.get('name')
+            info_dict['data'] = count_list
+            data.append(info_dict)
+    else:
+        data = [{'name': '无客户',
+                 'data': [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]}]
 
-        account_list = SqlData().search_user_field_middle(middle_id)
-        if account_list:
-            data_info = list()
-            for i in account_list:
-                data_dict = dict()
-                card_num_list = list()
-                account_id = i.get('id')
-                card_num_1 = SqlData().search_card_count(account_id, one_time_range)
-                card_num_list.append(card_num_1)
-                card_num_2 = SqlData().search_card_count(account_id, two_time_range)
-                card_num_list.append(card_num_2)
-                card_num_3 = SqlData().search_card_count(account_id, three_time_range)
-                card_num_list.append(card_num_3)
-                card_num_4 = SqlData().search_card_count(account_id, four_time_range)
-                card_num_list.append(card_num_4)
-                data_dict['name'] = i.get('name')
-                data_dict['data'] = card_num_list
-                data_info.append(data_dict)
-        else:
-            data_info = [{'name': '无客户', 'data': [0, 0, 0, 0]}]
+    sum_list = list()
+    for i in data:
+        one_cus = i.get('data')
+        sum_list.append(one_cus)
 
-        results = dict()
-        results['code'] = RET.OK
-        results['msg'] = MSG.OK
-        results['data'] = data_info
-        return jsonify(results)
-    if week:
-        day_list = wed_to_tu()
-        account_list = SqlData().search_user_field_middle(middle_id)
-        data = list()
-        if account_list:
-            for u_id in account_list:
-                info_dict = dict()
-                count_list = list()
-                for i in day_list:
-                    sql_str = "AND act_time BETWEEN '" + str(i) + ' 00:00:00' + "'" + " and '" + str(i) + " 23:59:59'"
-                    account_id = u_id.get('id')
-                    card_count = SqlData().search_card_count(account_id, sql_str)
-                    count_list.append(card_count)
-                info_dict['name'] = u_id.get('name')
-                info_dict['data'] = count_list
-                data.append(info_dict)
-        else:
-            data = [{'name': '无客户', 'data': [0, 0, 0, 0, 0, 0, 0]}]
+    res_list = list()
+    for n in range(30):
+        res = 0
+        for i in range(len(sum_list)):
+            card_num = sum_list[i][n]
+            if card_num != "":
+                res += card_num
+        res_list.append(res)
 
-        results = dict()
-        results['code'] = RET.OK
-        results['msg'] = MSG.OK
-        results['data'] = data
-        return jsonify(results)
+    results = dict()
+    results['code'] = RET.OK
+    results['msg'] = MSG.OK
+    results['data'] = data
+    results['xAx'] = day_list
+    results['column'] = res_list
+    return jsonify(results)
 
 
 @middle_blueprint.route('/', methods=['GET', 'POST'])

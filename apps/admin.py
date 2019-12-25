@@ -1208,6 +1208,7 @@ def admin_login():
             admin_id, name = SqlData().search_admin_login(account, password)
             session['admin_id'] = admin_id
             session['admin_name'] = name
+            session.permanent = True
             return jsonify(results)
 
         except Exception as e:

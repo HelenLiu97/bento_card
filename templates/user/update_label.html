@@ -24,7 +24,7 @@
         <div class="layui-form-item" style="display: none">
             <label class="layui-form-label">隐藏域</label>
             <div class="layui-input-block">
-                <input type ="text" name="card_no"  id="card_no" value="0">
+                <input type ="text" name="card_name"  id="card_name" value="{{ card_name }}">
             </div>
         </div>
         <div class="layui-form-item">
@@ -55,7 +55,6 @@
             layer = layui.layer ;
       //监听提交
         form.on('submit(formDemo)', function(data){
-            {#layer.msg(JSON.stringify(data.field));#}
             var data_info = {data:JSON.stringify(data.field)};
             var $ = layui.jquery;
             console.log(data_info);

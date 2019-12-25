@@ -21,7 +21,7 @@ class DIR_PATH:
     # PUB_PEM = 'G:\\world_pay\\tools_me\\RSA_NAME\\pro_epaylinks_publickey.pem'
     PUB_PEM = "/var/www/bento_web/tools_me/RSA_NAME/pro_epaylinks_publickey.pem"
 
-    PHOTO_DIR = "/var/www/bento_web_version/static/pay_pic"
+    PHOTO_DIR = "/bento_web_version2/static/pay_pic"
 
 
 class RET:

@@ -57,7 +57,6 @@
         var form = layui.form;
       //监听提交
         form.on('submit(formDemo)', function(data){
-            {#layer.msg(JSON.stringify(data.field));#}
             var data_info = {data:JSON.stringify(data.field)};
             var $ = layui.jquery;
 
@@ -66,9 +65,8 @@
 				url : '/user/change_pass',
 				data : data_info,
 				dataType : 'json',
-				success : function(data) {
+				success : function(data) { localStorage
 				    // var data1 = JSON.parse(data);
-			    	console.log(data.code);
 					// 成功提示框
                     if (data.code == 0){
                         layer.msg('修改密码成功!', {

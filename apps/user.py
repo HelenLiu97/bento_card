@@ -4,9 +4,9 @@ import logging
 import operator
 import time
 from apps.bento_create_card.public import change_today
-from tools_me.other_tools import xianzai_time, login_required, check_float, make_name, choke_required, sum_code
-from tools_me.parameter import RET, MSG, TRANS_STATUS, TRANS_TYPE, DO_TYPE
-# from tools_me.RSA_NAME.helen import QuanQiuFu
+from tools_me.other_tools import xianzai_time, login_required, check_float
+from tools_me.parameter import RET, MSG, TRANS_TYPE, DO_TYPE
+from tools_me.redis_tools import RedisTool
 from tools_me.remain import get_card_remain
 from . import user_blueprint
 from flask import render_template, request, jsonify, session, g
@@ -18,9 +18,83 @@ from apps.bento_create_card.main_recharge import main_transaction_data, Recharge
 logging.basicConfig(level=logging.INFO, format='%(asctime)s :: %(levelname)s :: %(message)s', filename="error.log")
 
 
+@user_blueprint.route('/update_vice/', methods=['GET', 'POST'])
+@login_required
+def update_vice():
+    # 判断是否是子账号用户
+    vice_id = g.vice_id
+    if vice_id:
+        return render_template('user/no_auth.html')
+    if request.method == 'GET':
+        user_id = g.user_id
+        res = SqlData().search_acc_vice(user_id)
+        context = dict()
+        if res:
+            context['account'] = res.get('v_account')
+            context['password'] = res.get('v_password')
+            context['c_card'] = 'checked=""' if res.get('c_card') == 'T' else ''
+            context['c_s_card'] = 'checked=""' if res.get('c_s_card') == 'T' else ''
+            context['top_up'] = 'checked=""' if res.get('top_up') == 'T' else ''
+            context['refund'] = 'checked=""' if res.get('refund') == 'T' else ''
+            context['del_card'] = 'checked=""' if res.get('del_card') == 'T' else ''
+            context['up_label'] = 'checked=""' if res.get('up_label') == 'T' else ''
+        return render_template('user/update_vice.html', **context)
+    if request.method == 'POST':
+        user_id = g.user_id
+        data = json.loads(request.form.get('data'))
+        v_account = data.get('account')
+        v_password = data.get('password')
+        c_card = data.get('c_card')
+        c_s_card = data.get('c_s_card')
+        top_up = data.get('top_up')
+        refund = data.get('refund')
+        del_card = data.get('del_card')
+        up_label = data.get('up_label')
+        account = v_account.strip()
+        password = v_password.strip()
+        if len(account) < 6 or len(password) < 6:
+            return jsonify({"code": RET.SERVERERROR, 'msg': '账号或密码长度小于6位！'})
+        # 判断用户选择可哪些权限开启
+        c_card_status = 'T' if c_card else 'F'
+        c_s_card_status = 'T' if c_s_card else 'F'
+        top_up_status = 'T' if top_up else 'F'
+        refund_status = 'T' if refund else 'F'
+        del_card_status = 'T' if del_card else 'F'
+        up_label_status = 'T' if up_label else 'F'
+        res = SqlData().search_acc_vice(user_id)
+        # 判断是否已经添加子账号，已添加则更新
+        if res:
+            try:
+                SqlData().update_account_vice(account, password, c_card_status, c_s_card_status, top_up_status,
+                                              refund_status, del_card_status, up_label_status, user_id)
+                res = SqlData().search_acc_vice(user_id)
+                RedisTool().hash_set('vice_auth', res.get('vice_id'), res)
+                return jsonify({'code': RET.OK, 'msg': MSG.OK})
+            except Exception as e:
+                print(e)
+                return jsonify({'code': RET.SERVERERROR, 'msg': MSG.SERVERERROR})
+        else:
+            if SqlData().search_value_in('vice_account', account, 'v_account'):
+                return jsonify({'code': RET.SERVERERROR, 'msg': '用户名已存在！或已创建子账号！'})
+            try:
+                SqlData().insert_account_vice(account, password, c_card_status, c_s_card_status, top_up_status,
+                                              refund_status, del_card_status, up_label_status, user_id)
+                return jsonify({'code': RET.OK, 'msg': MSG.OK})
+            except Exception as e:
+                print(e)
+                return jsonify({'code': RET.SERVERERROR, 'msg': '您的账号已添加子账号，不可重复添加，或账号重复请重试！'})
+
+
 @user_blueprint.route('/refund/', methods=['POST'])
 @login_required
 def bento_refund():
+    # 判断是否是子账号用户
+    vice_id = g.vice_id
+    if vice_id:
+        auth_dict = RedisTool().hash_get('vice_auth', vice_id)
+        c_card = auth_dict.get('refund')
+        if c_card == 'F':
+            return jsonify({'code': RET.SERVERERROR, 'msg': '抱歉您没有权限执行此操作！'})
     data = json.loads(request.form.get("data"))
     card_no = json.loads(request.form.get("card_no"))
     user_id = g.user_id
@@ -191,6 +265,13 @@ def bento_update():
 @user_blueprint.route('/delcard/', methods=['GET'])
 @login_required
 def del_account():
+    # 判断是否是子账号用户
+    vice_id = g.vice_id
+    if vice_id:
+        auth_dict = RedisTool().hash_get('vice_auth', vice_id)
+        c_card = auth_dict.get('del_card')
+        if c_card == 'F':
+            return jsonify({'code': RET.SERVERERROR, 'msg': '抱歉您没有权限执行此操作！'})
     cardnumber = request.args.get('account')
     user_id = g.user_id
     # 获取cardid, 用于删除卡
@@ -221,7 +302,7 @@ def del_account():
                                              operating_log="原有金额{}, 卡上余额{}, 现有额度{}, 删卡退款".format(before_balance,
                                                                                                  availableAmount,
                                                                                                  balance))
-        SqlDataNative().update_bento_label('已注销', cardnumber.strip())
+        SqlDataNative().update_bento_status('已注销', cardnumber.strip())
         return jsonify(
             {"code": RET.OK, "msg": "原有金额{}, 卡上余额{}, 现有额度{}".format(before_balance, availableAmount, balance)})
     else:
@@ -289,23 +370,31 @@ def account_trans():
 @user_blueprint.route('/update_label/', methods=['GET'])
 @login_required
 def update_label():
-    return render_template('user/update_label.html')
+    card_name = request.args.get('card_name')
+    context = dict()
+    context['card_name'] = card_name
+    return render_template('user/update_label.html', **context)
 
 
 @user_blueprint.route('/label_update/', methods=['POST'])
 @login_required
 def label_update():
+    # 判断是否是子账号用户
+    vice_id = g.vice_id
+    if vice_id:
+        auth_dict = RedisTool().hash_get('vice_auth', vice_id)
+        c_card = auth_dict.get('up_label')
+        if c_card == 'F':
+            return jsonify({'code': RET.SERVERERROR, 'msg': '抱歉您没有权限执行此操作！'})
     data = json.loads(request.form.get('data'))
-    # 卡号
-    card_no = data.get("card_no")
-    if "****" in card_no:
-        return jsonify({"code": RET.SERVERERROR, "msg": "该卡已注销, 无法修改标签"})
+    # 卡名
+    card_name = data.get('card_name')
 
     # 修改的标签名
     label_name = data.get("top_money")
     # label_status = SqlDataNative().select_label_status(card_no=card_no)
 
-    SqlDataNative().update_bento_label(card_no=card_no, label_name=label_name)
+    SqlDataNative().update_bento_label(card_no=card_name, label_name=label_name)
 
     return jsonify({"code": RET.OK, "msg": "修改标签成功"})
 
@@ -314,6 +403,13 @@ def label_update():
 @user_blueprint.route('/top_up/', methods=['POST'])
 @login_required
 def top_up():
+    # 判断是否是子账号用户
+    vice_id = g.vice_id
+    if vice_id:
+        auth_dict = RedisTool().hash_get('vice_auth', vice_id)
+        c_card = auth_dict.get('top_up')
+        if c_card == 'F':
+            return jsonify({'code': RET.SERVERERROR, 'msg': '抱歉您没有权限执行此操作！'})
     data = json.loads(request.form.get('data'))
     user_id = g.user_id
     card_no = data.get('card_no')
@@ -362,6 +458,13 @@ def top_up():
 @login_required
 # @choke_required
 def create_some():
+    # 判断是否是子账号用户
+    vice_id = g.vice_id
+    if vice_id:
+        auth_dict = RedisTool().hash_get('vice_auth', vice_id)
+        c_card = auth_dict.get('c_s_card')
+        if c_card == 'F':
+            return jsonify({'code': RET.SERVERERROR, 'msg': '抱歉您没有权限执行此操作！'})
     data = json.loads(request.form.get('data'))
     card_num = data.get('card_num')
     content = data.get('content')
@@ -445,8 +548,14 @@ def create_some():
 # 单张卡
 @user_blueprint.route('/create_card/', methods=['POST'])
 @login_required
-# @choke_required
 def create_card():
+    # 判断是否是子账号用户
+    vice_id = g.vice_id
+    if vice_id:
+        auth_dict = RedisTool().hash_get('vice_auth', vice_id)
+        c_card = auth_dict.get('c_card')
+        if c_card == 'F':
+            return jsonify({'code': RET.SERVERERROR, 'msg': '抱歉您没有权限执行此操作！'})
     data = json.loads(request.form.get('data'))
     # card_name = data.get('card_name')
     top_money = data.get('top_money')
@@ -611,6 +720,9 @@ def account_html():
     else:
         context['use_label'] = "异常, 请联系管理员"
     context['decline_data'] = decline_data
+
+    if g.vice_id:
+        context['bg_color'] = 'layui-bg-blue'
     # 所拥有的总余额参数
     context['decline_ratio'] = decline_ratio
     context['user_name'] = user_name
@@ -628,6 +740,10 @@ def account_html():
 @user_blueprint.route('/change_phone', methods=['GET'])
 @login_required
 def change_phone():
+    # 判断是否是子账号用户
+    vice_id = g.vice_id
+    if vice_id:
+        return jsonify({'code': RET.SERVERERROR, 'msg': '您没有权限操作！请切换主账号后重试！'})
     user_id = g.user_id
     phone_num = request.args.get('phone_num')
     results = dict()
@@ -749,6 +865,10 @@ def card_info():
 @user_blueprint.route('/edit_user', methods=['GET'])
 @login_required
 def ch_pass_html():
+    vice_id = g.vice_id
+    print(vice_id)
+    if vice_id:
+        return render_template('user/no_auth.html')
     return render_template('user/edit_user.html')
 
 
@@ -821,20 +941,43 @@ def login():
         data = json.loads(request.form.get('data'))
         user_name = data.get('user_name')
         user_pass = data.get('pass_word')
+        cus_status = data.get('cus_status')
         results = {'code': RET.OK, 'msg': MSG.OK}
-        user_data = SqlData().search_user_info(user_name)
         try:
-            user_id = user_data.get('user_id')
-            pass_word = user_data.get('password')
-            name = user_data.get('name')
-            if user_pass == pass_word:
-                session['user_id'] = user_id
-                session['name'] = name
-                return jsonify(results)
-            else:
-                results['code'] = RET.SERVERERROR
-                results['msg'] = MSG.PSWDERROR
-                return jsonify(results)
+            if cus_status == "main":
+                user_data = SqlData().search_user_info(user_name)
+                user_id = user_data.get('user_id')
+                pass_word = user_data.get('password')
+                name = user_data.get('name')
+                if user_pass == pass_word:
+                    session['user_id'] = user_id
+                    session['name'] = name
+                    session['vice_id'] = None
+                    session.permanent = True
+                    return jsonify(results)
+                else:
+                    results['code'] = RET.SERVERERROR
+                    results['msg'] = MSG.PSWDERROR
+                    return jsonify(results)
+            if cus_status == 'vice':
+                user_data = SqlData().search_user_vice_info(user_name)
+                user_id = user_data.get('user_id')
+                password = user_data.get('password')
+                vice_id = user_data.get('vice_id')
+                if password == user_pass:
+                    # 存储到缓存
+                    session['user_id'] = user_id
+                    session['name'] = user_name
+                    session['vice_id'] = vice_id
+                    session.permanent = True
+                    # 存储子子账号操作权限到redis
+                    res = SqlData().search_acc_vice(user_id)
+                    RedisTool().hash_set('vice_auth', res.get('vice_id'), res)
+                    return jsonify(results)
+                else:
+                    results['code'] = RET.SERVERERROR
+                    results['msg'] = MSG.PSWDERROR
+                    return jsonify(results)
 
         except Exception as e:
             logging.error(str(e))

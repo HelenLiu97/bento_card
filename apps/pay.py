@@ -264,7 +264,8 @@ def pay_pic():
                     pic_list.append(file_path)
             n_time = xianzai_time()
             vir_code = str(uuid.uuid1())[:6]
-            context = "客户:  " + cus_name + " , 于" + n_time + "在线申请充值: " + top_money + "美元, 折和人名币: " + sum_money + "元。本次计算汇率为: " + exchange + ", 验证码为: " + vir_code
+            context = "客户:  " + cus_name + " , 于<span style='color:red'>" + n_time + "</span>在线申请充值: " \
+                      + top_money + "美元, 折和人名币: <span style='color:red'>" + sum_money + "</span>元。本次计算汇率为: " + exchange + ", 验证码为: " + vir_code
 
             cus_id = SqlData().search_user_check(cus_name, cus_account)
             sum_money = float(sum_money)

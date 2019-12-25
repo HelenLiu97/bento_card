@@ -7,7 +7,6 @@
 <link rel="stylesheet" type="text/css" href="/static/css/index.css" />
 <link rel="icon" href="/static/img/buy-icon.png" type="image/x-icon"/>
 <link rel="stylesheet" href="/static/layui/css/layui.css" media="all">
-<script src="/static/layui/layui.js"></script>
 <script src="/static/layui/layui.all.js"></script>
 </head>
 
@@ -34,10 +33,19 @@
             </div>
         </div>
 
+        <div class="layui-form-item main_vice">
+            <div class="layui-input-block">
+              <input type="radio" name="cus_status" value="main" title="我是主账号" checked="">
+              <input type="radio" name="cus_status" value="vice" title="我是子账号">
+            </div>
+          </div>
+
+
+
         <button class="btn" lay-submit="" lay-filter="login">登录</button>
     </form>
 </div>
-
+<script src="/static/layui/layui.js"></script>
 <script>
     layui.use('form', function () {
         var form = layui.form,
@@ -46,15 +54,13 @@
 
         form.on('submit(login)',function (data) {
             var data_info = {data:JSON.stringify(data.field)};
-
+            console.log(data_info);
             $.ajax({
 				type : 'POST',
 				url : '/user/login',
 				data : data_info,
 				dataType : 'json',
 				success : function(data) {
-				    {#var data1 = JSON.parse(data);#}
-			    	{#console.log(data.code);#}
 					// 成功提示框
                     if (data.code == 0){
                         /*
@@ -67,7 +73,6 @@
 						icon : 5
 					});
                     }
-
 				},
 				error : function(data) {
 					// 异常提示
@@ -76,7 +81,6 @@
 					});
 				}
 			});
-
             return false;
         })
 

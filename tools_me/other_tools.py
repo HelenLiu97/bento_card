@@ -136,12 +136,14 @@ def login_required(view_func):
             """具体实现判断用户是否登录的逻辑"""
             user_id = session.get('user_id')
             user_name = session.get('name')
+            vice_id = session.get('vice_id')
             if not user_id:
                 return render_template('user/login.html')
             else:
                 # 当用户已登录，使用g变量记录用户的user_id，方便被装饰是的视图函数中可以直接使用
                 g.user_id = user_id
                 g.user_name = user_name
+                g.vice_id = vice_id
                 # 执行被装饰的视图函数
                 return view_func(*args, **kwargs)
         except:

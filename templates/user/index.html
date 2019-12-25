@@ -42,13 +42,13 @@
 <body>
 
 <div class="layui-layout layui-layout-admin">
-  <div class="layui-header">
+  <div class="layui-header {{ bg_color }}">
     <div class="layui-logo">FaceBook 4754</div>
-      <ul class="layui-nav layui-layout-left">
+      <ul class="layui-nav layui-layout-left ">
           <li class="layui-nav-item"> <span style="font-weight: normal;font-size: 16px;color: ghostwhite;">卡总余额统计时间： </span><span style="font-weight: normal;font-size: 16px;color: palevioletred;">{{ up_remain_time }}</span> </li>
 
       </ul>
-    <ul class="layui-nav layui-layout-right">
+    <ul class="layui-nav layui-layout-right ">
 	<li class="layui-nav-item"  title="所剩余额 = 累计充值 - 累计消费 decline比例 = decline交易量 / 总交易量"><span style="font-weight: normal;font-size: 16px;color: ghostwhite;"> 所拥有的卡的总余额: </span><span style="font-weight: normal;font-size:     16px;color: gold"> {{ all_money }}</span><span style="font-weight: normal;font-size: 16px;color: ghostwhite;"> decline比例: </span><span style="font-weight: normal;font-size:     16px;color: gold"> {{ decline_ratio }}</span>decline数量: </span><span style="font-weight: normal;font-size: 16px;color: gold"> {{ decline_data }}</span>可开卡数量: </span><span style="font-weight: normal;font-size: 16px;color: gold"> {{ bento_label }}</span><span style="font-weight: normal;font-size: 16px;color: ghostwhite;">已开卡数量: </span><span style="font-weight: normal;font-size: 16px;color: red"> {{ use_label }}</span><span style="font-weight: normal;font-size: 16px;color: ghostwhite;">所剩余额: </span><span style="font-weight: normal;font-size: 16px;color: gold"> {{ balance }}</span> 累计消费: <span style="font-weight: normal;font-size: 16px;color: palegreen"> {{ out_money }}</span>累计充值: <span style="font-weight: normal;font-size: 16px;color: darkkhaki"> {{ sum_balance }}</span></li>
       <li class="layui-nav-item">
         <a href="javascript:">
@@ -59,7 +59,16 @@
           <dd id="change_word"><a href="javascript:">安全设置</a></dd>
           <dd id="change_info"><a href="javascript:">更改信息</a></dd>
         </dl>
+
       </li>
+        <li class="layui-nav-item">
+            <a href="javascript:">
+                子账号
+            </a>
+            <dl class="layui-nav-child">
+          <dd id="vice_auth"><a href="javascript:">子账号配置</a></dd>
+        </dl>
+        </li>
       <li class="layui-nav-item"><a href="/user/logout">注销</a></li>
     </ul>
   </div>
@@ -72,7 +81,7 @@
     <li class="layui-this" lay-id="1">创建卡</li>
     <li lay-id="2">创建批量卡</li>
     <li lay-id="3">所有卡</li>
-    <li lay-id="4">交易记录</li>
+    <li lay-id="4">卡操作交易记录</li>
     <li lay-id="5">账户充值记录</li>
     <li lay-id="6">卡的decline记录</li>
     <li lay-id="14">详细消费记录</li>
@@ -295,7 +304,7 @@
         <li class="layui-nav-item layui-nav-itemed">
           <a class="" href="javascript:">管理资金</a>
           <dl class="layui-nav-child">
-            <dd><a href="javascript:" id="show_history">交易记录</a></dd>
+            <dd><a href="javascript:" id="show_history">卡操作交易记录</a></dd>
             <dd><a href="javascript:" id="top">充值记录</a></dd>
             <dd><a href="javascript:" id="decline">卡的decline记录</a></dd>
 	    <dd><a href="javascript:" id="account_alltrans">详细消费记录</a></dd>
@@ -502,7 +511,7 @@
 	laydate.render({
   	    elem: '#test10',
 	    range: true
-	})
+	});
 
 
         //执行一个 table 实例
@@ -524,7 +533,8 @@
                 , {field: 'expire', title: '有效期', align: 'center', sort: true}
                 , {field: 'cvv', title: '安全码', align: 'center', sort: true}
                 , {field: 'label', title: '标签', align: 'center', sort: true}
-                , {field: 'act_time', title: '建卡时间', align: 'center', sort: true}
+                , {field: 'status', title: '状态', align: 'center', sort: true}
+                , {field: 'act_time', title: '最近操作时间', align: 'center', sort: true}
                 , {field: 'remain', title: '余额', align: 'center', sort: true, style: "color: red"}
                 , {fixed: 'right', width: 300, align: 'center', toolbar: '#barDemo'}
             ]]
@@ -705,6 +715,23 @@
 
             //标注选中样式
             obj.tr.addClass('layui-table-click').siblings().removeClass('layui-table-click');
+        });
+
+
+        $('#vice_auth').on('click', function () {
+            layer.open({
+                type: 2
+                ,title: false //不显示标题栏
+                ,closeBtn: 1
+                ,area: ['350px','580px']
+                ,shade: 0.8
+                ,id: 'user_detail' //设定一个id，防止重复弹出
+                ,shadeClose: true
+                ,btnAlign: 'c'
+                ,moveType: 1 //拖拽模式，0或者1
+                ,content: '/user/update_vice/'
+
+              });
         });
 
 
@@ -894,14 +921,11 @@
                     anim: 3,
                     area: ['20%', '28%'],//宽高
                     shadeClose: true, //点击遮罩关闭
-                    content: '/user/update_label/',
+                    content: '/user/update_label/?card_name='+data.card_name,
                     success: function(layero, index) {
                         var body = layer.getChildFrame('body', index);
                         body.contents().find("#card_num").html(data.card_no);
                         body.contents().find("#card_name").val(data.card_name);
-                        body.contents().find("#balance").html(data.balance);
-                        body.contents().find("#label").val(data.label);
-                        body.contents().find("#card_no").val(data.card_no);
                     },
                 });
                 return false
@@ -981,7 +1005,7 @@
                     title: '修改卡号为 [ ' + data.card_no + ' ] 的相关信息',
                     type: 2,
                     anim: 3,
-                    area: ['15%', '25%'],//宽高
+                    area: ['20%', '28%'],//宽高
                     shadeClose: true, //点击遮罩关闭
                     content: '/user/change_detail',
                     success: function(layero, index) {
