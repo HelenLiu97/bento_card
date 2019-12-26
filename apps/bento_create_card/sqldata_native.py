@@ -165,7 +165,7 @@ class SqlDataNative(object):
         return rows[0]
 
     def attribution_fount_cardid(self, alias):
-        sql = "SELECT card_id FROM bento_create_card WHERE attribution='{}' and label != '已注销'".format(alias)
+        sql = "SELECT card_id FROM bento_create_card WHERE attribution='{}' and card_status = '正常'".format(alias)
         self.cursor.execute(sql)
         rows = self.cursor.fetchall()
         self.close_connect()
@@ -201,7 +201,7 @@ class SqlDataNative(object):
             self.close_connect()
 
     def count_alias_data(self, attribution):
-        sql = "select count(*) from bento_create_card where attribution='{}' and label!='已注销';".format(attribution)
+        sql = "select count(*) from bento_create_card where attribution='{}' and card_status='正常';".format(attribution)
         self.cursor.execute(sql)
         rows = self.cursor.fetchone()
         self.close_connect()
