@@ -4,7 +4,7 @@ import logging
 import operator
 import time
 from apps.bento_create_card.public import change_today
-from tools_me.other_tools import xianzai_time, login_required, check_float
+from tools_me.other_tools import xianzai_time, login_required, check_float, account_lock
 from tools_me.parameter import RET, MSG, TRANS_TYPE, DO_TYPE
 from tools_me.redis_tools import RedisTool
 from tools_me.remain import get_card_remain
@@ -20,15 +20,17 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s :: %(levelname)s :: 
 
 @user_blueprint.route('/del_vice/', methods=['GET'])
 @login_required
+@account_lock
 def del_vice():
     vice_id = request.args.get('vice_id')
-    SqlData().del_vice(int(vice_id))
-    RedisTool().hash_del('vice_auth', int(vice_id))
+    SqlData.del_vice(int(vice_id))
+    RedisTool.hash_del('vice_auth', int(vice_id))
     return jsonify({'code': RET.OK, 'msg': MSG.OK})
 
 
 @user_blueprint.route('/up_auth/', methods=['GET'])
 @login_required
+@account_lock
 def up_auth():
     '处理正在使用的客户被删除的问题'
     vice_id = request.args.get('vice_id')
@@ -41,24 +43,25 @@ def up_auth():
             field_status = 'T'
         elif check == 'false':
             field_status = 'F'
-        SqlData().update_vice_field(field, field_status, int(vice_id))
-        res = SqlData().search_one_acc_vice(vice_id)
-        RedisTool().hash_set('vice_auth', res.get('vice_id'), res)
+        SqlData.update_vice_field(field, field_status, int(vice_id))
+        res = SqlData.search_one_acc_vice(vice_id)
+        RedisTool.hash_set('vice_auth', res.get('vice_id'), res)
         return jsonify({'code': RET.OK, 'msg': MSG.OK})
     if value:
         if field == "v_account":
-            if SqlData().search_value_in('vice_account', value, field):
+            if SqlData.search_value_in('vice_account', value, field):
                 return jsonify({'code': RET.SERVERERROR, 'msg': '用户名已存在,请重新命名！'})
-        SqlData().update_vice_field(field, value, int(vice_id))
+        SqlData.update_vice_field(field, value, int(vice_id))
         return jsonify({'code': RET.OK, 'msg': MSG.OK})
 
 
 @user_blueprint.route('/vice_info/', methods=['GET', 'POST'])
 @login_required
+@account_lock
 def vice_info():
     if request.method == 'GET':
         user_id = g.user_id
-        res = SqlData().search_acc_vice(user_id)
+        res = SqlData.search_acc_vice(user_id)
         resluts = dict()
         resluts['code'] = RET.OK
         resluts['msg'] = MSG.OK
@@ -68,6 +71,7 @@ def vice_info():
 
 @user_blueprint.route('/update_vice/', methods=['GET', 'POST'])
 @login_required
+@account_lock
 def update_vice():
     if request.method == 'GET':
         vice_id = g.vice_id
@@ -78,6 +82,7 @@ def update_vice():
 
 @user_blueprint.route('/add_vice/', methods=['GET', 'POST'])
 @login_required
+@account_lock
 def add_vice():
     # 判断是否是子账号用户
     vice_id = g.vice_id
@@ -107,16 +112,16 @@ def add_vice():
         refund_status = 'T' if refund else 'F'
         del_card_status = 'T' if del_card else 'F'
         up_label_status = 'T' if up_label else 'F'
-        res = SqlData().search_vice_count(user_id)
+        res = SqlData.search_vice_count(user_id)
         # 判断是否已经添加子账号，已添加则更新
         if res < 3:
-            if SqlData().search_value_in('vice_account', account, 'v_account'):
+            if SqlData.search_value_in('vice_account', account, 'v_account'):
                 return jsonify({'code': RET.SERVERERROR, 'msg': '用户名已存在,请重新命名！'})
-            SqlData().insert_account_vice(account, password, c_card_status, c_s_card_status, top_up_status,
+            SqlData.insert_account_vice(account, password, c_card_status, c_s_card_status, top_up_status,
                                           refund_status, del_card_status, up_label_status, user_id)
-            vice_id = SqlData().search_vice_id(v_account)
-            res = SqlData().search_one_acc_vice(vice_id)
-            RedisTool().hash_set('vice_auth', res.get('vice_id'), res)
+            vice_id = SqlData.search_vice_id(v_account)
+            res = SqlData.search_one_acc_vice(vice_id)
+            RedisTool.hash_set('vice_auth', res.get('vice_id'), res)
             return jsonify({'code': RET.OK, 'msg': MSG.OK})
         else:
             return jsonify({'code': RET.SERVERERROR, 'msg': '您的账号已添加3个子账号，不可重复添加！'})
@@ -124,11 +129,12 @@ def add_vice():
 
 @user_blueprint.route('/refund/', methods=['POST'])
 @login_required
+@account_lock
 def bento_refund():
     # 判断是否是子账号用户
     vice_id = g.vice_id
     if vice_id:
-        auth_dict = RedisTool().hash_get('vice_auth', vice_id)
+        auth_dict = RedisTool.hash_get('vice_auth', vice_id)
         if auth_dict is None:
             return jsonify({'code': RET.SERVERERROR, 'msg': '抱歉您没有权限执行此操作！'})
         c_card = auth_dict.get('refund')
@@ -140,8 +146,8 @@ def bento_refund():
     if "-" in str(data):
         return jsonify({"code": RET.SERVERERROR, 'msg': "请输入正确金额!"})
     # results = {"code": RET.OK, "msg": MSG.OK}
-    cardid = SqlDataNative().cardnum_fount_cardid(cardnum=card_no)
-    alias = SqlDataNative().cardnum_fount_alias(cardnum=card_no)
+    cardid = SqlDataNative.cardnum_fount_cardid(cardnum=card_no)
+    alias = SqlDataNative.cardnum_fount_alias(cardnum=card_no)
     availableAmount = RechargeCard().one_alias(alias)
     # 更新卡余额信息
     if not availableAmount:
@@ -149,10 +155,10 @@ def bento_refund():
     # if float("%.2f"%data) - float("%.2f"%availableAmount) < 1:
     if float("%.2f" % availableAmount) - float("%.2f" % data) < 1:
         return jsonify({"code": RET.OK, "msg": "该卡导出余额后需保持卡余额大于等于1, 若需全部退款, 可执行删卡"})
-    # SqlDataNative().update_card_Balance(cardid=cardid, availableAmount=availableAmount)
+    # SqlDataNative.update_card_Balance(cardid=cardid, availableAmount=availableAmount)
     if cardid:
         create_time = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))
-        SqlDataNative().update_card_Balance(cardid=cardid, availableAmount=availableAmount, create_time=create_time)
+        SqlDataNative.update_card_Balance(cardid=cardid, availableAmount=availableAmount, create_time=create_time)
         try:
             result_msg = RechargeCard().refund_data(cardid=cardid, recharge_amount=data)
         except Exception as e:
@@ -160,19 +166,19 @@ def bento_refund():
             return jsonify({"code": RET.OK, "msg": "网络繁忙, 请稍后重试"})
         else:
             if result_msg.get("msg"):
-                before_balance = SqlData().search_user_field('balance', user_id)
-                SqlData().update_balance(float(data), user_id)
-                balance = SqlData().search_user_field("balance", user_id)
+                before_balance = SqlData.search_user_field('balance', user_id)
+                SqlData.update_balance(float(data), user_id)
+                balance = SqlData.search_user_field("balance", user_id)
                 # balance = round(before_balance + float(data), 2)
                 # 手续费
-                account_refund = SqlData().search_user_field('refund', user_id)
+                account_refund = SqlData.search_user_field('refund', user_id)
                 new_account_refund = account_refund * data
                 new_balance = round(balance - account_refund * data, 2)
-                SqlData().update_user_field_int('balance', new_balance, user_id)
+                SqlData.update_user_field_int('balance', new_balance, user_id)
                 n_time = xianzai_time()
-                SqlData().insert_account_trans(n_time, TRANS_TYPE.IN, "转移退款", cardid, card_no, float(data),
+                SqlData.insert_account_trans(n_time, TRANS_TYPE.IN, "转移退款", cardid, card_no, float(data),
                                                new_account_refund, before_balance, new_balance, user_id)
-                SqlDataNative().insert_operating_log(cardid=cardid, operating_time=create_time,
+                SqlDataNative.insert_operating_log(cardid=cardid, operating_time=create_time,
                                                      operating_log="{}, 转移退款".format(result_msg.get("msg")))
 
                 return jsonify({"code": RET.OK, "msg": result_msg.get("msg")})
@@ -184,6 +190,7 @@ def bento_refund():
 
 @user_blueprint.route('/all_trans/', methods=['GET'])
 @login_required
+@account_lock
 def all_trans():
     page = request.args.get("page")
     limit = request.args.get("limit")
@@ -198,7 +205,7 @@ def all_trans():
     trans_status = request.args.get("trans_status")
 
     user_name = g.user_name
-    data = SqlDataNative().one_bento_alltrans(alias=user_name)
+    data = SqlDataNative.one_bento_alltrans(alias=user_name)
     results = {"code": RET.OK, "msg": MSG.OK, "count": 0, "data": ""}
     if len(data) == 0:
         results["MSG"] = MSG.NODATA
@@ -250,6 +257,7 @@ def all_trans():
 
 @user_blueprint.route('/bento_decline/', methods=['GET'])
 @login_required
+@account_lock
 def bento_decline():
     page = request.args.get('page')
     limit = request.args.get('limit')
@@ -271,10 +279,10 @@ def bento_decline():
 
     alias = g.user_name
     results = {"code": RET.OK, "msg": MSG.OK, "count": 0, "data": ""}
-    task_info = SqlDataNative().search_decline_data(alias, card_sql, time_sql)
+    task_info = SqlDataNative.search_decline_data(alias, card_sql, time_sql)
     task_info = sorted(task_info, key=operator.itemgetter("date"))
     task_info = list(reversed(task_info))
-    # cardid_list = SqlDataNative().attribution_fount_cardid(alias)
+    # cardid_list = SqlDataNative.attribution_fount_cardid(alias)
     # decline_ratio = RechargeCard().declined_statistics(cardid_list[1: 50], min_time, max_time)
     if len(task_info) == 0:
         results["MSG"] = MSG.NODATA
@@ -291,10 +299,10 @@ def bento_decline():
 @login_required
 def bento_update():
     alias = request.args.get("account")
-    s = SqlDataNative().alias_fount_cardid(alias)
+    s = SqlDataNative.alias_fount_cardid(alias)
     data = get_bento_data(cardid=s)
     if data.get("pan"):
-        SqlDataNative().update_card_data(pan=data.get("pan"), cvv=data.get("cvv"), expiration=data.get("expiration"),
+        SqlDataNative.update_card_data(pan=data.get("pan"), cvv=data.get("cvv"), expiration=data.get("expiration"),
                                          alias=alias)
         return jsonify({"code": RET.OK, "msg": "更新成功"})
     else:
@@ -303,11 +311,12 @@ def bento_update():
 
 @user_blueprint.route('/delcard/', methods=['GET'])
 @login_required
+@account_lock
 def del_account():
     # 判断是否是子账号用户
     vice_id = g.vice_id
     if vice_id:
-        auth_dict = RedisTool().hash_get('vice_auth', vice_id)
+        auth_dict = RedisTool.hash_get('vice_auth', vice_id)
         if auth_dict is None:
             return jsonify({'code': RET.SERVERERROR, 'msg': '抱歉您没有权限执行此操作！'})
         c_card = auth_dict.get('del_card')
@@ -316,34 +325,34 @@ def del_account():
     cardnumber = request.args.get('account')
     user_id = g.user_id
     # 获取cardid, 用于删除卡
-    cardid = SqlDataNative().cardnum_fount_cardid(cardnum=cardnumber)
-    alias = SqlDataNative().cardnum_fount_alias(cardnum=cardnumber)
+    cardid = SqlDataNative.cardnum_fount_cardid(cardnum=cardnumber)
+    alias = SqlDataNative.cardnum_fount_alias(cardnum=cardnumber)
     availableAmount = RechargeCard().one_alias(alias)
     # 更新卡余额
-    # SqlDataNative().update_card_Balance(cardid=cardid, availableAmount=availableAmount)
+    # SqlDataNative.update_card_Balance(cardid=cardid, availableAmount=availableAmount)
     if not availableAmount:
         return jsonify({"code": RET.OK, "msg": "该卡余额异常, 无法进行删卡操作"})
 
     create_time = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))
-    SqlDataNative().update_card_Balance(cardid=cardid, availableAmount=availableAmount, create_time=create_time)
+    SqlDataNative.update_card_Balance(cardid=cardid, availableAmount=availableAmount, create_time=create_time)
     del_status = RechargeCard().del_card(cardid)
     if del_status == 404:
         # 获取alias, 用户获取卡余额
         # sql修改字段为已删除
-        SqlDataNative().del_bencard(cardnumber)
-        before_balance = SqlData().search_user_field('balance', user_id)
-        SqlData().update_balance(float(availableAmount), user_id)
-        balance = SqlData().search_user_field("balance", user_id)
+        SqlDataNative.del_bencard(cardnumber)
+        before_balance = SqlData.search_user_field('balance', user_id)
+        SqlData.update_balance(float(availableAmount), user_id)
+        balance = SqlData.search_user_field("balance", user_id)
         # balance = round(before_balance + availableAmount, 2)
-        SqlData().update_user_field_int('balance', balance, user_id)
+        SqlData.update_user_field_int('balance', balance, user_id)
         n_time = xianzai_time()
-        SqlData().insert_account_trans(n_time, TRANS_TYPE.IN, DO_TYPE.REFUND, cardid, cardnumber, availableAmount, 0,
+        SqlData.insert_account_trans(n_time, TRANS_TYPE.IN, DO_TYPE.REFUND, cardid, cardnumber, availableAmount, 0,
                                        before_balance, balance, user_id)
-        SqlDataNative().insert_operating_log(cardid=cardid, operating_time=create_time,
+        SqlDataNative.insert_operating_log(cardid=cardid, operating_time=create_time,
                                              operating_log="原有金额{}, 卡上余额{}, 现有额度{}, 删卡退款".format(before_balance,
                                                                                                  availableAmount,
                                                                                                  balance))
-        SqlDataNative().update_bento_status('已注销', cardnumber.strip())
+        SqlDataNative.update_bento_status('已注销', cardnumber.strip())
         return jsonify(
             {"code": RET.OK, "msg": "原有金额{}, 卡上余额{}, 现有额度{}".format(before_balance, availableAmount, balance)})
     else:
@@ -351,6 +360,7 @@ def del_account():
 
 
 @user_blueprint.route('/card_remain/', methods=['GET'])
+@account_lock
 def card_remain():
     results = dict()
     try:
@@ -371,6 +381,7 @@ def card_remain():
 
 @user_blueprint.route('/account_trans/', methods=['GET'])
 @login_required
+@account_lock
 def account_trans():
     page = request.args.get('page')
     limit = request.args.get('limit')
@@ -393,7 +404,7 @@ def account_trans():
         do_sql = "AND do_type='" + do_type + "'"
 
     user_id = g.user_id
-    task_info = SqlData().search_account_trans(user_id, card_sql, time_sql, type_sql=do_sql)
+    task_info = SqlData.search_account_trans(user_id, card_sql, time_sql, type_sql=do_sql)
 
     results = {"code": RET.OK, "msg": MSG.OK, "count": 0, "data": ""}
     if len(task_info) == 0:
@@ -410,6 +421,7 @@ def account_trans():
 
 @user_blueprint.route('/update_label/', methods=['GET'])
 @login_required
+@account_lock
 def update_label():
     card_name = request.args.get('card_name')
     context = dict()
@@ -419,11 +431,12 @@ def update_label():
 
 @user_blueprint.route('/label_update/', methods=['POST'])
 @login_required
+@account_lock
 def label_update():
     # 判断是否是子账号用户
     vice_id = g.vice_id
     if vice_id:
-        auth_dict = RedisTool().hash_get('vice_auth', vice_id)
+        auth_dict = RedisTool.hash_get('vice_auth', vice_id)
         c_card = auth_dict.get('up_label')
         if c_card == 'F':
             return jsonify({'code': RET.SERVERERROR, 'msg': '抱歉您没有权限执行此操作！'})
@@ -433,9 +446,9 @@ def label_update():
 
     # 修改的标签名
     label_name = data.get("top_money")
-    # label_status = SqlDataNative().select_label_status(card_no=card_no)
+    # label_status = SqlDataNative.select_label_status(card_no=card_no)
 
-    SqlDataNative().update_bento_label(card_no=card_name, label_name=label_name)
+    SqlDataNative.update_bento_label(card_no=card_name, label_name=label_name)
 
     return jsonify({"code": RET.OK, "msg": "修改标签成功"})
 
@@ -443,11 +456,12 @@ def label_update():
 # 充值
 @user_blueprint.route('/top_up/', methods=['POST'])
 @login_required
+@account_lock
 def top_up():
     # 判断是否是子账号用户
     vice_id = g.vice_id
     if vice_id:
-        auth_dict = RedisTool().hash_get('vice_auth', vice_id)
+        auth_dict = RedisTool.hash_get('vice_auth', vice_id)
         if auth_dict is None:
             return jsonify({'code': RET.SERVERERROR, 'msg': '抱歉您没有权限执行此操作！'})
         c_card = auth_dict.get('top_up')
@@ -457,7 +471,7 @@ def top_up():
     user_id = g.user_id
     card_no = data.get('card_no')
     top_money = data.get('top_money')
-    user_data = SqlData().search_user_index(user_id)
+    user_data = SqlData.search_user_index(user_id)
     balance = user_data.get('balance')
     if not check_float(top_money):
         results = {"code": RET.SERVERERROR, "msg": "充值金额不能为小数!"}
@@ -465,7 +479,7 @@ def top_up():
     if int(top_money) > balance:
         results = {"code": RET.SERVERERROR, "msg": "本次消费金额:" + str(top_money) + ",账号余额不足!"}
         return jsonify(results)
-    cardid = SqlDataNative().cardnum_fount_cardid(str(card_no.strip()))
+    cardid = SqlDataNative.cardnum_fount_cardid(str(card_no.strip()))
     if cardid:
         # 进行充值
         try:
@@ -476,18 +490,18 @@ def top_up():
             return jsonify({"code": RET.SERVERERROR, "msg": "网络繁忙, 请稍后再试, 所剩余额未扣取"})
         else:
             if result_msg.get("msg"):
-                before_balance = SqlData().search_user_field('balance', user_id)
+                before_balance = SqlData.search_user_field('balance', user_id)
                 # balance = round(before_balance - int(top_money), 2)
                 bento_do_money = float(top_money) - float(top_money) * 2
-                SqlData().update_balance(bento_do_money, user_id)
-                balance = SqlData().search_user_field("balance", user_id)
-                # SqlData().update_user_field_int('balance', balance, user_id)
+                SqlData.update_balance(bento_do_money, user_id)
+                balance = SqlData.search_user_field("balance", user_id)
+                # SqlData.update_user_field_int('balance', balance, user_id)
 
                 n_time = xianzai_time()
-                SqlData().insert_account_trans(n_time, TRANS_TYPE.OUT, DO_TYPE.TOP_UP, cardid, card_no,
+                SqlData.insert_account_trans(n_time, TRANS_TYPE.OUT, DO_TYPE.TOP_UP, cardid, card_no,
                                                float(top_money), 0, before_balance,
                                                balance, user_id)
-                SqlDataNative().insert_operating_log(cardid=cardid, operating_time=n_time,
+                SqlDataNative.insert_operating_log(cardid=cardid, operating_time=n_time,
                                                      operating_log="{}, 用户充值".format(result_msg.get("msg")))
                 return jsonify({"code": RET.OK, "msg": result_msg.get("msg")})
             else:
@@ -499,12 +513,13 @@ def top_up():
 # 批量建卡
 @user_blueprint.route('/create_some/', methods=['POST'])
 @login_required
+@account_lock
 # @choke_required
 def create_some():
     # 判断是否是子账号用户
     vice_id = g.vice_id
     if vice_id:
-        auth_dict = RedisTool().hash_get('vice_auth', vice_id)
+        auth_dict = RedisTool.hash_get('vice_auth', vice_id)
         if auth_dict is None:
             return jsonify({'code': RET.SERVERERROR, 'msg': '抱歉您没有权限执行此操作！'})
         c_card = auth_dict.get('c_s_card')
@@ -516,16 +531,16 @@ def create_some():
     limit = data.get('limit')
     label = data.get('label')
     user_id = g.user_id
-    user_data = SqlData().search_user_index(user_id)
+    user_data = SqlData.search_user_index(user_id)
     create_price = user_data.get('create_card')
     min_top = user_data.get('min_top')
     max_top = user_data.get('max_top')
     balance = user_data.get('balance')
-    attribution = SqlData().search_user_field("name", user_id)
+    attribution = SqlData.search_user_field("name", user_id)
     # 比较可开卡数量与已开卡数量
     user_name = g.user_name
-    use_card_num = SqlDataNative().count_alias_data(user_name)
-    create_card_num = SqlData().label_data(user_id)
+    use_card_num = SqlDataNative.count_alias_data(user_name)
+    create_card_num = SqlData.label_data(user_id)
     if int(create_card_num[0]) - int(use_card_num[0]) < int(card_num):
         results = {"code": RET.SERVERERROR, "msg": "可开卡数量不足, 请联系管理员"}
         return jsonify(results)
@@ -553,7 +568,7 @@ def create_some():
     try:
         data_list = []
         for i in range(card_num):
-            # d = SqlDataNative().search_data(limit_num=1)
+            # d = SqlDataNative.search_data(limit_num=1)
             # status = CreateCard().create_card(card_alias=d, card_amount=int(limit), label=label)
             status = main_createcard(limit_num=1, card_amount=int(limit), label=label, attribution=attribution)
             if status:
@@ -561,26 +576,26 @@ def create_some():
                 n_time = xianzai_time()
                 card_no = status.get("pan")
                 card_card_id = status.get("cardId")
-                before_balance = SqlData().search_user_field('balance', user_id)
+                before_balance = SqlData.search_user_field('balance', user_id)
 
                 create_price_do_money = float(create_price) - float(create_price) * 2
-                SqlData().update_balance(create_price_do_money, user_id)
-                balance = SqlData().search_user_field("balance", user_id)
+                SqlData.update_balance(create_price_do_money, user_id)
+                balance = SqlData.search_user_field("balance", user_id)
                 # balance = before_balance - create_price
-                SqlData().insert_account_trans(n_time, TRANS_TYPE.OUT, DO_TYPE.CREATE_CARD, card_card_id, card_no,
+                SqlData.insert_account_trans(n_time, TRANS_TYPE.OUT, DO_TYPE.CREATE_CARD, card_card_id, card_no,
                                                create_price, 0, before_balance, balance, user_id)
-                SqlData().update_user_field_int('balance', balance, user_id)
+                SqlData.update_user_field_int('balance', balance, user_id)
                 # 充值费用
-                before_balance = SqlData().search_user_field('balance', user_id)
+                before_balance = SqlData.search_user_field('balance', user_id)
                 top_money = int(limit)
                 top_money_do_money = float(limit) - float(limit) * 2
-                SqlData().update_balance(top_money_do_money, user_id)
-                balance = SqlData().search_user_field("balance", user_id)
+                SqlData.update_balance(top_money_do_money, user_id)
+                balance = SqlData.search_user_field("balance", user_id)
                 # balance = round(before_balance - float(top_money), 2)
-                SqlData().update_user_field_int('balance', balance, user_id)
+                SqlData.update_user_field_int('balance', balance, user_id)
                 n_time = xianzai_time()
                 card_no = status.get("pan")
-                SqlData().insert_account_trans(n_time, TRANS_TYPE.OUT, DO_TYPE.TOP_UP, card_card_id, card_no, top_money,
+                SqlData.insert_account_trans(n_time, TRANS_TYPE.OUT, DO_TYPE.TOP_UP, card_card_id, card_no, top_money,
                                                0, before_balance, balance, user_id)
                 data_list.append(status.get("pan"))
         return jsonify({"code": RET.OK, "msg": "成功开卡" + str(len(data_list)) + "张!请刷新界面!"})
@@ -593,11 +608,12 @@ def create_some():
 # 单张卡
 @user_blueprint.route('/create_card/', methods=['POST'])
 @login_required
+@account_lock
 def create_card():
     # 判断是否是子账号用户
     vice_id = g.vice_id
     if vice_id:
-        auth_dict = RedisTool().hash_get('vice_auth', vice_id)
+        auth_dict = RedisTool.hash_get('vice_auth', vice_id)
         if auth_dict is None:
             return jsonify({'code': RET.SERVERERROR, 'msg': '抱歉您没有权限执行此操作！'})
         c_card = auth_dict.get('c_card')
@@ -608,16 +624,16 @@ def create_card():
     top_money = data.get('top_money')
     label = data.get('label')
     user_id = g.user_id
-    user_data = SqlData().search_user_index(user_id)
+    user_data = SqlData.search_user_index(user_id)
     create_price = user_data.get('create_card')
     min_top = user_data.get('min_top')
     max_top = user_data.get('max_top')
     balance = user_data.get('balance')
-    attribution = SqlData().search_user_field("name", user_id)
+    attribution = SqlData.search_user_field("name", user_id)
     # 比较可开卡数量与已开卡数量
     user_name = g.user_name
-    use_card_num = SqlDataNative().count_alias_data(user_name)
-    create_card_num = SqlData().label_data(user_id)
+    use_card_num = SqlDataNative.count_alias_data(user_name)
+    create_card_num = SqlData.label_data(user_id)
     if int(create_card_num[0]) - int(use_card_num[0]) < 1:
         results = {"code": RET.SERVERERROR, "msg": "可开卡数量不足, 请联系管理员"}
         return jsonify(results)
@@ -643,25 +659,25 @@ def create_card():
         if status:
             card_no = status.get("pan")
             card_card_id = status.get("cardId")
-            before_balance = SqlData().search_user_field('balance', user_id)
+            before_balance = SqlData.search_user_field('balance', user_id)
             create_price_do_money = float(create_price) - float(create_price) * 2
-            SqlData().update_balance(create_price_do_money, user_id)
-            balance = SqlData().search_user_field("balance", user_id)
+            SqlData.update_balance(create_price_do_money, user_id)
+            balance = SqlData.search_user_field("balance", user_id)
             # balance = before_balance - create_price
             # 更新开卡费用
             n_time = xianzai_time()
-            SqlData().insert_account_trans(n_time, TRANS_TYPE.OUT, DO_TYPE.CREATE_CARD, card_card_id, card_no,
+            SqlData.insert_account_trans(n_time, TRANS_TYPE.OUT, DO_TYPE.CREATE_CARD, card_card_id, card_no,
                                            create_price, 0, before_balance, balance, user_id)
-            SqlData().update_user_field_int('balance', balance, user_id)
+            SqlData.update_user_field_int('balance', balance, user_id)
 
             # 更新充值费用
-            before_balance = SqlData().search_user_field('balance', user_id)
+            before_balance = SqlData.search_user_field('balance', user_id)
             top_money_do_money = float(top_money) - float(top_money) * 2
-            SqlData().update_balance(top_money_do_money, user_id)
-            balance = SqlData().search_user_field("balance", user_id)
+            SqlData.update_balance(top_money_do_money, user_id)
+            balance = SqlData.search_user_field("balance", user_id)
             # balance = round(before_balance - float(top_money), 2)
-            SqlData().update_user_field_int('balance', balance, user_id)
-            SqlData().insert_account_trans(n_time, TRANS_TYPE.OUT, DO_TYPE.TOP_UP, card_card_id, card_no, top_money, 0,
+            SqlData.update_user_field_int('balance', balance, user_id)
+            SqlData.insert_account_trans(n_time, TRANS_TYPE.OUT, DO_TYPE.TOP_UP, card_card_id, card_no, top_money, 0,
                                            before_balance, balance, user_id)
             return jsonify({"code": RET.OK, "msg": "开卡成功"})
         else:
@@ -673,11 +689,12 @@ def create_card():
 
 @user_blueprint.route('/top_history/', methods=['GET'])
 @login_required
+@account_lock
 def top_history():
     page = request.args.get('page')
     limit = request.args.get('limit')
     user_id = g.user_id
-    task_info = SqlData().search_top_history_acc(user_id)
+    task_info = SqlData.search_top_history_acc(user_id)
     task_info = sorted(task_info, key=operator.itemgetter('time'))
     results = {"code": RET.OK, "msg": MSG.OK, "count": 0, "data": ""}
     if len(task_info) == 0:
@@ -694,64 +711,65 @@ def top_history():
 
 @user_blueprint.route('/', methods=['GET'])
 @login_required
+@account_lock
 def account_html():
     user_name = g.user_name
     user_id = g.user_id
-    dict_info = SqlData().search_user_index(user_id)
+    dict_info = SqlData.search_user_index(user_id)
     create_card = dict_info.get('create_card')
     refund = dict_info.get('refund') * 100
     min_top = dict_info.get('min_top')
     max_top = dict_info.get('max_top')
     balance = dict_info.get('balance')
     sum_balance = dict_info.get('sum_balance')
-    out_money = SqlData().search_trans_sum(user_id)
-    bento_income_money = SqlData().search_income_money(user_id)
+    out_money = SqlData.search_trans_sum(user_id)
+    bento_income_money = SqlData.search_income_money(user_id)
     # 获取交易数量
-    # cardid_list = SqlDataNative().attribution_fount_cardid(user_name)
+    # cardid_list = SqlDataNative.attribution_fount_cardid(user_name)
     # decline_rati = RechargeCard().declined_statistics(cardid_list[1: 100])
 
-    t_data = SqlDataNative().account_sum_transaction(attribution=user_name)
+    t_data = SqlDataNative.account_sum_transaction(attribution=user_name)
 
     # 获取decline数量
     today_time = time.strftime('%Y-%m-%d', time.localtime(time.time()))
     max_today = "{} {}".format(change_today(today_time, 0), "23:59:59")
     min_today = "{} {}".format(change_today(today_time, -3), "00:00:00")
-    decline_data = SqlDataNative().count_decline_data(attribution=user_name, min_today=min_today, max_today=max_today)
-    # decline_data = SqlDataNative().count_decline_data(user_name)
+    decline_data = SqlDataNative.count_decline_data(attribution=user_name, min_today=min_today, max_today=max_today)
+    # decline_data = SqlDataNative.count_decline_data(user_name)
 
     # decline / 交易总量
     # decline_ratio = "{}{}".format(float("%.4f"%(decline_data / t_data))) if t_data != 0 else 0
 
-    # one_t_data = SqlDataNative().account_sum_transaction(attribution=user_name)
-    three_data = SqlDataNative().count_decline_data(attribution=user_name, min_today=min_today, max_today=max_today)
-    three_tran_data = SqlDataNative().search_d(user_name)
+    # one_t_data = SqlDataNative.account_sum_transaction(attribution=user_name)
+    three_data = SqlDataNative.count_decline_data(attribution=user_name, min_today=min_today, max_today=max_today)
+    three_tran_data = SqlDataNative.search_d(user_name)
     decline_ratio = "{}{}".format(float("%.4f" % (three_data / three_tran_data * 100)),
                                   '%') if three_tran_data != 0 else 0
 
     # decline_ratio = "{}{}".format(float("%.4f"%(decline_data / t_data * 100)), '%') if t_data != 0 else 0
     # 获取已开卡数量
-    use_label = SqlDataNative().count_alias_data(user_name)
+    use_label = SqlDataNative.count_alias_data(user_name)
     context = dict()
     # label为开卡数量
-    label = SqlData().label_data(user_id)
+    label = SqlData.label_data(user_id)
     # 公告
-    notice = SqlDataNative().bento_notice()
+    notice = SqlDataNative.bento_notice()
     # 用户的所有卡金额
     """
     account_all_amount = 0
     all_moneys = TransactionRecord().all_alias_money()
-    all_cardids = SqlDataNative().attribution_fount_cardid(alias=user_name)
+    all_cardids = SqlDataNative.attribution_fount_cardid(alias=user_name)
     if len(all_moneys) > 0 and len(all_cardids) > 0:
         for all_cardid in all_cardids:
             for all_money in all_moneys:
                 if all_cardid == all_money.get("cardid"):
                     account_all_amount = account_all_amount + all_money.get("availableAmount")
     """
-    bento_allias_balance = SqlDataNative().select_alias_balance(attribution=user_name)
+    bento_allias_balance = SqlDataNative.select_alias_balance(attribution=user_name)
     context['all_money'] = bento_allias_balance
 
     # 查询上次卡余额统计时间
-    card_remain_time = SqlData().search_admin_field('up_remain_time')
+    card_remain_time = SqlData.search_admin_field('up_remain_time')
     if card_remain_time:
         up_remain_time = str(card_remain_time)
     else:
@@ -786,6 +804,7 @@ def account_html():
 
 @user_blueprint.route('/change_phone', methods=['GET'])
 @login_required
+@account_lock
 def change_phone():
     # 判断是否是子账号用户
     vice_id = g.vice_id
@@ -795,7 +814,7 @@ def change_phone():
     phone_num = request.args.get('phone_num')
     results = dict()
     try:
-        SqlData().update_user_field('phone_num', phone_num, user_id)
+        SqlData.update_user_field('phone_num', phone_num, user_id)
         results['code'] = RET.OK
         results['msg'] = MSG.OK
         return jsonify(results)
@@ -808,6 +827,7 @@ def change_phone():
 
 # 卡的交易记录
 @user_blueprint.route('/one_card_detail', methods=['GET'])
+@account_lock
 # @login_required
 def one_detail():
     try:
@@ -822,11 +842,11 @@ def one_detail():
             return render_template('user/card_detail.html', **context)
         """
         # sqldata = Sql_Session.query(BentoCard.card_id, BentoCard.alias).filter(BentoCard.card_number==card_no).first()
-        # sqldata = SqlDataNative().fount_cardid_alias(card_no=card_no)
-        sqldata = SqlDataNative().alias_fount_cardid(alias=card_no)
+        # sqldata = SqlDataNative.fount_cardid_alias(card_no=card_no)
+        sqldata = SqlDataNative.alias_fount_cardid(alias=card_no)
         if not sqldata:
             return jsonify({"code": RET.SERVERERROR, "msg": "数据库没有该用户数据, 可联系管理员添加"})
-        label_status = SqlDataNative().cardid_fount_label(cardid=sqldata)
+        label_status = SqlDataNative.cardid_fount_label(cardid=sqldata)
         transaction_data, availableAmount = main_transaction_data(cards=sqldata, alias=card_no)
         context['balance'] = "f_balance"
         context['remain'] = availableAmount if label_status != "已注销" else "该卡已注销, 余额为0"
@@ -854,6 +874,7 @@ def one_detail():
 
 @user_blueprint.route('/change_detail', methods=['GET'])
 @login_required
+@account_lock
 def change_detail():
     return render_template('user/edit_account.html')
 
@@ -861,6 +882,7 @@ def change_detail():
 # 余额
 @user_blueprint.route('/card_info', methods=['GET'])
 @login_required
+@account_lock
 def card_info():
     card_name = request.args.get('card_name')
     card_num = request.args.get('card_num')
@@ -874,8 +896,8 @@ def card_info():
     user_id = g.user_id
     if not label and not card_name and not card_num and not range_time:
         # 这里gt需修改成查询全部数据
-        attribution = SqlData().search_user_field("name", user_id)
-        data = SqlDataNative().search_alias_data(label, attribution)
+        attribution = SqlData.search_user_field("name", user_id)
+        data = SqlDataNative.search_alias_data(label, attribution)
     else:
         name_sql = ""
         if card_name:
@@ -891,9 +913,9 @@ def card_info():
             min_time = range_time.split(' - ')[0] + ' 23:59:59'
             max_time = range_time.split(' - ')[1] + ' 23:59:59'
             time_sql = "AND create_time BETWEEN '{}' AND '{}'".format(min_time, max_time)
-        attribution = SqlData().search_user_field("name", user_id)
-        # data = SqlDataNative().search_alias_data(label, attribution)
-        data = SqlDataNative().select_transaction_data(attribution, name_sql, card_sql, label_sql, time_sql)
+        attribution = SqlData.search_user_field("name", user_id)
+        # data = SqlDataNative.search_alias_data(label, attribution)
+        data = SqlDataNative.select_transaction_data(attribution, name_sql, card_sql, label_sql, time_sql)
     if not data:
         results['code'] = RET.SERVERERROR
         results['msg'] = MSG.NODATA
@@ -911,6 +933,7 @@ def card_info():
 
 @user_blueprint.route('/edit_user', methods=['GET'])
 @login_required
+@account_lock
 def ch_pass_html():
     vice_id = g.vice_id
     if vice_id:
@@ -920,13 +943,14 @@ def ch_pass_html():
 
 @user_blueprint.route('/change_pass', methods=["POST"])
 @login_required
+@account_lock
 def change_pass():
     data = json.loads(request.form.get('data'))
     old_pass = data.get('old_pass')
     new_pass_one = data.get('new_pass_one')
     new_pass_two = data.get('new_pass_two')
     user_id = g.user_id
-    pass_word = SqlData().search_user_field('password', user_id)
+    pass_word = SqlData.search_user_field('password', user_id)
     results = {'code': RET.OK, 'msg': MSG.OK}
     if not (old_pass == pass_word):
         results['code'] = RET.SERVERERROR
@@ -941,7 +965,7 @@ def change_pass():
         results['msg'] = MSG.PSWDLEN
         return jsonify(results)
     try:
-        SqlData().update_user_field('password', new_pass_one, g.user_id)
+        SqlData.update_user_field('password', new_pass_one, g.user_id)
         session.pop('user_id')
         session.pop('name')
         return jsonify(results)
@@ -954,10 +978,11 @@ def change_pass():
 
 @user_blueprint.route('/user_info', methods=['GET'])
 @login_required
+@account_lock
 def user_info():
     user_name = g.user_name
     user_id = g.user_id
-    dict_info = SqlData().search_user_detail(user_id)
+    dict_info = SqlData.search_user_detail(user_id)
     account = dict_info.get('account')
     phone_num = dict_info.get('phone_num')
     balance = dict_info.get('balance')
@@ -992,7 +1017,7 @@ def login():
         results = {'code': RET.OK, 'msg': MSG.OK}
         try:
             if cus_status == "main":
-                user_data = SqlData().search_user_info(user_name)
+                user_data = SqlData.search_user_info(user_name)
                 user_id = user_data.get('user_id')
                 pass_word = user_data.get('password')
                 name = user_data.get('name')
@@ -1007,7 +1032,7 @@ def login():
                     results['msg'] = MSG.PSWDERROR
                     return jsonify(results)
             if cus_status == 'vice':
-                user_data = SqlData().search_user_vice_info(user_name)
+                user_data = SqlData.search_user_vice_info(user_name)
                 user_id = user_data.get('user_id')
                 password = user_data.get('password')
                 vice_id = user_data.get('vice_id')
@@ -1018,8 +1043,8 @@ def login():
                     session['vice_id'] = vice_id
                     session.permanent = True
                     # 存储子子账号操作权限到redis
-                    res = SqlData().search_one_acc_vice(vice_id)
-                    RedisTool().hash_set('vice_auth', res.get('vice_id'), res)
+                    res = SqlData.search_one_acc_vice(vice_id)
+                    RedisTool.hash_set('vice_auth', res.get('vice_id'), res)
                     return jsonify(results)
                 else:
                     results['code'] = RET.SERVERERROR

@@ -26,7 +26,7 @@ class CreateCard(object):
             expriation_data = self.get_expiration(cardid=user_data.get("cardId"))
             user_data.update(expriation_data)
             # update alias card_id, card_amount
-            SqlDataNative().insert_new_account(alias=user_data.get("alias"), card_id=user_data.get("cardId"),
+            SqlDataNative.insert_new_account(alias=user_data.get("alias"), card_id=user_data.get("cardId"),
                                                card_amount=card_amount, card_number=user_data.get("pan"),
                                                card_cvv=user_data.get("cvv"), label=label,
                                                card_validity=user_data.get("expiration"), attribution=attribution,
@@ -101,7 +101,7 @@ def main_createcard(limit_num, card_amount, label, attribution):
     :param label: 开卡的备注
     :return: 返回开卡的数据并入库
     """
-    for i in SqlDataNative().search_data(limit_num=limit_num):
+    for i in SqlDataNative.search_data(limit_num=limit_num):
         c = CreateCard().create_card(card_alias=i.get("username"), card_amount=card_amount, label=label,
                                      attribution=attribution)
         return c

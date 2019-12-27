@@ -10,6 +10,7 @@ from flask import request, render_template, jsonify, session, g
 from tools_me.mysql_tools import SqlData
 from tools_me.other_tools import admin_required, sum_code, xianzai_time, get_nday_list
 from tools_me.parameter import RET, MSG, DIR_PATH
+from tools_me.redis_tools import RedisTool
 from tools_me.send_sms.send_sms import CCP
 from tools_me.sm_photo import sm_photo
 from apps.bento_create_card.sqldata_native import SqlDataNative
@@ -23,7 +24,23 @@ from config import cache
 def edit_bank_money():
     bank_number = request.form.get('bank_number')
     money = request.form.get('money')
-    SqlData().update_bank_day_top(bank_number, float(money))
+    SqlData.update_bank_day_top(bank_number, float(money))
+    return jsonify({'code': RET.OK, 'msg': MSG.OK})
+
+
+@admin_blueprint.route('/top_bank/', methods=['GET'])
+@admin_required
+def top_bank():
+    bank_number = request.args.get('bank_number')
+    status = SqlData.search_bank_status(bank_number)
+    # status:1为锁定，0为正常，2为置顶
+    if status == 2:
+        SqlData.update_bank_status(bank_number, 0)
+    else:
+        res = SqlData.search_bank_info('WHERE status=2')
+        if res:
+            return jsonify({'code': RET.SERVERERROR, 'msg': '请取消已置顶银行卡后重试！'})
+        SqlData.update_bank_status(bank_number, 2)
     return jsonify({'code': RET.OK, 'msg': MSG.OK})
 
 
@@ -31,11 +48,11 @@ def edit_bank_money():
 @admin_required
 def lock_bank():
     bank_number = request.args.get('bank_number')
-    status = SqlData().search_bank_status(bank_number)
+    status = SqlData.search_bank_status(bank_number)
     if status == 0:
-        SqlData().update_bank_status(bank_number, 1)
+        SqlData.update_bank_status(bank_number, 1)
     else:
-        SqlData().update_bank_status(bank_number, 0)
+        SqlData.update_bank_status(bank_number, 0)
     return jsonify({'code': RET.OK, 'msg': MSG.OK})
 
 
@@ -43,7 +60,7 @@ def lock_bank():
 @admin_required
 def del_bank():
     bank_number = request.args.get("bank_number")
-    SqlData().del_benk_data(bank_number=bank_number)
+    SqlData.del_benk_data(bank_number=bank_number)
     return jsonify({'code': RET.OK, 'msg': MSG.OK})
 
 
@@ -52,7 +69,7 @@ def del_bank():
 def bank_info():
     if request.method == "GET":
         results = {}
-        push_json = SqlData().search_bank_info()
+        push_json = SqlData.search_bank_info()
         results['code'] = RET.OK
         results['msg'] = MSG.OK
         if not push_json:
@@ -76,7 +93,7 @@ def bank_msg():
             bank_number = data.get("bank_email")
             bank_address = data.get("bank_address")
             # 插入数据
-            SqlData().insert_bank_info(bank_name=bank_name, bank_number=bank_number, bank_address=bank_address)
+            SqlData.insert_bank_info(bank_name=bank_name, bank_number=bank_number, bank_address=bank_address)
             return jsonify(results)
         except Exception as e:
             logging.error(str(e))
@@ -89,19 +106,19 @@ def edit_code():
     if request.method == 'GET':
         try:
             url = request.args.get('url')
-            status = SqlData().search_qr_field('status', url)
+            status = SqlData.search_qr_field('status', url)
             if status == 1:
                 now_status = 0
             else:
                 now_status = 1
-            SqlData().update_qr_info('status', now_status, url)
+            SqlData.update_qr_info('status', now_status, url)
             return jsonify({'code': RET.OK, 'msg': MSG.OK})
         except Exception as e:
             logging.error(str(e))
             return jsonify({'code': RET.SERVERERROR, 'msg': MSG.SERVERERROR})
     if request.method == 'POST':
         url = request.args.get('url')
-        SqlData().del_qr_code(url)
+        SqlData.del_qr_code(url)
         return jsonify({'code': RET.OK, 'msg': MSG.OK})
 
 
@@ -119,13 +136,13 @@ def ex_change():
             hand = data.get('hand')
             dollar_hand = data.get('dollar_hand')
             if exchange:
-                SqlData().update_admin_field('ex_change', float(exchange))
+                SqlData.update_admin_field('ex_change', float(exchange))
             if ex_range:
-                SqlData().update_admin_field('ex_range', float(ex_range))
+                SqlData.update_admin_field('ex_range', float(ex_range))
             if hand:
-                SqlData().update_admin_field('hand', float(hand))
+                SqlData.update_admin_field('hand', float(hand))
             if dollar_hand:
-                SqlData().update_admin_field('dollar_hand', float(dollar_hand))
+                SqlData.update_admin_field('dollar_hand', float(dollar_hand))
             return jsonify(results)
         except Exception as e:
             logging.error(str(e))
@@ -149,7 +166,7 @@ def up_pay_pic():
         # 上传成功后插入信息的新的收款方式信息
         os.remove(file_path)
         t = xianzai_time()
-        SqlData().insert_qr_code(filename, t)
+        SqlData.insert_qr_code(filename, t)
         return jsonify(results)
     else:
         return jsonify({'code': RET.SERVERERROR, 'msg': MSG.SERVERERROR})
@@ -161,7 +178,7 @@ def qr_info():
     results = dict()
     results['code'] = RET.OK
     results['msg'] = MSG.OK
-    info_list = SqlData().search_qr_code('')
+    info_list = SqlData.search_qr_code('')
     if not info_list:
         results['msg'] = MSG.NODATA
         return jsonify(results)
@@ -174,7 +191,7 @@ def qr_info():
 @admin_required
 def top_msg():
     if request.method == 'GET':
-        push_json = SqlData().search_admin_field('top_push')
+        push_json = SqlData.search_admin_field('top_push')
         info_list = list()
         if push_json:
             push_dict = json.loads(push_json)
@@ -192,7 +209,7 @@ def top_msg():
             data = json.loads(request.form.get('data'))
             top_people = data.get('top_people')
             email = data.get('email')
-            push_json = SqlData().search_admin_field('top_push')
+            push_json = SqlData.search_admin_field('top_push')
             if not push_json:
                 info_dict = dict()
                 info_dict[top_people] = email
@@ -203,7 +220,7 @@ def top_msg():
                 else:
                     info_dict[top_people] = email
             json_info = json.dumps(info_dict, ensure_ascii=False)
-            SqlData().update_admin_field('top_push', json_info)
+            SqlData.update_admin_field('top_push', json_info)
             return jsonify(results)
         except Exception as e:
             logging.error(str(e))
@@ -221,14 +238,14 @@ def qr_code():
 @admin_required
 def notice():
     if request.method == 'GET':
-        note = SqlDataNative().bento_notice()
+        note = SqlDataNative.bento_notice()
         context = dict()
         context['note'] = note
         return render_template('admin/notice.html', **context)
     if request.method == 'POST':
         data = json.loads(request.form.get('data'))
         note = data.get('note')
-        SqlDataNative().update_bento_notice(note)
+        SqlDataNative.update_bento_notice(note)
         return jsonify({"code": RET.OK, "msg": MSG.OK})
 
 
@@ -254,7 +271,7 @@ def all_trans():
     if ca_data:
         data = ca_data
     else:
-        data = SqlDataNative().bento_alltrans()
+        data = SqlDataNative.bento_alltrans()
         cache.set('all_trans', data, timeout=60*60*6)
     results = {"code": RET.OK, "msg": MSG.OK, "count": 0, "data": ""}
     if len(data) == 0:
@@ -360,7 +377,7 @@ def account_decline():
     alias_name = request.args.get("acc_name")
     ca_data = cache.get('decline_data')
     if not ca_data:
-        data = SqlDataNative().bento_alltrans()
+        data = SqlDataNative.bento_alltrans()
         acc_sum_trans = dict()
         for i in data:
             cus = i.get('before_balance')
@@ -393,8 +410,10 @@ def account_decline():
         for n in acc_sum_trans:
             value = acc_sum_trans.get(n)
             value['alias'] = n
+            value['all_bili'] = "{} {}".format(float("%.4f" % (value.get('decl') / value.get('t_data') * 100)),
+                                      "%") if value.get('decl') != 0 else 0
             value['bili'] = "{} {}".format(float("%.4f" % (value.get('three_decl') / value.get('three_tran') * 100)),
-                                      "%") if value.get('three_tran') != 0 else 0,
+                                      "%") if value.get('three_tran') != 0 else 0
             if value.get('three_tran') != 0 and value.get('three_decl') / value.get('three_tran') > 0.1:
                 value['show'] = 'T'
             else:
@@ -435,8 +454,8 @@ def decline_data():
     if acc_name:
         accname_sql = "AND attribution LIKE '%{}%'".format(acc_name)
     results = {"code": RET.OK, "msg": MSG.OK, "count": 0, "data": ""}
-    # task_info = SqlDataNative().search_decline_data("大龙", "", "")
-    task_info = SqlDataNative().admin_decline_data(accname_sql, card_sql, time_sql)
+    # task_info = SqlDataNative.search_decline_data("大龙", "", "")
+    task_info = SqlDataNative.admin_decline_data(accname_sql, card_sql, time_sql)
     page_list = list()
     task_info = sorted(task_info, key=operator.itemgetter("date"))
     task_info = list(reversed(task_info))
@@ -486,7 +505,7 @@ def bento_refund():
     else:
         sql_all = ""
     results = {"code": RET.OK, "msg": MSG.OK, "count": 0, "data": ""}
-    task_info = SqlData().bento_refund_data(sql_all)
+    task_info = SqlData.bento_refund_data(sql_all)
     if len(task_info) == 0:
         results['MSG'] = MSG.NODATA
         return jsonify(results)
@@ -515,15 +534,15 @@ def bento_refund():
     for o in info_list_1:
         x_time = o.get('time')
         user_id = o.get('user_id')
-        sum_money = SqlData().search_time_sum_money(x_time, user_id)
+        sum_money = SqlData.search_time_sum_money(x_time, user_id)
         o['sum_balance'] = round(sum_money, 2)
         info_list.append(o)
     """
     for o in data:
         x_time = o.get("time")
         user_id = o.get("user_id")
-        sum_money = SqlData().search_bento_sum_money(user_id=user_id, x_time=x_time)
-        sum_refund = SqlData().search_bento_sum_refund(user_id=user_id, x_time=x_time)
+        sum_money = SqlData.search_bento_sum_money(user_id=user_id, x_time=x_time)
+        sum_refund = SqlData.search_bento_sum_refund(user_id=user_id, x_time=x_time)
         o["sum_balance"] = round(sum_money, 2)
         o["sum_refund"] = round(sum_refund, 2)
     results['data'] = data
@@ -548,7 +567,7 @@ def cus_log():
     if cus_name:
         cus_sql = "AND customer='" + cus_name + "'"
 
-    task_info = SqlData().search_account_log(cus_sql, time_sql)
+    task_info = SqlData.search_account_log(cus_sql, time_sql)
     results = {"code": RET.OK, "msg": MSG.OK, "count": 0, "data": ""}
     if len(task_info) == 0:
         results['MSG'] = MSG.NODATA
@@ -590,12 +609,12 @@ def account_trans():
         # type_sql = "AND account_trans.do_type = '" + trans_type + "'"
         type_sql = "AND account_trans.do_type LIKE '%{}%'".format(trans_type)
 
-    task_info = SqlData().search_trans_admin(cus_sql, card_sql, time_sql, type_sql)
+    task_info = SqlData.search_trans_admin(cus_sql, card_sql, time_sql, type_sql)
     """
     for task_inf in task_info:
         bento_card_number = task_inf.get("card_no")
         if bento_card_number:
-            bento_alias = SqlDataNative().cardnum_fount_alias(bento_card_number.strip())
+            bento_alias = SqlDataNative.cardnum_fount_alias(bento_card_number.strip())
             task_inf.update({
                 "do_type": bento_alias
             })
@@ -643,8 +662,8 @@ def card_info_all():
         results = dict()
         results['code'] = RET.OK
         results['msg'] = MSG.OK
-        # info_list = SqlData().search_card_info_admin(sql)
-        info_list = SqlDataNative().admin_alias_data(sqld=sql)
+        # info_list = SqlData.search_card_info_admin(sql)
+        info_list = SqlDataNative.admin_alias_data(sqld=sql)
         if not info_list:
             results['code'] = RET.OK
             results['msg'] = MSG.NODATA
@@ -666,7 +685,7 @@ def card_info_all():
 def sub_middle_money():
     info_id = request.args.get('id')
     n_time = xianzai_time()
-    SqlData().update_middle_sub('已确认', n_time, int(info_id))
+    SqlData.update_middle_sub('已确认', n_time, int(info_id))
     return jsonify({"code": RET.OK, "msg": MSG.OK})
 
 
@@ -679,7 +698,7 @@ def middle_money():
         results = dict()
         results['code'] = RET.OK
         results['msg'] = MSG.OK
-        info_list = SqlData().search_middle_money_admin()
+        info_list = SqlData.search_middle_money_admin()
         if not info_list:
             results['code'] = RET.OK
             results['msg'] = MSG.NODATA
@@ -706,7 +725,7 @@ def card_info():
     results = dict()
     results['code'] = RET.OK
     results['msg'] = MSG.OK
-    data = SqlData().search_card_info(user_id)
+    data = SqlData.search_card_info(user_id)
     if len(data) == 0:
         results['code'] = RET.SERVERERROR
         results['msg'] = MSG.NODATA
@@ -727,8 +746,8 @@ def acc_to_middle():
     if request.method == 'GET':
         middle_id = request.args.get('middle_id')
         middle_sql = "WHERE middle_id=" + middle_id + ""
-        cus_list = SqlData().search_cus_list(sql_line=middle_sql)
-        null_list = SqlData().search_cus_list(sql_line="WHERE middle_id is null")
+        cus_list = SqlData.search_cus_list(sql_line=middle_sql)
+        null_list = SqlData.search_cus_list(sql_line="WHERE middle_id is null")
         context = dict()
         context['cus_list'] = cus_list
         context['null_list'] = null_list
@@ -743,37 +762,37 @@ def acc_to_middle():
             if field != 'account' and field != 'password':
                 try:
                     value = float(value)
-                    SqlData().update_middle_field_int(field, value, name)
+                    SqlData.update_middle_field_int(field, value, name)
                 except:
                     return jsonify({'code': RET.SERVERERROR, 'msg': '提成输入值错误!请输入数字类型!'})
             else:
-                SqlData().update_middle_field_str(field, value, name)
+                SqlData.update_middle_field_str(field, value, name)
 
         bind_cus = [k for k, v in data.items() if v == 'on']
         del_cus = [k for k, v in data.items() if v == 'off']
 
         if bind_cus:
             for i in bind_cus:
-                middle_id_now = SqlData().search_user_field_name('middle_id', i)
+                middle_id_now = SqlData.search_user_field_name('middle_id', i)
                 # 判断该客户是否已经绑定中介账号
                 if middle_id_now:
                     results['code'] = RET.SERVERERROR
                     results['msg'] = '该客户已经绑定中介!请解绑后重新绑定!'
                     return jsonify(results)
-                middle_id = SqlData().search_middle_name('id', name)
-                user_id = SqlData().search_user_field_name('id', i)
-                SqlData().update_user_field_int('middle_id', middle_id, user_id)
+                middle_id = SqlData.search_middle_name('id', name)
+                user_id = SqlData.search_user_field_name('id', i)
+                SqlData.update_user_field_int('middle_id', middle_id, user_id)
         if del_cus:
             for i in del_cus:
-                user_id = SqlData().search_user_field_name('id', i)
-                middle_id_now = SqlData().search_user_field_name('middle_id', i)
-                middle_id = SqlData().search_middle_name('id', name)
+                user_id = SqlData.search_user_field_name('id', i)
+                middle_id_now = SqlData.search_user_field_name('middle_id', i)
+                middle_id = SqlData.search_middle_name('id', name)
                 # 判断这个客户是不是当前中介的客户,不是则无权操作
                 if middle_id_now != middle_id:
                     results['code'] = RET.SERVERERROR
                     results['msg'] = '该客户不是当前中介客户!无权删除!'
                     return jsonify(results)
-                SqlData().update_user_field_int('middle_id', 'NULL', user_id)
+                SqlData.update_user_field_int('middle_id', 'NULL', user_id)
         return jsonify(results)
 
 
@@ -783,7 +802,7 @@ def middle_info():
     page = request.args.get('page')
     limit = request.args.get('limit')
     results = {"code": RET.OK, "msg": MSG.OK, "count": 0, "data": ""}
-    task_info = SqlData().search_middle_info()
+    task_info = SqlData.search_middle_info()
     if len(task_info) == 0:
         results['MSG'] = MSG.NODATA
         return results
@@ -809,7 +828,7 @@ def add_middle():
         price_one = float(data.get('price_one'))
         price_two = float(data.get('price_two'))
         price_three = float(data.get('price_three'))
-        ret = SqlData().search_middle_ed(name)
+        ret = SqlData.search_middle_ed(name)
         if ret:
             results['code'] = RET.SERVERERROR
             results['msg'] = '该中介名已存在!'
@@ -820,7 +839,7 @@ def add_middle():
                 results['code'] = RET.SERVERERROR
                 results['msg'] = '请输入符合规范的电话号码!'
                 return jsonify(results)
-        SqlData().insert_middle(account, password, name, phone_num, price_one, price_two, price_three)
+        SqlData.insert_middle(account, password, name, phone_num, price_one, price_two, price_three)
         return jsonify(results)
     except Exception as e:
         logging.error(e)
@@ -844,7 +863,7 @@ def add_account():
         min_top = float(data.get('min_top'))
         max_top = float(30000)
         note = data.get('note')
-        ed_name = SqlData().search_user_field_name('account', name)
+        ed_name = SqlData.search_user_field_name('account', name)
         if ed_name:
             results['code'] = RET.SERVERERROR
             results['msg'] = '该用户名已存在!'
@@ -857,13 +876,13 @@ def add_account():
                 return jsonify(results)
         else:
             phone_num = ""
-        SqlData().insert_account(account, password, phone_num, name, create_price, refund, min_top, max_top, note)
+        SqlData.insert_account(account, password, phone_num, name, create_price, refund, min_top, max_top, note)
         # 创建用户后插入充值数据
         pay_num = sum_code()
         t = xianzai_time()
-        user_id = SqlData().search_user_field_name('id', name)
-        SqlData().insert_top_up(pay_num, t, 0, 0, 0, user_id)
-        SqlData().insert_account_trans(date=t, trans_type="充值", do_type="支出", num=0, card_no=0, do_money=0,
+        user_id = SqlData.search_user_field_name('id', name)
+        SqlData.insert_top_up(pay_num, t, 0, 0, 0, user_id)
+        SqlData.insert_account_trans(date=t, trans_type="充值", do_type="支出", num=0, card_no=0, do_money=0,
                                        hand_money=0, before_balance=0, balance=0, account_id=user_id)
         return jsonify(results)
     except Exception as e:
@@ -888,12 +907,12 @@ def change_pass():
             results['code'] = RET.SERVERERROR
             results['msg'] = '两次输入密码不一致!'
             return jsonify(results)
-        password = SqlData().search_admin_field('password')
+        password = SqlData.search_admin_field('password')
         if old_pass != password:
             results['code'] = RET.SERVERERROR
             results['msg'] = '密码错误!'
             return jsonify(results)
-        SqlData().update_admin_field('password', new_pass_one)
+        SqlData.update_admin_field('password', new_pass_one)
         session.pop('admin_id')
         session.pop('admin_name')
         return jsonify(results)
@@ -902,7 +921,7 @@ def change_pass():
 @admin_blueprint.route('/admin_info', methods=['GET'])
 @admin_required
 def admin_info():
-    account, password, name, balance = SqlData().admin_info()
+    account, password, name, balance = SqlData.admin_info()
     context = dict()
     context['account'] = account
     context['password'] = password
@@ -952,7 +971,7 @@ def top_history():
     else:
         sql_all = ""
 
-    task_info = SqlData().search_top_history(sql_all)
+    task_info = SqlData.search_top_history(sql_all)
 
     if len(task_info) == 0:
         results['MSG'] = MSG.NODATA
@@ -982,7 +1001,7 @@ def top_history():
     for o in info_list_1:
         x_time = o.get('time')
         user_id = o.get('user_id')
-        sum_money = SqlData().search_time_sum_money(x_time, user_id)
+        sum_money = SqlData.search_time_sum_money(x_time, user_id)
         o['sum_balance'] = round(sum_money, 2)
         info_list.append(o)
     results['data'] = info_list_1
@@ -1000,15 +1019,15 @@ def top_up():
         pay_num = sum_code()
         t = xianzai_time()
         money = float(data)
-        before = SqlData().search_user_field_name('balance', name)
+        before = SqlData.search_user_field_name('balance', name)
         balance = before + money
-        user_id = SqlData().search_user_field_name('id', name)
+        user_id = SqlData.search_user_field_name('id', name)
         # 更新账户余额
-        SqlData().update_user_balance(money, user_id)
+        SqlData.update_user_balance(money, user_id)
         # 更新客户充值记录
-        SqlData().insert_top_up(pay_num, t, money, before, balance, user_id)
+        SqlData.insert_top_up(pay_num, t, money, before, balance, user_id)
 
-        phone = SqlData().search_user_field_name('phone_num', name)
+        phone = SqlData.search_user_field_name('phone_num', name)
 
         if phone:
             CCP().send_Template_sms(phone, [name, t, money], 478898)
@@ -1039,23 +1058,36 @@ def edit_parameter():
             password = data.get('password')
             card_q = data.get("card_q")
             if create_price:
-                SqlData().update_account_field('create_price', create_price, name)
+                SqlData.update_account_field('create_price', create_price, name)
             if refund:
-                SqlData().update_account_field('refund', refund, name)
+                SqlData.update_account_field('refund', refund, name)
             if min_top:
-                SqlData().update_account_field('min_top', min_top, name)
+                SqlData.update_account_field('min_top', min_top, name)
             if max_top:
-                SqlData().update_account_field('max_top', max_top, name)
+                SqlData.update_account_field('max_top', max_top, name)
             if password:
-                SqlData().update_account_field('password', password, name)
+                SqlData.update_account_field('password', password, name)
             if card_q:
-                SqlData().update_account_field("label", card_q, name)
+                SqlData.update_account_field("label", card_q, name)
             return jsonify(results)
         except Exception as e:
             logging.error(e)
             results['code'] = RET.SERVERERROR
             results['msg'] = MSG.SERVERERROR
             return jsonify(results)
+
+
+@admin_blueprint.route('/lock_acc/')
+@admin_required
+def lock_acc():
+    acc_name = request.args.get('acc_name')
+    u_id = SqlData.search_user_field_name('id', acc_name)
+    check = request.args.get('check')
+    if check == 'true':
+        RedisTool.string_del(u_id)
+    elif check == 'false':
+        RedisTool.string_set(u_id, 'F')
+    return jsonify({'code': RET.OK, 'msg': MSG.OK})
 
 
 @admin_blueprint.route('/account_info/', methods=['GET'])
@@ -1069,7 +1101,7 @@ def account_info():
         sql = "WHERE name LIKE '%" + customer + "%'"
     else:
         sql = ''
-    task_one = SqlData().search_account_info(sql)
+    task_one = SqlData.search_account_info(sql)
     if len(task_one) == 0:
         results['MSG'] = MSG.NODATA
         return results
@@ -1077,27 +1109,36 @@ def account_info():
     all_moneys = TransactionRecord().all_alias_money()
     for u in task_one:
         u_id = u.get('u_id')
-        # card_count = SqlData().search_card_count(u_id, '')
-        out_money = SqlData().search_trans_sum(u_id)
-        bento_income_money = SqlData().search_income_money(u_id)
+        # card_count = SqlData.search_card_count(u_id, '')
+        out_money = SqlData.search_trans_sum(u_id)
+        bento_income_money = SqlData.search_income_money(u_id)
         # u['card_num'] = card_count
         u['out_money'] = float("%.2f" % float(out_money - bento_income_money))
 
         account_all_amount = 0
         # all_moneys = TransactionRecord().all_alias_money()
-        all_cardids = SqlDataNative().attribution_fount_cardid(alias=u.get("name"))
+        all_cardids = SqlDataNative.attribution_fount_cardid(alias=u.get("name"))
         if len(all_moneys) > 0 and len(all_cardids) > 0:
             for all_cardid in all_cardids:
                 for all_money in all_moneys:
                     if all_cardid == all_money.get("cardid"):
                         account_all_amount = account_all_amount + all_money.get("availableAmount")
-        count_del_quant = SqlDataNative().count_del_data(alias=u.get("name"))
+        count_del_quant = SqlDataNative.count_del_data(alias=u.get("name"))
         u['del_card_num'] = count_del_quant
         u['account_all_money'] = float("%.2f" % account_all_amount)
         u['in_card_num'] = len(all_cardids)
         task_info.append(u)
     page_list = list()
-    task_info = list(reversed(task_info))
+    task_info_status = list()
+    for c in task_info:
+        u_id = c.get('u_id')
+        r = RedisTool.string_get(u_id)
+        if not r:
+            c['status'] = 'T'
+        else:
+            c['status'] = 'F'
+        task_info_status.append(c)
+    task_info = list(reversed(task_info_status))
     for i in range(0, len(task_info), int(limit)):
         page_list.append(task_info[i:i + int(limit)])
     results['data'] = page_list[int(page) - 1]
@@ -1111,7 +1152,7 @@ def account_card():
     page = request.args.get('page')
     limit = request.args.get('limit')
     user_name = request.args.get('user_name')
-    card_info = SqlDataNative().search_alias_data('', user_name)
+    card_info = SqlDataNative.search_alias_data('', user_name)
     if not card_info:
         return jsonify({'code:': RET.SERVERERROR, 'msg': MSG.NODATA})
     page_list = list()
@@ -1139,8 +1180,8 @@ def account_card_list():
 @admin_required
 def middle_info_html():
     user_id = request.args.get('user_id')
-    middle_user_id = SqlData().middle_user_id(name=user_id)
-    middle_data = SqlData().middle_user_data(middle_id=middle_user_id)
+    middle_user_id = SqlData.middle_user_id(name=user_id)
+    middle_data = SqlData.middle_user_data(middle_id=middle_user_id)
     context = dict()
     context['pay_list'] = middle_data
     return render_template('admin/middle_info.html', **context)
@@ -1153,7 +1194,7 @@ def test():
     # 展示近三十天开卡数量
     day_num = 30
     day_list = get_nday_list(day_num)
-    account_list = SqlData().search_user_field_admin()
+    account_list = SqlData.search_user_field_admin()
     data = list()
     if account_list:
         for u_id in account_list:
@@ -1162,7 +1203,7 @@ def test():
             for i in day_list:
                 sql_str = "AND do_date BETWEEN '{} 00:00:00' AND '{} 23:59:59'".format(i, i)
                 alias = u_id.get("id")
-                card_count = SqlData().bento_chart_data(alias=alias, time_range=sql_str)
+                card_count = SqlData.bento_chart_data(alias=alias, time_range=sql_str)
                 if card_count == 0:
                     card_count = ""
                 count_list.append(card_count)
@@ -1217,7 +1258,7 @@ def admin_login():
             data = json.loads(request.form.get('data'))
             account = data.get('account')
             password = data.get('password')
-            admin_id, name = SqlData().search_admin_login(account, password)
+            admin_id, name = SqlData.search_admin_login(account, password)
             session['admin_id'] = admin_id
             session['admin_name'] = name
             session.permanent = True
@@ -1234,16 +1275,16 @@ def admin_login():
 @admin_required
 def index():
     admin_name = g.admin_name
-    # spent = SqlData().search_trans_sum_admin()
-    # sum_balance = SqlData().search_user_sum_balance()
-    decline = SqlDataNative().count_admin_decline()
-    card_remain = SqlDataNative().search_sum_remain()
-    sum_top = SqlData().search_table_sum('sum_balance', 'account', '')
-    sum_remain = SqlData().search_table_sum('balance', 'account', '')
-    card_use = SqlDataNative().count_bento_data(sqld="")
-    card_no = SqlDataNative().count_bento_data(sqld="where label='已注销'")
-    card_un = SqlDataNative().count_bento_data(sqld="where label!='已注销'")
-    up_remain_time = SqlData().search_admin_field('up_remain_time')
+    # spent = SqlData.search_trans_sum_admin()
+    # sum_balance = SqlData.search_user_sum_balance()
+    decline = SqlDataNative.count_admin_decline()
+    card_remain = SqlDataNative.search_sum_remain()
+    sum_top = SqlData.search_table_sum('sum_balance', 'account', '')
+    sum_remain = SqlData.search_table_sum('balance', 'account', '')
+    card_use = SqlDataNative.count_bento_data(sqld="")
+    card_no = SqlDataNative.count_bento_data(sqld="where label='已注销'")
+    card_un = SqlDataNative.count_bento_data(sqld="where label!='已注销'")
+    up_remain_time = SqlData.search_admin_field('up_remain_time')
     context = dict()
     context['admin_name'] = admin_name
     context['up_remain_time'] = up_remain_time

@@ -11,6 +11,7 @@ import uuid
 from tools_me.mysql_tools import SqlData
 import threading
 
+from tools_me.redis_tools import RedisTool
 
 my_lock = threading.Lock()
 
@@ -112,14 +113,21 @@ def verify_login_time(before_time, now_time):
         return
 
 
+def account_lock(view_func):
+    """自定义装饰器判断用户是否登录
+    使用装饰器装饰函数时，会修改被装饰的函数的__name属性和被装饰的函数的说明文档
+    为了不让装饰器影响被装饰的函数的默认的数据，我们会使用@wraps装饰器，提前对view_funcJ进行装饰
+    """
 
-def choke_required(view_func):
     @wraps(view_func)
     def wraaper(*args, **kwargs):
-        my_lock.acquire()
-        res = view_func(*args, **kwargs)
-        my_lock.release()
-        return res
+        """具体实现判断用户账号是否被锁定"""
+        user_id = session.get('user_id')
+        res = RedisTool.string_get(user_id)
+        if res:
+            return render_template('user/lock_acc.html')
+        else:
+            return view_func(*args, **kwargs)
 
     return wraaper
 
@@ -322,7 +330,7 @@ def get_nday_list(n):
 
 
 def make_name(n):
-    name_dict = SqlData().search_name_info()
+    name_dict = SqlData.search_name_info()
     last_name = name_dict.get('last_name')
     female = name_dict.get('female')
     female_len = len(female)

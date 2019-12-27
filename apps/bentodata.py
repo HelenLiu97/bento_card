@@ -16,7 +16,7 @@ class BentoIndex(MethodView):
         info_list = []
         if username:
             try:
-                cardid = SqlDataNative().alias_fount_cardid(alias=username)
+                cardid = SqlDataNative.alias_fount_cardid(alias=username)
             except Exception as e:
                 return "信用卡数据不存在"
             transaction_data, availableAmount = main_transaction_data(cards=cardid, alias=username)
@@ -70,7 +70,7 @@ class BentoIndex(MethodView):
             context['remain'] = 0
             for cardname in cardnames:
                 try:
-                    cardid = SqlDataNative().alias_fount_cardid(alias=cardname)
+                    cardid = SqlDataNative.alias_fount_cardid(alias=cardname)
                 except Exception as e:
                     continue
                 else:

@@ -902,10 +902,50 @@ Welcome to BenTo
                 }
                 , {field: 'balance', title: '账户余额', align: 'center', sort: true, totalRow: true, style: "color: purple"}
                 , {field: 'sum_balance', title: '总充值金额', align: 'center', sort: true, totalRow: true}
-                , {fixed: 'right', width: 220, align: 'center', toolbar: '#barDemo'}
+                , {field: 'status', title: '状态', align: 'center', templet:function(row){
+                        var html = "<input type='checkbox' lay-skin='switch' lay-text='ON|OFF' lay-filter='checkboxIsSelected' table-index='"+row.LAY_TABLE_INDEX+"' class='checkboxIsSelected'";
+                        if(row.status == 'T'){
+                            html += " checked ";
+                        }
+                        html += ">";
+                        return html;
+                    }}
+                , {fixed: 'right', width: 150, align: 'center', toolbar: '#barDemo'}
             ]]
             , id: 'account_info'
             , page: true
+        });
+
+        form.on('switch(checkboxIsSelected)', function(obj){
+            var data = $(obj.elem);
+            var vice_id = data.parents('tr').first().find('td').eq(1).text();
+            $.ajax({
+                type : 'GET',
+                url : '/admin/lock_acc/?acc_name='+ vice_id + "&check="+obj.elem.checked,
+                beforeSend:function () {
+                    layer.load()
+                },
+                success : function(data) {
+                    // 成功提示框
+                    if (data.code == 0){
+                        layer.closeAll();
+                        parent.layer.msg(data.msg, {
+                            icon : 6,
+                        });
+                    }else if(data.code == 502){
+                        layer.closeAll();
+                        parent.layer.msg(data.msg, {
+                            icon : 5
+                        });
+                    }},
+                    error : function(data) {
+                        // 异常提示
+                        parent.layer.msg('出现网络故障', {
+                            icon : 5
+                        });
+                        layer.closeAll(); //关闭弹框
+                    }
+                    });
         });
 
         table.render({
@@ -1030,6 +1070,7 @@ Welcome to BenTo
                 , {field: 'alias', title: '客户名', align: 'center', sort: true}
                 , {field: 'decl', title: 'decline数量', align: 'center', sort: true}
                 , {field: 't_data', title: '所有卡交易数量', align: 'center', sort: true, style: 'color: green'}
+                , {field: 'all_bili', title: '所有交易decline比例', align: 'center', sort: true, style: 'color: #A52A2A'}
                 , {field: 'three_decl', title: '三天内所有decline数量', align: 'center', sort: true, style: 'color: green'}
                 , {field: 'three_tran', title: '三天内所有交易数量', align: 'center', sort: true, style: 'color: green'}
                 , {field: 'bili', title: '三天decline比', align: 'center', sort: true,}

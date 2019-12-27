@@ -44,7 +44,7 @@ if __name__ == '__main__':
     res = ex_change()
     print(res)
     res = round(float(res)/100, 4)
-    SqlData().update_admin_field('ex_change', res)
+    SqlData.update_admin_field('ex_change', res)
     with open("/root/liuxiao/world_pay/tools_me/spider.txt", 'a') as f:
         t = xianzai_time()
         f.write(t + " " + str(res) + '\n')

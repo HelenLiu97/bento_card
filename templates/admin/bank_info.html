@@ -59,6 +59,7 @@
 </div>
 
 <script type="text/html" id="barDemo">
+    <a class="layui-btn layui-btn-warm layui-btn-xs" lay-event="top" id="top">置顶</a>
     <a class="layui-btn layui-btn-primary layui-btn-xs" lay-event="lock" id="do_lock">锁定</a>
     <a class="layui-btn layui-btn-xs" lay-event="edit">收款金额</a>
     <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">删除</a>
@@ -115,7 +116,7 @@
                     , {field: 'day_money', title: '今日金额', align: 'center', sort: true,}
                     , {field: 'money', title: '累计金额', align: 'center', sort: true,}
                     , {field: 'status', title: '状态', align: 'center', sort: true,}
-                    , {fixed: 'right', width: 220, align: 'center', toolbar: '#barDemo'}
+                    , {fixed: 'right', width: 250, align: 'center', toolbar: '#barDemo'}
                 ]]
                 , id: 'qr_code'
                 , done: function (res, curr, count) {
@@ -123,6 +124,8 @@
                         if (res.data[i].status == '锁定') {
                             $('table tbody tr').eq(i).css('color', '#B23AEE');
                             $('table tbody tr td a[id=do_lock]').eq(i).html('解锁').css('background-color', 'black')
+                        }else if(res.data[i].status == '置顶'){
+                            $('table tbody tr td a[id=top]').eq(i).html('取消').css('background-color', 'black')
                         }
                     }
                 }
@@ -224,6 +227,32 @@
                     layer.close(index);
 
                 });
+            }else if (layEvent === 'top'){
+                        $.ajax({
+                            type : 'GET',
+                            url : '/admin/top_bank/?bank_number=' + data.bank_number,
+                            beforeSend:function () {
+                            layer.load(2, {shade: false})
+                            },
+                            success : function(data) {
+                                // 成功提示框
+                                if (data.code == 0){
+                                    layer.closeAll();
+                                    parent.layer.msg(data.msg, {
+                                    icon : 6,
+                                });
+                                location.reload()
+                                }else if(data.code == 502){
+                                    layer.closeAll();
+                                    parent.layer.msg(data.msg, {
+                                    icon : 5
+                                });
+                                }
+
+                            }
+                        });
+                    layer.close(index);
+
             }
         });
 

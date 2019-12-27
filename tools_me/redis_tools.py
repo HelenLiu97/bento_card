@@ -15,6 +15,9 @@ class RedisTool(object):
     def string_get(self, name):
         return self.r.get(name)
 
+    def string_del(self, name):
+        self.r.delete(name)
+
     def hash_set(self, name, key, value, ):
         self.r.hset(name, key, json.dumps(value))
 
@@ -29,7 +32,6 @@ class RedisTool(object):
         return res
 
 
-r = RedisTool()
-
-# s = r.hash_get('vice_auth', 17)
+RedisTool = RedisTool()
+# s = RedisTool.string_del('flask_cache_decline_data')
 # print(s)

@@ -19,7 +19,7 @@ def del_log():
     limit = request.args.get('limit')
     page = request.args.get('page')
     status = request.args.get('status')
-    data = SqlData().search_pay_log(status)
+    data = SqlData.search_pay_log(status)
     if not data:
         results['msg'] = MSG.NODATA
         return jsonify(results)
@@ -34,7 +34,7 @@ def del_log():
     for o in info_list:
         x_time = o.get('ver_time')
         user_id = o.get('cus_id')
-        sum_money = SqlData().search_time_sum_money(x_time, user_id)
+        sum_money = SqlData.search_time_sum_money(x_time, user_id)
         o['sum_balance'] = round(sum_money, 2)
         new_list.append(o)
 
@@ -64,13 +64,13 @@ def edit_acc():
         account = data.get('account')
         password = data.get('password')
         if account:
-            res = SqlData().find_in_set('recharge_account', account, 'username')
+            res = SqlData.find_in_set('recharge_account', account, 'username')
             if res:
                 return jsonify({'code': RET.SERVERERROR, 'msg': '账号已存在！请重新命名。'})
             else:
-                SqlData().update_recharge_account('username', account, int(user_id))
+                SqlData.update_recharge_account('username', account, int(user_id))
         if password:
-            SqlData().update_recharge_account('password', password, int(user_id))
+            SqlData.update_recharge_account('password', password, int(user_id))
         return jsonify({'code': RET.OK, 'msg': MSG.OK})
 
 
@@ -78,14 +78,14 @@ def edit_acc():
 @verify_required
 def del_account():
     user_id = request.args.get('user_id')
-    SqlData().del_recharge_acc(int(user_id))
+    SqlData.del_recharge_acc(int(user_id))
     return jsonify({'code': RET.OK, 'msg': MSG.OK})
 
 
 @verify_pay_blueprint.route('/all_account/', methods=['GET'])
 @verify_required
 def all_account():
-    data = SqlData().recharge_all_account()
+    data = SqlData.recharge_all_account()
     return jsonify({
         "code": RET.OK,
         "msg": MSG.OK,
@@ -103,7 +103,7 @@ def add_account():
         name = data.get('name')
         account = data.get('username')
         password = data.get('password')
-        SqlData().recharge_add_account(name=name, username=account, password=password)
+        SqlData.recharge_add_account(name=name, username=account, password=password)
         return jsonify(results)
     except Exception as e:
         logging.error(e)
@@ -120,7 +120,7 @@ def verify_login():
         data = request.values.to_dict()
         user_name = data.get('username')
         pass_word = data.get('password')
-        data = SqlData().search_verify_login(user_name, pass_word)
+        data = SqlData.search_verify_login(user_name, pass_word)
         if data:
             session['user_name'] = data.get('user_name')
             session['user_id'] = data.get('user_id')
@@ -147,7 +147,7 @@ def pay_log():
     limit = request.args.get('limit')
     page = request.args.get('page')
     status = request.args.get('status')
-    data = SqlData().search_pay_log(status)
+    data = SqlData.search_pay_log(status)
     if not data:
         results['msg'] = MSG.NODATA
         return jsonify(results)
@@ -162,7 +162,7 @@ def pay_log():
     for o in info_list:
         x_time = o.get('ver_time')
         user_id = o.get('cus_id')
-        sum_money = SqlData().search_time_sum_money(x_time, user_id)
+        sum_money = SqlData.search_time_sum_money(x_time, user_id)
         o['sum_balance'] = round(sum_money, 2)
         new_list.append(o)
 
@@ -198,62 +198,62 @@ def top_up():
                 results['code'] = RET.SERVERERROR
                 results['msg'] = '请确认已收款!'
                 return jsonify(results)
-            pass_wd = SqlData().search_pay_code('ver_code', cus_name, pay_time)
+            pass_wd = SqlData.search_pay_code('ver_code', cus_name, pay_time)
             if pass_wd != ver_code:
                 results['code'] = RET.SERVERERROR
                 results['msg'] = '验证码错误!'
                 return jsonify(results)
 
-            status = SqlData().search_pay_code('status', cus_name, pay_time)
+            status = SqlData.search_pay_code('status', cus_name, pay_time)
             if status != '待充值':
                 results['code'] = RET.SERVERERROR
                 results['msg'] = '该订单已充值,请刷新界面!'
                 return jsonify(results)
 
             # 验证成功后,做客户账户充值
-            cus_id = SqlData().search_user_field_name('id', cus_name)
+            cus_id = SqlData.search_user_field_name('id', cus_name)
 
             '''
             # 判断是否需要更改充值金额(取消改动充值金额权限)
             if not money:
-                money = SqlData().search_pay_code('top_money', cus_name, pay_time)
+                money = SqlData.search_pay_code('top_money', cus_name, pay_time)
             else:
                 money = float(money)
                 # 更新新的充值金额
-                SqlData().update_pay_money(money, cus_id, pay_time)
+                SqlData.update_pay_money(money, cus_id, pay_time)
             '''
 
-            money = SqlData().search_pay_code('top_money', cus_name, pay_time)
+            money = SqlData.search_pay_code('top_money', cus_name, pay_time)
             pay_num = sum_code()
             t = xianzai_time()
-            before = SqlData().search_user_field_name('balance', cus_name)
+            before = SqlData.search_user_field_name('balance', cus_name)
             balance = before + money
-            user_id = SqlData().search_user_field_name('id', cus_name)
-            pay_money = SqlData().search_pay_code('pay_money', cus_name, pay_time)
+            user_id = SqlData.search_user_field_name('id', cus_name)
+            pay_money = SqlData.search_pay_code('pay_money', cus_name, pay_time)
             # 更新银行卡收款金额
             if bank_address:
                 pattern = re.compile(r'\d+\.?\d*')
                 bank_number = pattern.findall(bank_address)
-                bank_money = SqlData().search_bank_top(bank_number)
+                bank_money = SqlData.search_bank_top(bank_number)
                 update_money = float(pay_money) + float(bank_money)
-                SqlData().update_bank_top(bank_number, float(pay_money), update_money)
+                SqlData.update_bank_top(bank_number, float(pay_money), update_money)
             else:
                 # 更新首款码收款金额
-                # pay_money = SqlData().search_pay_code('pay_money', cus_name, pay_time)
-                url = SqlData().search_pay_code('url', cus_name, pay_time)
-                SqlData().update_qr_money('top_money', pay_money, url)
+                # pay_money = SqlData.search_pay_code('pay_money', cus_name, pay_time)
+                url = SqlData.search_pay_code('url', cus_name, pay_time)
+                SqlData.update_qr_money('top_money', pay_money, url)
 
             # 更新账户余额
-            SqlData().update_user_balance(money, user_id)
+            SqlData.update_user_balance(money, user_id)
 
             # 更新客户充值记录
-            SqlData().insert_top_up(pay_num, t, money, before, balance, user_id)
+            SqlData.insert_top_up(pay_num, t, money, before, balance, user_id)
 
             # 更新pay_log的订单的充值状态
-            SqlData().update_pay_status('已充值', t, cus_id, pay_time)
+            SqlData.update_pay_status('已充值', t, cus_id, pay_time)
 
-            phone = SqlData().search_user_field_name('phone_num', cus_name)
-            mid_phone = SqlData().search_pay_code('phone', cus_name, pay_time)
+            phone = SqlData.search_user_field_name('phone_num', cus_name)
+            mid_phone = SqlData.search_pay_code('phone', cus_name, pay_time)
 
             # 给客户和代充值人发送短信通知
             money_msg = "{}元, 可用余额{}".format(money, balance)
@@ -281,8 +281,8 @@ def del_pay():
         data = json.loads(request.form.get('data'))
         user_name = data.get('user_name')
         pay_time = data.get('pay_time')
-        user_id = SqlData().search_user_field_name('id', user_name)
-        SqlData().del_pay_log(user_id, pay_time)
+        user_id = SqlData.search_user_field_name('id', user_name)
+        SqlData.del_pay_log(user_id, pay_time)
         results = dict()
         results['code'] = RET.OK
         results['msg'] = MSG.OK

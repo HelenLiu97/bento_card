@@ -57,10 +57,10 @@ class FinanceIndex(MethodView):
 
     def get(self):
         admin_user = session.get("finance")
-        sum_balance = SqlDataNative().count_admin_decline()
-        card_use = SqlDataNative().count_bento_data(sqld="")
-        card_no = SqlDataNative().count_bento_data(sqld="where label='已注销'")
-        card_un = SqlDataNative().count_bento_data(sqld="where label!='已注销'")
+        sum_balance = SqlDataNative.count_admin_decline()
+        card_use = SqlDataNative.count_bento_data(sqld="")
+        card_no = SqlDataNative.count_bento_data(sqld="where label='已注销'")
+        card_un = SqlDataNative.count_bento_data(sqld="where label!='已注销'")
         context = dict()
         context['admin_name'] = admin_user
         # context['spent'] = spent
@@ -86,7 +86,7 @@ def add_account():
         min_top = float(data.get('min_top'))
         max_top = float(30000)
         note = data.get('note')
-        ed_name = SqlData().search_user_field_name('account', name)
+        ed_name = SqlData.search_user_field_name('account', name)
         if ed_name:
             results['code'] = RET.SERVERERROR
             results['msg'] = '该用户名已存在!'
@@ -99,13 +99,13 @@ def add_account():
                 return jsonify(results)
         else:
             phone_num = ""
-        SqlData().insert_account(account, password, phone_num, name, create_price, refund, min_top, max_top, note)
+        SqlData.insert_account(account, password, phone_num, name, create_price, refund, min_top, max_top, note)
         # 创建用户后插入充值数据
         pay_num = sum_code()
         t = xianzai_time()
-        user_id = SqlData().search_user_field_name('id', account)
-        SqlData().insert_top_up(pay_num, t, 0, 0, 0, user_id)
-        SqlData().insert_account_trans(date=t, trans_type="充值", do_type="支出", num=0, card_no=0, do_money=0,
+        user_id = SqlData.search_user_field_name('id', account)
+        SqlData.insert_top_up(pay_num, t, 0, 0, 0, user_id)
+        SqlData.insert_account_trans(date=t, trans_type="充值", do_type="支出", num=0, card_no=0, do_money=0,
                                        hand_money=0, before_balance=0, balance=0, account_id=user_id)
         return jsonify(results)
     except Exception as e:
@@ -126,7 +126,7 @@ def account_info():
         sql = "WHERE name LIKE '%" + customer + "%'"
     else:
         sql = ''
-    task_one = SqlData().search_account_info(sql)
+    task_one = SqlData.search_account_info(sql)
     if len(task_one) == 0:
         results['MSG'] = MSG.NODATA
         return results
@@ -134,21 +134,21 @@ def account_info():
     all_moneys = TransactionRecord().all_alias_money()
     for u in task_one:
         u_id = u.get('u_id')
-        # card_count = SqlData().search_card_count(u_id, '')
-        out_money = SqlData().search_trans_sum(u_id)
-        bento_income_money = SqlData().search_income_money(u_id)
+        # card_count = SqlData.search_card_count(u_id, '')
+        out_money = SqlData.search_trans_sum(u_id)
+        bento_income_money = SqlData.search_income_money(u_id)
         # u['card_num'] = card_count
         u['out_money'] = float("%.2f" % float(out_money - bento_income_money))
 
         account_all_amount = 0
         # all_moneys = TransactionRecord().all_alias_money()
-        all_cardids = SqlDataNative().attribution_fount_cardid(alias=u.get("name"))
+        all_cardids = SqlDataNative.attribution_fount_cardid(alias=u.get("name"))
         if len(all_moneys) > 0 and len(all_cardids) > 0:
             for all_cardid in all_cardids:
                 for all_money in all_moneys:
                     if all_cardid == all_money.get("cardid"):
                         account_all_amount = account_all_amount + all_money.get("availableAmount")
-        count_del_quant = SqlDataNative().count_del_data(alias=u.get("name"))
+        count_del_quant = SqlDataNative.count_del_data(alias=u.get("name"))
         u['del_card_num'] = count_del_quant
         u['account_all_money'] = float("%.2f" % account_all_amount)
         u['card_balance'] = float("%.2f" % float(out_money - bento_income_money - account_all_amount))
@@ -185,8 +185,8 @@ def card_info_all():
         results = dict()
         results['code'] = RET.OK
         results['msg'] = MSG.OK
-        # info_list = SqlData().search_card_info_admin(sql)
-        info_list = SqlDataNative().admin_alias_data(sqld=sql)
+        # info_list = SqlData.search_card_info_admin(sql)
+        info_list = SqlDataNative.admin_alias_data(sqld=sql)
         if not info_list:
             results['code'] = RET.OK
             results['msg'] = MSG.NODATA
@@ -224,7 +224,7 @@ def decline_data():
     if acc_name:
         accname_sql = "AND attribution LIKE '%{}%'".format(acc_name)
     results = {"code": RET.OK, "msg": MSG.OK, "count": 0, "data": ""}
-    task_info = SqlDataNative().admin_decline_data(accname_sql, card_sql, time_sql)
+    task_info = SqlDataNative.admin_decline_data(accname_sql, card_sql, time_sql)
     page_list = list()
     task_info = sorted(task_info, key=operator.itemgetter("date"))
     task_info = list(reversed(task_info))
@@ -244,14 +244,14 @@ def account_decline():
     alias_name = request.args.get("account_decline_name")
     alias_data = []
     if alias_name:
-        one_t_data = SqlDataNative().account_sum_transaction(attribution=alias_name)
-        one_decline_data = SqlDataNative().account_sum_decline_transaction(attribution=alias_name)
+        one_t_data = SqlDataNative.account_sum_transaction(attribution=alias_name)
+        one_decline_data = SqlDataNative.account_sum_decline_transaction(attribution=alias_name)
 
         # 获取decline数量
         today_time = time.strftime('%Y-%m-%d', time.localtime(time.time()))
         max_today = "{} {}".format(change_today(today_time, 0), "23:59:59")
         min_today = "{} {}".format(change_today(today_time, -3), "00:00:00")
-        three_data = SqlDataNative().count_decline_data(attribution=alias_name, min_today=min_today,
+        three_data = SqlDataNative.count_decline_data(attribution=alias_name, min_today=min_today,
                                                         max_today=max_today)
 
         alias_data.append({
@@ -264,16 +264,16 @@ def account_decline():
         })
         return jsonify({"code": 0, "count": len(alias_data), "data": alias_data, "msg": "SUCCESSFUL"})
 
-    alias_list = SqlDataNative().bento_all_alias()
+    alias_list = SqlDataNative.bento_all_alias()
     for alias in alias_list:
-        t_data = SqlDataNative().account_sum_transaction(attribution=alias)
-        decline_data = SqlDataNative().account_sum_decline_transaction(attribution=alias)
+        t_data = SqlDataNative.account_sum_transaction(attribution=alias)
+        decline_data = SqlDataNative.account_sum_decline_transaction(attribution=alias)
         # 获取decline数量
         today_time = time.strftime('%Y-%m-%d', time.localtime(time.time()))
         max_today = "{} {}".format(change_today(today_time, 0), "23:59:59")
         min_today = "{} {}".format(change_today(today_time, -3), "00:00:00")
-        three_data = SqlDataNative().count_decline_data(attribution=alias, min_today=min_today, max_today=max_today)
-        three_tran_data = SqlDataNative().search_d(alias)
+        three_data = SqlDataNative.count_decline_data(attribution=alias, min_today=min_today, max_today=max_today)
+        three_tran_data = SqlDataNative.search_d(alias)
         alias_data.append({
             "alias": alias,
             "t_data": t_data,
@@ -301,7 +301,7 @@ def all_trans():
     trans_status = request.args.get("trans_status")
 
     args_list = []
-    data = SqlDataNative().bento_alltrans()
+    data = SqlDataNative.bento_alltrans()
     new_data = []
     results = {"code": RET.OK, "msg": MSG.OK, "count": 0, "data": ""}
     if len(data) == 0:
@@ -391,7 +391,7 @@ def top_history():
     else:
         sql_all = ""
 
-    task_info = SqlData().search_top_history(sql_all)
+    task_info = SqlData.search_top_history(sql_all)
 
     if len(task_info) == 0:
         results['MSG'] = MSG.NODATA
@@ -421,7 +421,7 @@ def top_history():
     for o in info_list_1:
         x_time = o.get('time')
         user_id = o.get('user_id')
-        sum_money = SqlData().search_time_sum_money(x_time, user_id)
+        sum_money = SqlData.search_time_sum_money(x_time, user_id)
         o['sum_balance'] = round(sum_money, 2)
         info_list.append(o)
     results['data'] = info_list_1
@@ -468,7 +468,7 @@ def bento_refund():
     else:
         sql_all = ""
     results = {"code": RET.OK, "msg": MSG.OK, "count": 0, "data": ""}
-    task_info = SqlData().bento_refund_data(sql_all)
+    task_info = SqlData.bento_refund_data(sql_all)
     if len(task_info) == 0:
         results['MSG'] = MSG.NODATA
         return jsonify(results)
@@ -482,8 +482,8 @@ def bento_refund():
     for o in data:
         x_time = o.get("time")
         user_id = o.get("user_id")
-        sum_money = SqlData().search_bento_sum_money(user_id=user_id, x_time=x_time)
-        sum_refund = SqlData().search_bento_sum_refund(user_id=user_id, x_time=x_time)
+        sum_money = SqlData.search_bento_sum_money(user_id=user_id, x_time=x_time)
+        sum_refund = SqlData.search_bento_sum_refund(user_id=user_id, x_time=x_time)
         o["sum_balance"] = round(sum_money, 2)
         o["sum_refund"] = round(sum_refund, 2)
     results['data'] = data
@@ -518,7 +518,7 @@ def account_trans():
         # type_sql = "AND account_trans.do_type = '" + trans_type + "'"
         type_sql = "AND account_trans.do_type LIKE '%{}%'".format(trans_type)
 
-    task_info = SqlData().search_trans_admin(cus_sql, card_sql, time_sql, type_sql)
+    task_info = SqlData.search_trans_admin(cus_sql, card_sql, time_sql, type_sql)
     results = {"code": RET.OK, "msg": MSG.OK, "count": 0, "data": ""}
     if len(task_info) == 0:
         results['MSG'] = MSG.NODATA

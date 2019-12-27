@@ -17,7 +17,7 @@ def change_phone():
     phone_num = request.args.get('phone_num')
     results = dict()
     try:
-        SqlData().update_middle_field('phone_num', phone_num, middle_id)
+        SqlData.update_middle_field('phone_num', phone_num, middle_id)
         results['code'] = RET.OK
         results['msg'] = MSG.OK
         return jsonify(results)
@@ -39,7 +39,7 @@ def logout():
 # @middle_required
 def money_detail():
     info_id = request.args.get('info_id')
-    detail = SqlData().search_middle_money_field('detail', int(info_id))
+    detail = SqlData.search_middle_money_field('detail', int(info_id))
     detail_list = json.loads(detail)
     context = dict()
     context['info_list'] = detail_list
@@ -50,7 +50,7 @@ def money_detail():
 @middle_required
 def user_info():
     middle_id = g.middle_id
-    dict_info = SqlData().search_middle_detail(middle_id)
+    dict_info = SqlData.search_middle_detail(middle_id)
     account = dict_info.get('account')
     phone_num = dict_info.get('phone_num')
     card_price = dict_info.get('card_price')
@@ -76,7 +76,7 @@ def middle_money():
         results = dict()
         results['code'] = RET.OK
         results['msg'] = MSG.OK
-        info_list = SqlData().search_middle_money(middle_id)
+        info_list = SqlData.search_middle_money(middle_id)
         if not info_list:
             results['code'] = RET.OK
             results['msg'] = MSG.NODATA
@@ -103,13 +103,13 @@ def task_list():
             middle_id = g.middle_id
             limit = request.args.get('limit')
             page = request.args.get('page')
-            account_list = SqlData().search_user_middle_info(middle_id)
+            account_list = SqlData.search_user_middle_info(middle_id)
             if not account_list:
                 return jsonify({'code': RET.OK, 'msg': MSG.NODATA})
             info_list = list()
             for u in account_list:
                 u_id = u.get('id')
-                card_count = SqlData().search_card_count(u_id, '')
+                card_count = SqlData.search_card_count(u_id, '')
                 u['card_num'] = card_count
                 info_list.append(u)
             page_list = list()
@@ -135,7 +135,7 @@ def test():
     day_num = 30
     day_list = get_nday_list(day_num)
     middle_id = g.middle_id
-    account_list = SqlData().search_user_field_middle(middle_id)
+    account_list = SqlData.search_user_field_middle(middle_id)
     data = list()
     if account_list:
         for u_id in account_list:
@@ -144,7 +144,7 @@ def test():
             for i in day_list:
                 sql_str = "AND do_date BETWEEN '{} 00:00:00' AND '{} 23:59:59'".format(i, i)
                 alias = u_id.get("id")
-                card_count = SqlData().bento_chart_data(alias=alias, time_range=sql_str)
+                card_count = SqlData.bento_chart_data(alias=alias, time_range=sql_str)
                 if card_count == 0:
                     card_count = ""
                 count_list.append(card_count)
@@ -188,7 +188,7 @@ def middle_index():
         context = dict()
         context['day_list'] = day_list
         context['year'] = year
-        name = SqlData().search_middle_field('name', middle_id)
+        name = SqlData.search_middle_field('name', middle_id)
         context['name'] = name
         return render_template('middle/index.html', **context)
 
@@ -201,7 +201,7 @@ def middle_login():
         data = json.loads(request.form.get('data'))
         account = data.get('account')
         pass_word = data.get('password')
-        info = SqlData().search_middle_login(account)
+        info = SqlData.search_middle_login(account)
         if not info:
             return jsonify({'code': RET.SERVERERROR, 'msg': MSG.PSWDERROR})
         middle_id = info[0][0]

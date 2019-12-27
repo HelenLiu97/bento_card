@@ -76,7 +76,7 @@ def up_account():
         in_account_list = list()
         for one in row_list[1:]:
             account = one[0]
-            in_account = SqlData().search_account_count(account, user_id)
+            in_account = SqlData.search_account_count(account, user_id)
             if in_account:
                 in_account_list.append(account)
             else:
@@ -108,7 +108,7 @@ def up_account():
                 else:
                     sizeof = excel_to_data(int(one[18]))
                 security_code = one[19]
-                SqlData().insert_account_detail(user_id, account, password, email, email_pw, pay_money, reg_time, label,
+                SqlData.insert_account_detail(user_id, account, password, email, email_pw, pay_money, reg_time, label,
                                                 terrace,
                                                 country, member_state, name, phone, coun, province, city, zip_num,
                                                 address, card_num, sizeof, security_code)
@@ -155,7 +155,7 @@ def up_task():
             return jsonify(results)
 
         sum_order_code = sum_code()
-        parent_id = SqlData().insert_task_parent(user_id, sum_order_code)
+        parent_id = SqlData.insert_task_parent(user_id, sum_order_code)
 
         i = 1
         for one in row_list[1:]:
@@ -181,7 +181,7 @@ def up_task():
             feedback_info = one[15].strip()
 
             try:
-                SqlData().insert_task_detail(parent_id, task_code, country, asin, key_word, kw_location, store_name,
+                SqlData.insert_task_detail(parent_id, task_code, country, asin, key_word, kw_location, store_name,
                                              good_name, good_money, good_link, pay_method, task_run_time, serve_class,
                                              mail_method, note, review_title, review_info, feedback_info)
                 i += 1
