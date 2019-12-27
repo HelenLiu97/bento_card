@@ -66,6 +66,7 @@
                 子账号
             </a>
             <dl class="layui-nav-child">
+          <dd id="add_vice"><a href="javascript:">添加子账号</a></dd>
           <dd id="vice_auth"><a href="javascript:">子账号配置</a></dd>
         </dl>
         </li>
@@ -721,8 +722,24 @@
             obj.tr.addClass('layui-table-click').siblings().removeClass('layui-table-click');
         });
 
-
         $('#vice_auth').on('click', function () {
+            layer.open({
+                type: 2
+                ,title: false //不显示标题栏
+                ,closeBtn: 1
+                ,area: ['1000px','580px']
+                ,shade: 0.8
+                ,id: 'user_detail' //设定一个id，防止重复弹出
+                ,shadeClose: true
+                ,btnAlign: 'c'
+                ,moveType: 1 //拖拽模式，0或者1
+                ,content: '/user/update_vice/'
+
+              });
+        });
+
+
+        $('#add_vice').on('click', function () {
             layer.open({
                 type: 2
                 ,title: false //不显示标题栏
@@ -733,7 +750,7 @@
                 ,shadeClose: true
                 ,btnAlign: 'c'
                 ,moveType: 1 //拖拽模式，0或者1
-                ,content: '/user/update_vice/'
+                ,content: '/user/add_vice/'
 
               });
         });

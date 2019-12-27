@@ -35,8 +35,8 @@
 
         <div class="layui-form-item main_vice">
             <div class="layui-input-block">
-              <input type="radio" name="cus_status" value="main" title="我是主账号" checked="">
-              <input type="radio" name="cus_status" value="vice" title="我是子账号">
+              <input type="radio" name="cus_status" value="main" title="主账号" checked="">
+              <input type="radio" name="cus_status" value="vice" title="子账号">
             </div>
           </div>
 
@@ -54,7 +54,6 @@
 
         form.on('submit(login)',function (data) {
             var data_info = {data:JSON.stringify(data.field)};
-            console.log(data_info);
             $.ajax({
 				type : 'POST',
 				url : '/user/login',

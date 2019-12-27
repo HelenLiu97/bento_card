@@ -23,56 +23,56 @@
             <label class="layui-form-label">账号： </label>
             <div class="layui-input-block">
                 <input type="text" name="account" required lay-verify="required" placeholder="长度大于6位" autocomplete="off"
-                       class="layui-input"  id="account" value="{{ account }}">
+                       class="layui-input"  id="account">
             </div>
         </div>
         <div class="layui-form-item">
             <label class="layui-form-label">密码：</label>
             <div class="layui-input-block">
                 <input type="text" id="password" name="password" required lay-verify="required" placeholder="长度大于6位" autocomplete="off"
-                       class="layui-input" value="{{ password }}">
+                       class="layui-input">
             </div>
         </div>
 
         <div class="layui-form-item">
             <label class="layui-form-label">创建卡：</label>
             <div class="layui-input-block">
-              <input type="checkbox" name="c_card" lay-skin="switch" lay-text="ON|OFF" {{ c_card }}>
+              <input type="checkbox" name="c_card" lay-skin="switch" lay-text="ON|OFF">
             </div>
         </div>
 
         <div class="layui-form-item">
             <label class="layui-form-label">批量建卡：</label>
             <div class="layui-input-block">
-              <input type="checkbox" name="c_s_card" lay-skin="switch" lay-text="ON|OFF" {{ c_s_card }}>
+              <input type="checkbox" name="c_s_card" lay-skin="switch" lay-text="ON|OFF">
             </div>
         </div>
 
         <div class="layui-form-item">
             <label class="layui-form-label">卡充值：</label>
             <div class="layui-input-block">
-              <input type="checkbox" name="top_up" lay-skin="switch" lay-text="ON|OFF" {{ top_up }}>
+              <input type="checkbox" name="top_up" lay-skin="switch" lay-text="ON|OFF">
             </div>
         </div>
 
         <div class="layui-form-item">
             <label class="layui-form-label">卡退款：</label>
             <div class="layui-input-block">
-              <input type="checkbox" name="refund" lay-skin="switch" lay-text="ON|OFF" {{ refund }}>
+              <input type="checkbox" name="refund" lay-skin="switch" lay-text="ON|OFF">
             </div>
         </div>
 
         <div class="layui-form-item">
             <label class="layui-form-label">删卡：</label>
             <div class="layui-input-block">
-              <input type="checkbox" name="del_card" lay-skin="switch" lay-text="ON|OFF" {{ del_card }}>
+              <input type="checkbox" name="del_card" lay-skin="switch" lay-text="ON|OFF">
             </div>
         </div>
 
         <div class="layui-form-item">
             <label class="layui-form-label">更新标签：</label>
             <div class="layui-input-block">
-              <input type="checkbox" name="up_label" lay-skin="switch" lay-text="ON|OFF" {{ up_label }}>
+              <input type="checkbox" name="up_label" lay-skin="switch" lay-text="ON|OFF">
             </div>
         </div>
 
@@ -97,7 +97,7 @@
             var $ = layui.jquery;
             $.ajax({
 				type : 'POST',
-				url : '/user/update_vice/',
+				url : '/user/add_vice/',
 				data : data_info,
 				dataType : 'json',
 				success : function(data) {

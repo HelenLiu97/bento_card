@@ -18,27 +18,73 @@ from apps.bento_create_card.main_recharge import main_transaction_data, Recharge
 logging.basicConfig(level=logging.INFO, format='%(asctime)s :: %(levelname)s :: %(message)s', filename="error.log")
 
 
+@user_blueprint.route('/del_vice/', methods=['GET'])
+@login_required
+def del_vice():
+    vice_id = request.args.get('vice_id')
+    SqlData().del_vice(int(vice_id))
+    RedisTool().hash_del('vice_auth', int(vice_id))
+    return jsonify({'code': RET.OK, 'msg': MSG.OK})
+
+
+@user_blueprint.route('/up_auth/', methods=['GET'])
+@login_required
+def up_auth():
+    '处理正在使用的客户被删除的问题'
+    vice_id = request.args.get('vice_id')
+    field = request.args.get('field')
+    check = request.args.get('check')
+    value = request.args.get('value')
+    if check:
+        field_status = ''
+        if check == "true":
+            field_status = 'T'
+        elif check == 'false':
+            field_status = 'F'
+        SqlData().update_vice_field(field, field_status, int(vice_id))
+        res = SqlData().search_one_acc_vice(vice_id)
+        RedisTool().hash_set('vice_auth', res.get('vice_id'), res)
+        return jsonify({'code': RET.OK, 'msg': MSG.OK})
+    if value:
+        if field == "v_account":
+            if SqlData().search_value_in('vice_account', value, field):
+                return jsonify({'code': RET.SERVERERROR, 'msg': '用户名已存在,请重新命名！'})
+        SqlData().update_vice_field(field, value, int(vice_id))
+        return jsonify({'code': RET.OK, 'msg': MSG.OK})
+
+
+@user_blueprint.route('/vice_info/', methods=['GET', 'POST'])
+@login_required
+def vice_info():
+    if request.method == 'GET':
+        user_id = g.user_id
+        res = SqlData().search_acc_vice(user_id)
+        resluts = dict()
+        resluts['code'] = RET.OK
+        resluts['msg'] = MSG.OK
+        resluts['data'] = res
+        return jsonify(resluts)
+
+
 @user_blueprint.route('/update_vice/', methods=['GET', 'POST'])
 @login_required
 def update_vice():
+    if request.method == 'GET':
+        vice_id = g.vice_id
+        if vice_id:
+            return render_template('user/no_auth.html')
+        return render_template('user/vice_acc_list.html')
+
+
+@user_blueprint.route('/add_vice/', methods=['GET', 'POST'])
+@login_required
+def add_vice():
     # 判断是否是子账号用户
     vice_id = g.vice_id
     if vice_id:
         return render_template('user/no_auth.html')
     if request.method == 'GET':
-        user_id = g.user_id
-        res = SqlData().search_acc_vice(user_id)
-        context = dict()
-        if res:
-            context['account'] = res.get('v_account')
-            context['password'] = res.get('v_password')
-            context['c_card'] = 'checked=""' if res.get('c_card') == 'T' else ''
-            context['c_s_card'] = 'checked=""' if res.get('c_s_card') == 'T' else ''
-            context['top_up'] = 'checked=""' if res.get('top_up') == 'T' else ''
-            context['refund'] = 'checked=""' if res.get('refund') == 'T' else ''
-            context['del_card'] = 'checked=""' if res.get('del_card') == 'T' else ''
-            context['up_label'] = 'checked=""' if res.get('up_label') == 'T' else ''
-        return render_template('user/update_vice.html', **context)
+        return render_template('user/update_vice.html')
     if request.method == 'POST':
         user_id = g.user_id
         data = json.loads(request.form.get('data'))
@@ -61,28 +107,19 @@ def update_vice():
         refund_status = 'T' if refund else 'F'
         del_card_status = 'T' if del_card else 'F'
         up_label_status = 'T' if up_label else 'F'
-        res = SqlData().search_acc_vice(user_id)
+        res = SqlData().search_vice_count(user_id)
         # 判断是否已经添加子账号，已添加则更新
-        if res:
-            try:
-                SqlData().update_account_vice(account, password, c_card_status, c_s_card_status, top_up_status,
-                                              refund_status, del_card_status, up_label_status, user_id)
-                res = SqlData().search_acc_vice(user_id)
-                RedisTool().hash_set('vice_auth', res.get('vice_id'), res)
-                return jsonify({'code': RET.OK, 'msg': MSG.OK})
-            except Exception as e:
-                print(e)
-                return jsonify({'code': RET.SERVERERROR, 'msg': MSG.SERVERERROR})
-        else:
+        if res < 3:
             if SqlData().search_value_in('vice_account', account, 'v_account'):
-                return jsonify({'code': RET.SERVERERROR, 'msg': '用户名已存在！或已创建子账号！'})
-            try:
-                SqlData().insert_account_vice(account, password, c_card_status, c_s_card_status, top_up_status,
-                                              refund_status, del_card_status, up_label_status, user_id)
-                return jsonify({'code': RET.OK, 'msg': MSG.OK})
-            except Exception as e:
-                print(e)
-                return jsonify({'code': RET.SERVERERROR, 'msg': '您的账号已添加子账号，不可重复添加，或账号重复请重试！'})
+                return jsonify({'code': RET.SERVERERROR, 'msg': '用户名已存在,请重新命名！'})
+            SqlData().insert_account_vice(account, password, c_card_status, c_s_card_status, top_up_status,
+                                          refund_status, del_card_status, up_label_status, user_id)
+            vice_id = SqlData().search_vice_id(v_account)
+            res = SqlData().search_one_acc_vice(vice_id)
+            RedisTool().hash_set('vice_auth', res.get('vice_id'), res)
+            return jsonify({'code': RET.OK, 'msg': MSG.OK})
+        else:
+            return jsonify({'code': RET.SERVERERROR, 'msg': '您的账号已添加3个子账号，不可重复添加！'})
 
 
 @user_blueprint.route('/refund/', methods=['POST'])
@@ -92,6 +129,8 @@ def bento_refund():
     vice_id = g.vice_id
     if vice_id:
         auth_dict = RedisTool().hash_get('vice_auth', vice_id)
+        if auth_dict is None:
+            return jsonify({'code': RET.SERVERERROR, 'msg': '抱歉您没有权限执行此操作！'})
         c_card = auth_dict.get('refund')
         if c_card == 'F':
             return jsonify({'code': RET.SERVERERROR, 'msg': '抱歉您没有权限执行此操作！'})
@@ -269,6 +308,8 @@ def del_account():
     vice_id = g.vice_id
     if vice_id:
         auth_dict = RedisTool().hash_get('vice_auth', vice_id)
+        if auth_dict is None:
+            return jsonify({'code': RET.SERVERERROR, 'msg': '抱歉您没有权限执行此操作！'})
         c_card = auth_dict.get('del_card')
         if c_card == 'F':
             return jsonify({'code': RET.SERVERERROR, 'msg': '抱歉您没有权限执行此操作！'})
@@ -407,6 +448,8 @@ def top_up():
     vice_id = g.vice_id
     if vice_id:
         auth_dict = RedisTool().hash_get('vice_auth', vice_id)
+        if auth_dict is None:
+            return jsonify({'code': RET.SERVERERROR, 'msg': '抱歉您没有权限执行此操作！'})
         c_card = auth_dict.get('top_up')
         if c_card == 'F':
             return jsonify({'code': RET.SERVERERROR, 'msg': '抱歉您没有权限执行此操作！'})
@@ -462,6 +505,8 @@ def create_some():
     vice_id = g.vice_id
     if vice_id:
         auth_dict = RedisTool().hash_get('vice_auth', vice_id)
+        if auth_dict is None:
+            return jsonify({'code': RET.SERVERERROR, 'msg': '抱歉您没有权限执行此操作！'})
         c_card = auth_dict.get('c_s_card')
         if c_card == 'F':
             return jsonify({'code': RET.SERVERERROR, 'msg': '抱歉您没有权限执行此操作！'})
@@ -553,6 +598,8 @@ def create_card():
     vice_id = g.vice_id
     if vice_id:
         auth_dict = RedisTool().hash_get('vice_auth', vice_id)
+        if auth_dict is None:
+            return jsonify({'code': RET.SERVERERROR, 'msg': '抱歉您没有权限执行此操作！'})
         c_card = auth_dict.get('c_card')
         if c_card == 'F':
             return jsonify({'code': RET.SERVERERROR, 'msg': '抱歉您没有权限执行此操作！'})
@@ -866,7 +913,6 @@ def card_info():
 @login_required
 def ch_pass_html():
     vice_id = g.vice_id
-    print(vice_id)
     if vice_id:
         return render_template('user/no_auth.html')
     return render_template('user/edit_user.html')
@@ -929,6 +975,7 @@ def user_info():
 def logout():
     session.pop('user_id')
     session.pop('name')
+    session.pop('vice_id')
     return render_template('user/login.html')
 
 
@@ -971,7 +1018,7 @@ def login():
                     session['vice_id'] = vice_id
                     session.permanent = True
                     # 存储子子账号操作权限到redis
-                    res = SqlData().search_acc_vice(user_id)
+                    res = SqlData().search_one_acc_vice(vice_id)
                     RedisTool().hash_set('vice_auth', res.get('vice_id'), res)
                     return jsonify(results)
                 else:

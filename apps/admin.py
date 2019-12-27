@@ -861,7 +861,7 @@ def add_account():
         # 创建用户后插入充值数据
         pay_num = sum_code()
         t = xianzai_time()
-        user_id = SqlData().search_user_field_name('id', account)
+        user_id = SqlData().search_user_field_name('id', name)
         SqlData().insert_top_up(pay_num, t, 0, 0, 0, user_id)
         SqlData().insert_account_trans(date=t, trans_type="充值", do_type="支出", num=0, card_no=0, do_money=0,
                                        hand_money=0, before_balance=0, balance=0, account_id=user_id)

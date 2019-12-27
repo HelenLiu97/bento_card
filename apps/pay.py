@@ -212,6 +212,7 @@ def pay_pic():
             min_acc = min_acc[1]
             acc_list = bank_info.get(min_acc)
             data = min(acc_list, key=dic_key)
+            print(data)
             context['bank_name'] = data.get('bank_name')
             context['bank_number'] = data.get('bank_number')
             context['bank_address'] = data.get('bank_address')
