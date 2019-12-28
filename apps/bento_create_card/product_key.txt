@@ -1,1 +1,1 @@
-{"token": "Bearer nncwoXXCRsSU19pyiui7GJS3LYeH2LZ5xYUUf6Vme3w", "time": 19}
+{"token": "Bearer 3ATIkHvBTs-rMzXegkTU21VQ8tiTxTnPJ_SugM_w7MI", "time": 10}

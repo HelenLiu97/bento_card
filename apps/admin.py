@@ -329,7 +329,7 @@ def all_trans():
             if trans_store in trans_type:
                 store_list.append(i)
     else:
-        store_list = trans_list
+        store_list = time_list
 
     if not store_list:
         return jsonify({'code': RET.OK, 'msg': MSG.NODATA})
