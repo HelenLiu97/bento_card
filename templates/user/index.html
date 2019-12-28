@@ -184,7 +184,7 @@
             <div class="layui-inline">
                 <input class="layui-input" name="s_card_name" id="s_card_name" autocomplete="off">
             </div>
-	    
+
                 卡号:
             <div class="layui-inline">
                 <input type="number"  class="layui-input" name="s_card_num" id="s_card_num"  autocomplete="off">
@@ -280,10 +280,10 @@
                 <button class="layui-btn layui-btn-primary" >重置</button>
                </div>
           </form>
- 
+
             <tablse class="layui-hide" id="bento_alltrans" lay-filter="bento_alltrans"></tablse>
         </div>
-	
+
   </div>
 </div>
 
@@ -386,7 +386,7 @@
 					parent.layer.msg('出现网络故障', {
 						icon : 5
 					});
-					parent.layer.closeAll('iframe'); //关闭弹框
+					location.reload()
 				},
 				complete:function () {
                     // 增加样式
@@ -456,7 +456,7 @@
 					parent.layer.msg('出现网络故障', {
 						icon : 5
 					});
-					parent.layer.closeAll('iframe'); //关闭弹框
+					location.reload()
 				},
 				complete:function () {
                     // 增加样式
@@ -582,7 +582,7 @@
               ]]
               , id: 'bento_alltrans'
              , page: true
- 
+
           });
 
 
@@ -692,7 +692,7 @@
 	$('#account_alltrans').on('click', function(){
               element.tabChange('demo', 14)
           });
-	
+
 
 
 
@@ -986,8 +986,8 @@
                     return false
                 });
             }else if( layEvent === 'detail' ){
-		
-		layer.confirm('该更新功能用于开卡进入process状态无法获取卡号及密码时, 点击确认后, 会重新获取卡号及密码, 如若二十四小时后还是无法更新, 请联系管理员', 
+
+		layer.confirm('该更新功能用于开卡进入process状态无法获取卡号及密码时, 点击确认后, 会重新获取卡号及密码, 如若二十四小时后还是无法更新, 请联系管理员',
 	                     {title:'更新功能提示!!!'}, function (index) {
                     layer.close(index);
                     //向服务端发送删除指令
