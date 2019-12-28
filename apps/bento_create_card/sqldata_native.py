@@ -141,12 +141,14 @@ class SqlDataNative(object):
         self.close_connect(conn, cursor)
         for i in rows:
             update_sql = "UPDATE bento_card_name SET state='已使用' WHERE id={}".format(i[0])
+            conn, cursor = self.connect()
             try:
                 cursor.execute(update_sql)
                 conn.commit()
             except Exception as e:
                 logging.warning("下单成功数据库更新数据失败" + str(e))
                 conn.rollback()
+            self.close_connect(conn, cursor)
             yield {
                 "id": i[0],
                 "username": i[1]

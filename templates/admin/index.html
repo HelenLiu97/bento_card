@@ -1076,16 +1076,16 @@ Welcome to BenTo
                 , {field: 'bili', title: '三天decline比', align: 'center', sort: true,}
             ]]
             , id: 'account_decl'
-            ,page: true
-            ,done: function (res, curr, count) {
+            , page: true
+            , done: function (res, curr, count) {
                 var that = this.elem.next();
-                for (var i=0;i<res.data.length;i++)   //遍历返回数据
+                for (var i = 0; i < res.data.length; i++)   //遍历返回数据
                 {
-                    if(res.data[i].show=='T')    //设置条件
+                    if (res.data[i].show == 'T')    //设置条件
                     {
                         var tr = that.find(".layui-table-box tbody tr[data-index='" + i + "']");
-                          tr.css("background-color", "yellow");
-                          tr.find(".laytable-cell-9-0-6").css("color","red");
+                        tr.css("background-color", "yellow");
+                        tr.find(".laytable-cell-9-0-6").css("color", "red");
                     }
                 }
             }

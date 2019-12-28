@@ -187,7 +187,6 @@ def bento_refund():
     else:
         return jsonify({"code": RET.OK, 'msg': "转移失败, 该卡号不存在, 请联系管理员"})
 
-
 @user_blueprint.route('/all_trans/', methods=['GET'])
 @login_required
 @account_lock
