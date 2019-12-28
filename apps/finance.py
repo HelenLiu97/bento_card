@@ -1,3 +1,5 @@
+import re
+
 import requests
 import json
 import datetime
@@ -5,6 +7,7 @@ import logging
 import operator
 import time
 from apps.bento_create_card.public import change_today
+from config import cache
 from tools_me.other_tools import finance_required, sum_code, xianzai_time
 from tools_me.parameter import RET, MSG
 from flask import render_template, request, jsonify, session, url_for, redirect
@@ -103,7 +106,7 @@ def add_account():
         # 创建用户后插入充值数据
         pay_num = sum_code()
         t = xianzai_time()
-        user_id = SqlData.search_user_field_name('id', account)
+        user_id = SqlData.search_user_field_name('id', name)
         SqlData.insert_top_up(pay_num, t, 0, 0, 0, user_id)
         SqlData.insert_account_trans(date=t, trans_type="充值", do_type="支出", num=0, card_no=0, do_money=0,
                                        hand_money=0, before_balance=0, balance=0, account_id=user_id)
@@ -240,50 +243,63 @@ def decline_data():
 def account_decline():
     page = request.args.get('page')
     limit = request.args.get('limit')
+    alias_name = request.args.get("acc_name")
+    ca_data = cache.get('finance_decline_data')
+    if not ca_data:
+        data = SqlDataNative.bento_alltrans()
+        acc_sum_trans = dict()
+        for i in data:
+            cus = i.get('before_balance')
+            if cus not in acc_sum_trans:
+                cus_dict = dict()
+                cus_dict[cus] = {'decl': 0, 't_data': 0, 'three_decl': 0, 'three_tran': 0}
+                acc_sum_trans.update(cus_dict)
+        for n in data:
+            date = n.get('date')
+            do_type = n.get('do_type')
+            cus = n.get('before_balance')
+            value = {'t_data': acc_sum_trans.get(cus).get('t_data') + 1}
+            acc_sum_trans.get(cus).update(value)
+            if do_type == 'DECLINED':
+                value = {'decl': acc_sum_trans.get(cus).get('decl') + 1}
+                acc_sum_trans.get(cus).update(value)
+            today_time = time.strftime('%Y-%m-%d', time.localtime(time.time()))
+            max_today = datetime.datetime.strptime("{} {}".format(change_today(today_time, 0), "23:59:59"),
+                                                   '%Y-%m-%d %H:%M:%S')
+            min_today = datetime.datetime.strptime("{} {}".format(change_today(today_time, -3), "23:59:59"),
+                                                   '%Y-%m-%d %H:%M:%S')
+            trans_t = datetime.datetime.strptime(date, '%Y-%m-%d %H:%M:%S')
+            if min_today <= trans_t <= max_today:
+                value = {'three_tran': acc_sum_trans.get(cus).get('three_tran') + 1}
+                acc_sum_trans.get(cus).update(value)
+            if min_today < trans_t < max_today and do_type == 'DECLINED':
+                value = {'three_decl': acc_sum_trans.get(cus).get('three_decl') + 1}
+                acc_sum_trans.get(cus).update(value)
+        res = list()
+        for n in acc_sum_trans:
+            value = acc_sum_trans.get(n)
+            value['alias'] = n
+            value['all_bili'] = "{} {}".format(float("%.4f" % (value.get('decl') / value.get('t_data') * 100)),
+                                               "%") if value.get('decl') != 0 else 0
+            value['bili'] = "{} {}".format(float("%.4f" % (value.get('three_decl') / value.get('three_tran') * 100)),
+                                           "%") if value.get('three_tran') != 0 else 0
+            if value.get('three_tran') != 0 and value.get('three_decl') / value.get('three_tran') > 0.1:
+                value['show'] = 'T'
+            else:
+                value['show'] = 'F'
+            res.append(value)
+            # 设置缓存
+        cache.set('finance_decline_data', res, timeout=60 * 60 * 6)
 
-    alias_name = request.args.get("account_decline_name")
-    alias_data = []
-    if alias_name:
-        one_t_data = SqlDataNative.account_sum_transaction(attribution=alias_name)
-        one_decline_data = SqlDataNative.account_sum_decline_transaction(attribution=alias_name)
-
-        # 获取decline数量
-        today_time = time.strftime('%Y-%m-%d', time.localtime(time.time()))
-        max_today = "{} {}".format(change_today(today_time, 0), "23:59:59")
-        min_today = "{} {}".format(change_today(today_time, -3), "00:00:00")
-        three_data = SqlDataNative.count_decline_data(attribution=alias_name, min_today=min_today,
-                                                        max_today=max_today)
-
-        alias_data.append({
-            "alias": alias_name,
-            "t_data": one_t_data,
-            "decl": one_decline_data,
-            "three_decl": three_data,
-            "three_tran": 0,
-            "bili": "{}{}".format(float("%.4f" % (three_data / one_t_data)), "%") if one_t_data != 0 else 0
-        })
-        return jsonify({"code": 0, "count": len(alias_data), "data": alias_data, "msg": "SUCCESSFUL"})
-
-    alias_list = SqlDataNative.bento_all_alias()
-    for alias in alias_list:
-        t_data = SqlDataNative.account_sum_transaction(attribution=alias)
-        decline_data = SqlDataNative.account_sum_decline_transaction(attribution=alias)
-        # 获取decline数量
-        today_time = time.strftime('%Y-%m-%d', time.localtime(time.time()))
-        max_today = "{} {}".format(change_today(today_time, 0), "23:59:59")
-        min_today = "{} {}".format(change_today(today_time, -3), "00:00:00")
-        three_data = SqlDataNative.count_decline_data(attribution=alias, min_today=min_today, max_today=max_today)
-        three_tran_data = SqlDataNative.search_d(alias)
-        alias_data.append({
-            "alias": alias,
-            "t_data": t_data,
-            "decl": decline_data,
-            "three_decl": three_data,
-            "three_tran": three_tran_data,
-            "bili": "{}{}".format(float("%.4f" % (three_data / three_tran_data * 100)),
-                                  "%") if three_tran_data != 0 else 0
-        })
-    return jsonify({"code": 0, "count": len(alias_data), "data": alias_data, "msg": "SUCCESSFUL"})
+    else:
+        res = ca_data
+        if alias_name:
+            res_alias = list()
+            for i in res:
+                if alias_name in i.get('alias'):
+                    res_alias.append(i)
+            return jsonify({"code": 0, "count": len(res_alias), "data": res_alias, "msg": "SUCCESSFUL"})
+        return jsonify({"code": 0, "count": len(res), "data": res, "msg": "SUCCESSFUL"})
 
 
 @finance_blueprint.route('/all_trans/', methods=['GET'])
@@ -299,49 +315,79 @@ def all_trans():
     time_range = request.args.get("time_range")
     # 操作状态
     trans_status = request.args.get("trans_status")
+    # 交易类型
+    trans_store = request.args.get("trans_store")
 
     args_list = []
-    data = SqlDataNative.bento_alltrans()
-    new_data = []
+    ca_data = cache.get('all_trans')
+    # 设置缓存处理查询到的大量数据(6小时)
+    if ca_data:
+        data = ca_data
+    else:
+        data = SqlDataNative.bento_alltrans()
+        cache.set('all_trans', data, timeout=60 * 60 * 6)
     results = {"code": RET.OK, "msg": MSG.OK, "count": 0, "data": ""}
     if len(data) == 0:
-        results["MSG"] = MSG.MODATA
+        results["MSG"] = MSG.NODATA
         return jsonify(results)
 
+    # 下列判断为判断是否有搜索条件根据条件过滤
+    acc_list = list()
     if acc_name:
-        args_list.append(acc_name)
+        # args_list.append(acc_name)
+        for i in data:
+            cus = i.get('before_balance')
+            if acc_name == cus:
+                acc_list.append(i)
+    else:
+        acc_list = data
+
+    order_list = list()
     if order_num:
-        args_list.append(order_num)
+        # args_list.append(order_num)
+        for c in acc_list:
+            card_name = c.get('hand_money')
+            if order_num in card_name:
+                order_list.append(c)
+    else:
+        order_list = acc_list
+
+    trans_list = list()
     if trans_status:
         args_list.append(trans_status)
+        for i in order_list:
+            do_type = i.get('card_num')
+            if trans_status in do_type:
+                trans_list.append(i)
+    else:
+        trans_list = order_list
 
-    if args_list and time_range == "":
-        for d in data:
-            if set(args_list) < set(d.values()):
-                new_data.append(d)
-    elif args_list and time_range != "":
+    time_list = list()
+    if time_range:
         min_time = time_range.split(' - ')[0] + ' 00:00:00'
         max_time = time_range.split(' - ')[1] + ' 23:59:59'
         min_tuple = datetime.datetime.strptime(min_time, '%Y-%m-%d %H:%M:%S')
         max_tuple = datetime.datetime.strptime(max_time, '%Y-%m-%d %H:%M:%S')
-        for d in data:
+        for d in trans_list:
             dat = datetime.datetime.strptime(d.get("date"), '%Y-%m-%d %H:%M:%S')
-            if (min_tuple < dat and max_tuple > dat) and set(args_list) < set(d.values()):
-                new_data.append(d)
-    if time_range and len(args_list) == 0:
-        min_time = time_range.split(' - ')[0] + ' 00:00:00'
-        max_time = time_range.split(' - ')[1] + ' 23:59:59'
-        min_tuple = datetime.datetime.strptime(min_time, '%Y-%m-%d %H:%M:%S')
-        max_tuple = datetime.datetime.strptime(max_time, '%Y-%m-%d %H:%M:%S')
-        for d in data:
-            dat = datetime.datetime.strptime(d.get("date"), '%Y-%m-%d %H:%M:%S')
-            if min_tuple < dat and max_tuple > dat:
-                new_data.append(d)
+            if min_tuple < dat < max_tuple:
+                time_list.append(d)
+    else:
+        time_list = trans_list
 
+    store_list = list()
+    if trans_store:
+        for i in time_list:
+            trans_type = i.get('trans_type')
+            if trans_store in trans_type:
+                store_list.append(i)
+    else:
+        store_list = trans_list
+
+    if not store_list:
+        return jsonify({'code': RET.OK, 'msg': MSG.NODATA})
     page_list = list()
-    if new_data:
-        data = sorted(new_data, key=operator.itemgetter("date"))
-    data = sorted(data, key=operator.itemgetter("date"))
+    data = sorted(store_list, key=operator.itemgetter("date"))
     data = list(reversed(data))
     for i in range(0, len(data), int(limit)):
         page_list.append(data[i: i + int(limit)])

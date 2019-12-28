@@ -315,7 +315,7 @@ def all_trans():
         max_time = time_range.split(' - ')[1] + ' 23:59:59'
         min_tuple = datetime.datetime.strptime(min_time, '%Y-%m-%d %H:%M:%S')
         max_tuple = datetime.datetime.strptime(max_time, '%Y-%m-%d %H:%M:%S')
-        for d in data:
+        for d in trans_list:
             dat = datetime.datetime.strptime(d.get("date"), '%Y-%m-%d %H:%M:%S')
             if min_tuple < dat < max_tuple:
                 time_list.append(d)
@@ -331,31 +331,6 @@ def all_trans():
     else:
         store_list = trans_list
 
-
-    '''
-    if args_list and time_range == "":
-        for d in data:
-            if set(args_list) < set(d.values()):
-                new_data.append(d)
-    elif args_list and time_range != "":
-        min_time = time_range.split(' - ')[0] + ' 00:00:00'
-        max_time = time_range.split(' - ')[1] + ' 23:59:59'
-        min_tuple = datetime.datetime.strptime(min_time, '%Y-%m-%d %H:%M:%S')
-        max_tuple = datetime.datetime.strptime(max_time, '%Y-%m-%d %H:%M:%S')
-        for d in data:
-            dat = datetime.datetime.strptime(d.get("date"), '%Y-%m-%d %H:%M:%S')
-            if (min_tuple < dat and max_tuple > dat) and set(args_list) < set(d.values()):
-                new_data.append(d)
-    if time_range and len(args_list) == 0:
-        min_time = time_range.split(' - ')[0] + ' 00:00:00'
-        max_time = time_range.split(' - ')[1] + ' 23:59:59'
-        min_tuple = datetime.datetime.strptime(min_time, '%Y-%m-%d %H:%M:%S')
-        max_tuple = datetime.datetime.strptime(max_time, '%Y-%m-%d %H:%M:%S')
-        for d in data:
-            dat = datetime.datetime.strptime(d.get("date"), '%Y-%m-%d %H:%M:%S')
-            if min_tuple < dat and max_tuple > dat:
-                new_data.append(d)
-    '''
     if not store_list:
         return jsonify({'code': RET.OK, 'msg': MSG.NODATA})
     page_list = list()
