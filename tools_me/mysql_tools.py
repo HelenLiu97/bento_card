@@ -1,49 +1,24 @@
-import pymysql
+from .db_dbutils_init import get_my_connection
 import logging
-from DBUtils.PooledDB import PooledDB
+
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s :: %(levelname)s :: %(message)s', filename="error.log")
 
 
 class SqlData(object):
     def __init__(self):
-        host = "127.0.0.1"
-        port = 3306
-        user = "root"
-        password = "admin"
-        database = "bento"
-        self.POOL = PooledDB(pymysql, 6, host=host, port=port, 
-                             user=user, passwd=password, db=database, 
-                             charset='utf8', setsession=['SET AUTOCOMMIT = 1']
-                             )
+        self.db = get_my_connection()
 
-    def __new__(cls, *args, **kw):
-        '''
-        启用单例模式
-        :param args:
-        :param kw:
-        :return:
-        '''
-        if not hasattr(cls, '_instance'):
-            cls._instance = object.__new__(cls)
-        return cls._instance
+    def __new__(cls, *args, **kwargs):
+        if not hasattr(cls, 'inst'):  # 单例
+            cls.inst = super(SqlData, cls).__new__(cls, *args, **kwargs)
+        return cls.inst
 
     def connect(self):
-        '''
-        启动连接
-        :return:
-        '''
-        conn = self.POOL.connection()
-        cursor = conn.cursor()
+        conn, cursor = self.db.getconn()
         return conn, cursor
 
     def close_connect(self, conn, cursor):
-        '''
-        关闭连接
-        :param conn:
-        :param cursor:
-        :return:
-        '''
         cursor.close()
         conn.close()
 
@@ -75,6 +50,7 @@ class SqlData(object):
             user_data['name'] = rows[0][2]
             return user_data
         except Exception as e:
+            print(e)
             return '账号或密码错误!'
 
     # 查询客户子账号登录

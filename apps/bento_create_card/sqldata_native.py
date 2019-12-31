@@ -1,51 +1,25 @@
 import time
-import pymysql
 import logging
 
-from DBUtils.PooledDB import PooledDB
+from .db_conn_init import get_my_connection
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s :: %(levelname)s :: %(message)s', filename="error.log")
 
 
 class SqlDataNative(object):
     def __init__(self):
-        host = "127.0.0.1"
-        port = 3306
-        user = "root"
-        password = "admin"
-        database = "bento_card"
-        self.POOL = PooledDB(pymysql, 6, host=host, port=port, 
-                             user=user, passwd=password, db=database, 
-                             charset='utf8', setsession=['SET AUTOCOMMIT = 1']
-                             )
+        self.db = get_my_connection()
 
-    def __new__(cls, *args, **kw):
-        '''
-        启用单例模式
-        :param args:
-        :param kw:
-        :return:
-        '''
-        if not hasattr(cls, '_instance'):
-            cls._instance = object.__new__(cls)
-        return cls._instance
+    def __new__(cls, *args, **kwargs):
+        if not hasattr(cls, 'inst'):  # 单例
+            cls.inst = super(SqlDataNative, cls).__new__(cls, *args, **kwargs)
+        return cls.inst
 
     def connect(self):
-        '''
-        启动连接
-        :return:
-        '''
-        conn = self.POOL.connection()
-        cursor = conn.cursor()
+        conn, cursor = self.db.getconn()
         return conn, cursor
 
     def close_connect(self, conn, cursor):
-        '''
-        关闭连接
-        :param conn:
-        :param cursor:
-        :return:
-        '''
         cursor.close()
         conn.close()
 

@@ -1052,6 +1052,7 @@ def login():
 
         except Exception as e:
             logging.error(str(e))
+            print(e)
             results['code'] = RET.SERVERERROR
             results['msg'] = MSG.DATAERROR
             return jsonify(results)

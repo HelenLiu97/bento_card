@@ -2,13 +2,15 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="2e3a79c2-654f-4461-8bb9-30d5ac53702e" name="Default Changelist" comment="">
+      <change afterPath="$PROJECT_DIR$/apps/bento_create_card/db_conn_init.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/tools_me/db_dbutils_init.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/apps/bento_create_card/product_key.txt" beforeDir="false" afterPath="$PROJECT_DIR$/apps/bento_create_card/product_key.txt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/apps/bento_create_card/sqldata_native.py" beforeDir="false" afterPath="$PROJECT_DIR$/apps/bento_create_card/sqldata_native.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/apps/user.py" beforeDir="false" afterPath="$PROJECT_DIR$/apps/user.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/static/log/card.log" beforeDir="false" afterPath="$PROJECT_DIR$/static/log/card.log" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/templates/admin/admin_login.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/admin/admin_login.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/templates/admin/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/admin/index.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/user/login.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/user/login.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tools_me/mysql_tools.py" beforeDir="false" afterPath="$PROJECT_DIR$/tools_me/mysql_tools.py" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -25,27 +27,15 @@
     <SUITE FILE_PATH="coverage/bento_web_version2$send_email.coverage" NAME="send_email Coverage Results" MODIFIED="1576841665033" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tools_me" />
     <SUITE FILE_PATH="coverage/bento_web_version2$mysql_tools.coverage" NAME="mysql_tools Coverage Results" MODIFIED="1577439878986" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tools_me" />
     <SUITE FILE_PATH="coverage/bento_web_version2$test.coverage" NAME="test Coverage Results" MODIFIED="1577081920440" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tools_me" />
-    <SUITE FILE_PATH="coverage/bento_web_version2$manager.coverage" NAME="manager Coverage Results" MODIFIED="1577525012883" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/bento_web_version2$manager.coverage" NAME="manager Coverage Results" MODIFIED="1577766669021" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
       <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/apps/finance.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="175">
-              <caret line="294" column="21" selection-start-line="294" selection-start-column="21" selection-end-line="294" selection-end-column="21" />
-              <folding>
-                <element signature="e#0#9#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/apps/admin.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="158">
-              <caret line="1053" selection-start-line="1053" selection-end-line="1053" />
+            <state relative-caret-position="233">
+              <caret line="1168" column="16" selection-start-line="1168" selection-start-column="16" selection-end-line="1168" selection-end-column="16" />
               <folding>
                 <element signature="e#0#11#0" expanded="true" />
               </folding>
@@ -54,10 +44,10 @@
         </entry>
       </file>
       <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/templates/admin/admin_login.html">
+        <entry file="file://$PROJECT_DIR$/templates/user/login.html">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="461">
-              <caret line="101" column="55" selection-start-line="101" selection-start-column="55" selection-end-line="101" selection-end-column="55" />
+            <state relative-caret-position="396">
+              <caret line="33" column="14" selection-start-line="33" selection-start-column="14" selection-end-line="33" selection-end-column="14" />
             </state>
           </provider>
         </entry>
@@ -65,8 +55,32 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/apps/bento_create_card/sqldata_native.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="1350">
-              <caret line="229" column="12" selection-start-line="229" selection-start-column="12" selection-end-line="229" selection-end-column="12" />
+            <state relative-caret-position="270">
+              <caret line="9" column="23" lean-forward="true" selection-start-line="9" selection-start-column="23" selection-end-line="9" selection-end-column="23" />
+              <folding>
+                <element signature="e#0#11#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/apps/bento_create_card/db_conn_init.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="330">
+              <caret line="11" column="24" lean-forward="true" selection-start-line="11" selection-start-column="24" selection-end-line="11" selection-end-column="24" />
+              <folding>
+                <element signature="e#0#14#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/apps/user.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="65">
+              <caret line="837" column="45" selection-start-line="837" selection-start-column="45" selection-end-line="837" selection-end-column="45" />
               <folding>
                 <element signature="e#0#11#0" expanded="true" />
               </folding>
@@ -75,17 +89,10 @@
         </entry>
       </file>
       <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/apps/bento_create_card/error.log">
+        <entry file="file://$PROJECT_DIR$/apps/bento_create_card/main_recharge.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-229043" />
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/apps/bento_create_card/main_create_card.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-2869">
-              <caret line="15" column="22" selection-start-line="15" selection-start-column="22" selection-end-line="15" selection-end-column="22" />
+            <state relative-caret-position="-65">
+              <caret line="106" column="8" selection-start-line="106" selection-start-column="8" selection-end-line="106" selection-end-column="8" />
               <folding>
                 <element signature="e#0#15#0" expanded="true" />
               </folding>
@@ -93,29 +100,11 @@
           </provider>
         </entry>
       </file>
-      <file pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/apps/user.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="180">
-              <caret line="6" column="75" selection-start-line="6" selection-start-column="75" selection-end-line="6" selection-end-column="75" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/apps/__init__.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="750">
-              <caret line="25" selection-start-line="25" selection-end-line="25" />
-            </state>
-          </provider>
-        </entry>
-      </file>
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/templates/admin/index.html">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="270">
-              <caret line="9" column="89" selection-start-line="9" selection-start-column="89" selection-end-line="9" selection-end-column="89" />
+            <state relative-caret-position="420">
+              <caret line="626" column="31" selection-start-line="626" selection-start-column="31" selection-end-line="626" selection-end-column="31" />
               <folding>
                 <element signature="n#style#0;n#span#0;n#li#0;n#ul#0;n#div#0;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
                 <element signature="n#style#0;n#span#1;n#li#0;n#ul#0;n#div#0;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
@@ -125,10 +114,31 @@
         </entry>
       </file>
       <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/templates/admin/admin_edit.html">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="2250">
+              <caret line="79" column="43" selection-start-line="79" selection-start-column="43" selection-end-line="79" selection-end-column="43" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/tools_me/mysql_tools.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="180">
-              <caret line="6" selection-start-line="6" selection-end-line="6" />
+            <state relative-caret-position="270">
+              <caret line="44" column="40" lean-forward="true" selection-start-line="44" selection-start-column="40" selection-end-line="44" selection-end-column="40" />
+              <folding>
+                <element signature="e#0#54#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/tools_me/db_dbutils_init.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="252">
+              <caret line="10" lean-forward="true" selection-end-line="36" />
               <folding>
                 <element signature="e#0#14#0" expanded="true" />
               </folding>
@@ -141,28 +151,13 @@
   <component name="FileTemplateManagerImpl">
     <option name="RECENT_TEMPLATES">
       <list>
-        <option value="Python Script" />
         <option value="HTML File" />
+        <option value="Python Script" />
       </list>
     </option>
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>account_all</find>
-      <find>account_info</find>
-      <find>RedisTool</find>
-      <find>'/login</find>
-      <find>logout</find>
-      <find>SqlData()</find>
-      <find>SqlDataNative()</find>
-      <find>search_table_sum</find>
-      <find>cursor.execute(sql)</find>
-      <find>print</find>
-      <find>self.connect.rollback()</find>
-      <find>self.cursor</find>
-      <find>self.close_connect(conn, cursor)</find>
-      <find>/account_de</find>
-      <find>bili</find>
       <find>/log</find>
       <find>'/'</find>
       <find>account_decline</find>
@@ -171,13 +166,28 @@
       <find>account_de</find>
       <find>all_tr</find>
       <find>所有卡交易</find>
-      <find>self.close_connect(conn, cursor)</find>
       <find>/create</find>
       <find>SqlDataNative</find>
       <find>/create_</find>
       <find>search_data</find>
       <find>SqlDataNative1</find>
       <find>/create_c</find>
+      <find>layer</find>
+      <find>account_a</find>
+      <find>account_</find>
+      <find>account_all</find>
+      <find>/admin/account_info</find>
+      <find>account_info</find>
+      <find>top_up</find>
+      <find>s_test6</find>
+      <find>交易类型</find>
+      <find>line_c</find>
+      <find>main_vice</find>
+      <find>card_de</find>
+      <find>connection</find>
+      <find>/login</find>
+      <find>execute</find>
+      <find>one_deta</find>
     </findStrings>
     <replaceStrings>
       <replace>SqlData</replace>
@@ -195,8 +205,6 @@
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
       <list>
-        <option value="$PROJECT_DIR$/templates/admin/admin_edit.html" />
-        <option value="$PROJECT_DIR$/templates/verify_pay/index.html" />
         <option value="$PROJECT_DIR$/manager.py" />
         <option value="$PROJECT_DIR$/templates/bento/base.html" />
         <option value="$PROJECT_DIR$/templates/bento/bentoupload.html" />
@@ -228,7 +236,6 @@
         <option value="$PROJECT_DIR$/tools_me/test.py" />
         <option value="$PROJECT_DIR$/apps/bento_create_card/main_transactionrecord.py" />
         <option value="$PROJECT_DIR$/templates/user/update_vice.html" />
-        <option value="$PROJECT_DIR$/templates/user/login.html" />
         <option value="$PROJECT_DIR$/templates/admin/bank_info.html" />
         <option value="$PROJECT_DIR$/apps/pay.py" />
         <option value="$PROJECT_DIR$/templates/user/vice_acc_list.html" />
@@ -236,24 +243,27 @@
         <option value="$PROJECT_DIR$/templates/user/lock_acc.html" />
         <option value="$PROJECT_DIR$/apps/verify_pay.py" />
         <option value="$PROJECT_DIR$/tools_me/redis_tools.py" />
-        <option value="$PROJECT_DIR$/tools_me/mysql_tools.py" />
         <option value="$PROJECT_DIR$/templates/user/index.html" />
         <option value="$PROJECT_DIR$/apps/finance.py" />
         <option value="$PROJECT_DIR$/apps/__init__.py" />
         <option value="$PROJECT_DIR$/apps/admin.py" />
-        <option value="$PROJECT_DIR$/templates/admin/index.html" />
         <option value="$PROJECT_DIR$/templates/admin/admin_login.html" />
-        <option value="$PROJECT_DIR$/apps/bento_create_card/sqldata_native.py" />
         <option value="$PROJECT_DIR$/apps/bento_create_card/main_create_card.py" />
+        <option value="$PROJECT_DIR$/templates/admin/index.html" />
+        <option value="$PROJECT_DIR$/templates/user/login.html" />
+        <option value="$PROJECT_DIR$/tools_me/db_dbutils_init.py" />
+        <option value="$PROJECT_DIR$/apps/bento_create_card/db_conn_init.py" />
+        <option value="$PROJECT_DIR$/apps/bento_create_card/sqldata_native.py" />
+        <option value="$PROJECT_DIR$/tools_me/mysql_tools.py" />
         <option value="$PROJECT_DIR$/apps/user.py" />
       </list>
     </option>
   </component>
   <component name="ProjectFrameBounds" extendedState="6">
-    <option name="x" value="-53" />
-    <option name="y" value="217" />
+    <option name="x" value="-8" />
+    <option name="y" value="-8" />
     <option name="width" value="1936" />
-    <option name="height" value="1096" />
+    <option name="height" value="1066" />
   </component>
   <component name="ProjectLevelVcsManager" settingsEditedManually="true">
     <ConfirmationsSetting value="2" id="Add" />
@@ -263,6 +273,7 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
+      <pane id="Scope" />
       <pane id="ProjectPane">
         <subPane>
           <expand>
@@ -284,24 +295,6 @@
             <path>
               <item name="bento_web_version2" type="b2602c69:ProjectViewProjectNode" />
               <item name="bento_web_version2" type="462c0819:PsiDirectoryNode" />
-              <item name="static" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="bento_web_version2" type="b2602c69:ProjectViewProjectNode" />
-              <item name="bento_web_version2" type="462c0819:PsiDirectoryNode" />
-              <item name="static" type="462c0819:PsiDirectoryNode" />
-              <item name="layui" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="bento_web_version2" type="b2602c69:ProjectViewProjectNode" />
-              <item name="bento_web_version2" type="462c0819:PsiDirectoryNode" />
-              <item name="static" type="462c0819:PsiDirectoryNode" />
-              <item name="layui" type="462c0819:PsiDirectoryNode" />
-              <item name="images" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="bento_web_version2" type="b2602c69:ProjectViewProjectNode" />
-              <item name="bento_web_version2" type="462c0819:PsiDirectoryNode" />
               <item name="templates" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
@@ -310,11 +303,21 @@
               <item name="templates" type="462c0819:PsiDirectoryNode" />
               <item name="admin" type="462c0819:PsiDirectoryNode" />
             </path>
+            <path>
+              <item name="bento_web_version2" type="b2602c69:ProjectViewProjectNode" />
+              <item name="bento_web_version2" type="462c0819:PsiDirectoryNode" />
+              <item name="templates" type="462c0819:PsiDirectoryNode" />
+              <item name="user" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="bento_web_version2" type="b2602c69:ProjectViewProjectNode" />
+              <item name="bento_web_version2" type="462c0819:PsiDirectoryNode" />
+              <item name="tools_me" type="462c0819:PsiDirectoryNode" />
+            </path>
           </expand>
           <select />
         </subPane>
       </pane>
-      <pane id="Scope" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -325,7 +328,7 @@
     <property name="WebServerToolWindowPanel.toolwindow.show.date" value="false" />
     <property name="WebServerToolWindowPanel.toolwindow.show.permissions" value="false" />
     <property name="WebServerToolWindowPanel.toolwindow.show.size" value="false" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$/../svb" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/../world_pay" />
     <property name="nodejs_interpreter_path.stuck_in_default_project" value="undefined stuck path" />
     <property name="nodejs_npm_path_reset_for_default_project" value="true" />
     <property name="restartRequiresConfirmation" value="false" />
@@ -349,7 +352,7 @@
       </list>
     </option>
   </component>
-  <component name="RunManager" selected="Python.redis_tools">
+  <component name="RunManager" selected="Python.manager">
     <configuration name="main_create_card" type="PythonConfigurationType" factoryName="Python" temporary="true">
       <module name="bento_web_version2" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -497,7 +500,10 @@
       <workItem from="1576547056225" duration="11046000" />
       <workItem from="1576568682874" duration="52098000" />
       <workItem from="1576735852670" duration="132865000" />
-      <workItem from="1577323750438" duration="68962000" />
+      <workItem from="1577323750438" duration="73222000" />
+      <workItem from="1577540191901" duration="627000" />
+      <workItem from="1577545324815" duration="594000" />
+      <workItem from="1577675346576" duration="16734000" />
     </task>
     <task id="LOCAL-00001" summary="接手后的第一次更新">
       <created>1576568923787</created>
@@ -618,11 +624,18 @@
       <option name="project" value="LOCAL" />
       <updated>1577500951485</updated>
     </task>
-    <option name="localTasksCounter" value="18" />
+    <task id="LOCAL-00018" summary="更新账号冻结功能，调整sql查询">
+      <created>1577525623481</created>
+      <option name="number" value="00018" />
+      <option name="presentableId" value="LOCAL-00018" />
+      <option name="project" value="LOCAL" />
+      <updated>1577525623481</updated>
+    </task>
+    <option name="localTasksCounter" value="19" />
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="373066000" />
+    <option name="totallyTimeSpent" value="395281000" />
   </component>
   <component name="TodoView">
     <todo-panel id="selected-file">
@@ -637,12 +650,12 @@
     <frame x="-8" y="-8" width="1936" height="1066" extended-state="6" />
     <editor active="true" />
     <layout>
-      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.15085287" />
+      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.15565032" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info id="Favorites" order="2" side_tool="true" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Find" order="1" weight="0.32952183" />
-      <window_info anchor="bottom" id="Run" order="2" sideWeight="0.49946696" visible="true" weight="0.30793992" />
+      <window_info anchor="bottom" id="Run" order="2" sideWeight="0.49946696" weight="0.31759655" />
       <window_info anchor="bottom" id="Debug" order="3" weight="0.39914164" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
@@ -662,13 +675,13 @@
       <window_info anchor="right" id="Remote Host" order="5" weight="0.32995737" />
     </layout>
     <layout-to-restore>
-      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.15435502" />
+      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.15565032" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info id="Favorites" order="2" side_tool="true" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Find" order="1" weight="0.32952183" />
-      <window_info active="true" anchor="bottom" id="Run" order="2" sideWeight="0.49946696" visible="true" weight="0.2983368" />
-      <window_info anchor="bottom" id="Debug" order="3" weight="0.3997923" />
+      <window_info active="true" anchor="bottom" id="Run" order="2" sideWeight="0.49946696" visible="true" weight="0.31759655" />
+      <window_info anchor="bottom" id="Debug" order="3" weight="0.39914164" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
       <window_info anchor="bottom" id="TODO" order="6" weight="0.32939914" />
@@ -713,15 +726,6 @@
     <SUITE FILE_PATH="coverage/bento_web_version2$test.coverage" NAME="test Coverage Results" MODIFIED="1576045242921" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/static/img/bg2.jpg">
-      <provider selected="true" editor-type-id="images" />
-    </entry>
-    <entry file="file://$PROJECT_DIR$/static/img/icon1.png">
-      <provider selected="true" editor-type-id="images" />
-    </entry>
-    <entry file="file://$PROJECT_DIR$/static/img/master.png">
-      <provider selected="true" editor-type-id="images" />
-    </entry>
     <entry file="file://$PROJECT_DIR$/static/img/master1.png">
       <provider selected="true" editor-type-id="images" />
     </entry>
@@ -881,16 +885,6 @@
     <entry file="file://$PROJECT_DIR$/templates/user/user_info.html">
       <provider selected="true" editor-type-id="text-editor" />
     </entry>
-    <entry file="file://$PROJECT_DIR$/apps/bento_create_card/main_recharge.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-3859">
-          <caret line="17" column="39" selection-start-line="17" selection-start-column="39" selection-end-line="17" selection-end-column="39" />
-          <folding>
-            <element signature="e#0#15#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$USER_HOME$/AppData/Local/Programs/Python/Python37/Lib/site-packages/redis/client.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="258">
@@ -916,13 +910,6 @@
           <folding>
             <element signature="n#style#0;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
           </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/templates/user/login.html">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1830">
-          <caret line="61" column="42" selection-start-line="61" selection-start-column="42" selection-end-line="61" selection-end-column="42" />
         </state>
       </provider>
     </entry>
@@ -1000,13 +987,7 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/tools_me/test.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-2329">
-          <caret line="4" column="33" selection-start-line="4" selection-start-column="33" selection-end-line="4" selection-end-column="33" />
-        </state>
-      </provider>
-    </entry>
+    <entry file="file://$PROJECT_DIR$/tools_me/test.py" />
     <entry file="file://$PROJECT_DIR$/templates/user/index.html">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="210">
@@ -1117,10 +1098,23 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/apps/finance.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="175">
+        <state relative-caret-position="8310">
           <caret line="294" column="21" selection-start-line="294" selection-start-column="21" selection-end-line="294" selection-end-column="21" />
           <folding>
             <element signature="e#0#9#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/apps/bento_create_card/error.log">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/apps/bento_create_card/main_create_card.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="330">
+          <caret line="15" column="22" selection-start-line="15" selection-start-column="22" selection-end-line="15" selection-end-column="22" />
+          <folding>
+            <element signature="e#0#15#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -1132,27 +1126,24 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/apps/admin.py">
+    <entry file="file://$PROJECT_DIR$/templates/admin/admin_login.html">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="158">
-          <caret line="1053" selection-start-line="1053" selection-end-line="1053" />
-          <folding>
-            <element signature="e#0#11#0" expanded="true" />
-          </folding>
+        <state relative-caret-position="1290">
+          <caret line="108" column="58" selection-start-line="108" selection-start-column="58" selection-end-line="108" selection-end-column="58" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/templates/admin/admin_login.html">
+    <entry file="file://$PROJECT_DIR$/templates/admin/admin_edit.html">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="461">
-          <caret line="101" column="55" selection-start-line="101" selection-start-column="55" selection-end-line="101" selection-end-column="55" />
+        <state relative-caret-position="2250">
+          <caret line="79" column="43" selection-start-line="79" selection-start-column="43" selection-end-line="79" selection-end-column="43" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/templates/admin/index.html">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="270">
-          <caret line="9" column="89" selection-start-line="9" selection-start-column="89" selection-end-line="9" selection-end-column="89" />
+        <state relative-caret-position="420">
+          <caret line="626" column="31" selection-start-line="626" selection-start-column="31" selection-end-line="626" selection-end-column="31" />
           <folding>
             <element signature="n#style#0;n#span#0;n#li#0;n#ul#0;n#div#0;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
             <element signature="n#style#0;n#span#1;n#li#0;n#ul#0;n#div#0;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
@@ -1160,45 +1151,80 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/tools_me/mysql_tools.py">
+    <entry file="file://$PROJECT_DIR$/apps/admin.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="180">
-          <caret line="6" selection-start-line="6" selection-end-line="6" />
-          <folding>
-            <element signature="e#0#14#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/apps/bento_create_card/error.log">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-229043" />
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/apps/bento_create_card/main_create_card.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-2869">
-          <caret line="15" column="22" selection-start-line="15" selection-start-column="22" selection-end-line="15" selection-end-column="22" />
-          <folding>
-            <element signature="e#0#15#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/apps/bento_create_card/sqldata_native.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1350">
-          <caret line="229" column="12" selection-start-line="229" selection-start-column="12" selection-end-line="229" selection-end-column="12" />
+        <state relative-caret-position="233">
+          <caret line="1168" column="16" selection-start-line="1168" selection-start-column="16" selection-end-line="1168" selection-end-column="16" />
           <folding>
             <element signature="e#0#11#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/templates/user/login.html">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="396">
+          <caret line="33" column="14" selection-start-line="33" selection-start-column="14" selection-end-line="33" selection-end-column="14" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/apps/bento_create_card/main_recharge.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-65">
+          <caret line="106" column="8" selection-start-line="106" selection-start-column="8" selection-end-line="106" selection-end-column="8" />
+          <folding>
+            <element signature="e#0#15#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/apps/user.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="180">
-          <caret line="6" column="75" selection-start-line="6" selection-start-column="75" selection-end-line="6" selection-end-column="75" />
+        <state relative-caret-position="65">
+          <caret line="837" column="45" selection-start-line="837" selection-start-column="45" selection-end-line="837" selection-end-column="45" />
+          <folding>
+            <element signature="e#0#11#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/tools_me/mysql_tools.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="270">
+          <caret line="44" column="40" lean-forward="true" selection-start-line="44" selection-start-column="40" selection-end-line="44" selection-end-column="40" />
+          <folding>
+            <element signature="e#0#54#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/tools_me/db_dbutils_init.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="252">
+          <caret line="10" lean-forward="true" selection-end-line="36" />
+          <folding>
+            <element signature="e#0#14#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/apps/bento_create_card/sqldata_native.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="270">
+          <caret line="9" column="23" lean-forward="true" selection-start-line="9" selection-start-column="23" selection-end-line="9" selection-end-column="23" />
+          <folding>
+            <element signature="e#0#11#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/apps/bento_create_card/db_conn_init.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="330">
+          <caret line="11" column="24" lean-forward="true" selection-start-line="11" selection-start-column="24" selection-end-line="11" selection-end-column="24" />
+          <folding>
+            <element signature="e#0#14#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
