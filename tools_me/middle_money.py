@@ -30,6 +30,7 @@ def sum_middle_money():
         value_end = date_to_week(thues_day) + 1
         if value_start != 3 or value_end != 2:
             logging.error('统计时间异常, 开始时间为: ' + wed_day + ';结束时间为: ' + thues_day)
+            return
 
         logging.error('开始统计计算中介费用!开始时间为: ' + wed_day + ';结束时间为: ' + thues_day)
         time_range = "AND do_date BETWEEN '" + wed_day + ' 00:00:00' + "'" + " and '" + thues_day + " 23:59:59'"
