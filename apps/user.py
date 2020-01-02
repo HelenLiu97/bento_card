@@ -338,7 +338,7 @@ def del_account():
     if del_status == 404:
         # 获取alias, 用户获取卡余额
         # sql修改字段为已删除
-        SqlDataNative.del_bencard(cardnumber)
+        # SqlDataNative.del_bencard(cardnumber)
         before_balance = SqlData.search_user_field('balance', user_id)
         SqlData.update_balance(float(availableAmount), user_id)
         balance = SqlData.search_user_field("balance", user_id)

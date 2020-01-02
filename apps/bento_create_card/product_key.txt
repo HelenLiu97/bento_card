@@ -1,1 +1,1 @@
-{"token": "Bearer uEbvd_TfROuP_bAsG1cyp-7yBQxVarqc4pzvVWY3LVM", "time": 12}
+{"token": "Bearer Lec-ljuMT-6Ppjpsvx5HjL3dz7XYsbCghV6SAQfywrk", "time": 10}

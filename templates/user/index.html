@@ -960,7 +960,7 @@
                     //向服务端发送删除指令
                     $.ajax({
                         type : 'GET',
-                        url : '/user/delcard' + '?account=' + data.card_no,
+                        url : '/user/delcard/' + '?account=' + data.card_no,
                         dataType : 'json',
                         success : function(data) {
                             // 成功提示框
