@@ -31,8 +31,7 @@ class FinanceLogin(MethodView):
 
     def __init__(self):
         self.user_data = {
-            "finance": "finance",
-            "BentoKH": "2m83h2",
+            "finance": "finance1001",
         }
 
     def get(self):

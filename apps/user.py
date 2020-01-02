@@ -826,7 +826,7 @@ def change_phone():
 
 # 卡的交易记录
 @user_blueprint.route('/one_card_detail', methods=['GET'])
-@account_lock
+# @account_lock
 # @login_required
 def one_detail():
     try:
