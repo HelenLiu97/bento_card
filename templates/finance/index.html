@@ -55,10 +55,12 @@
       <li lay-id="11">客户退款记录</li>
       <li lay-id="4">客户自己的充值记录</li>
       <li lay-id="6">新增客户</li>
-      <!--<li lay-id="5">客户历史余额记录</li>
+      <!--
+      <li lay-id="5">客户历史余额记录</li>
       <li lay-id="7">新增中介</li>
       <li lay-id="8">中介管理</li>
-      <li lay-id="9">中介提成</li>-->
+      -->
+      <li lay-id="9">中介提成</li>
       <li lay-id="10">所有卡信息</li>
       <li lay-id="12">卡的decline记录</li>
       <li lay-id="13">用户decline比例记录</li>
@@ -343,14 +345,14 @@
             <a class="layui-btn layui-btn-warm layui-btn-xs" lay-event="del">提成</a>
         </script>
       </div>
-
+      -->
       <div class="layui-tab-item">
           <table class="layui-show" id="middle_money" lay-filter="middle_money"></table>
           <script type="text/html" id="middle_money_bar">
             <a class="layui-btn layui-btn-xs" lay-event="payed" id="pay">确认支付</a>
         </script>
       </div>
-      -->
+
       <div class="layui-tab-item">
 
           <form class="layui-form" action="" lay-filter="example" id="example">
@@ -869,6 +871,102 @@ Welcome to BenTo
             , page: true
         });
 
+
+    //执行一个 table 实例
+        table.render({
+            elem: '#middle_money'
+            , height: 'full-250'
+            , cellMinWidth: '80'
+            , url: '/finance/middle_money' //数据接口
+            , title: '中介费统计表'
+            , limit: 50
+            , limits: [50, 100, 150, 200, 250, 300, 350, 400, 450, 500]
+            , toolbar: "r" //开启工具栏，此处显示默认图标，可以自定义模板，详见文档
+            , totalRow: true //开启合计行
+            , cols: [[ //表头
+                {type: 'numbers'}
+                , {field: 'name', title: '中介名称', align: 'center', sort: true, totalRowText: '合计：'}
+                , {field: 'start_time', title: '开始时间(周三)', align: 'center', sort: true,}
+                , {field: 'end_time', title: '结束时间(周二)', align: 'center', sort: true,}
+                , {field: 'card_num', title: '开卡量', align: 'center', sort: true, totalRow: true}
+                , {field: 'create_price', title: '开卡费', align: 'center', sort: true, totalRow: true}
+                , {field: 'create_time', title: '系统统计时间', align: 'center', sort: true,}
+                , {field: 'sum_money', title: '提成总额', align: 'center', style: "color:red;", sort: true, totalRow: true}
+                , {field: 'pay_status', title: '是否支付提成', align: 'center', sort: true}
+                , {field: 'pay_time', title: '终端确认时间', align: 'center', sort: true}
+                , {fixed: 'right', width: 160, align: 'center', toolbar: '#middle_money_bar'}
+            ]]
+            , id: 'card_info'
+            , page: true
+            , done: function (res, curr, count) {
+                for (var i = 0; i < res.data.length; i++) {
+                    if (res.data[i].pay_status == '已确认') {
+                        $('table tbody tr td a[id=pay]').eq(i).css('display', 'none')
+                    }
+                }
+            }
+        });
+
+        table.on('rowDouble(middle_money)', function (obj) {
+            var data = obj.data;
+            layer.open({
+                type: 2
+                , offset: 'auto' //具体配置参考：http://www.layui.com/doc/modules/layer.html#offset
+                , skin: 'layui-layer-demo'
+                , id: 'layerUser'//防止重复弹出
+                , title: '提成总额明细'
+                , area: ['20%', '30%']
+                , anim: 3
+                , shadeClose: true
+                , content: '/middle/money_detail?info_id=' + data.id
+                , btn: '关闭全部'
+                , btnAlign: 'c' //按钮居中a
+                , shade: [0.8, '#393D49'] //弹框背景选项
+
+            });
+
+            //标注选中样式
+            obj.tr.addClass('layui-table-click').siblings().removeClass('layui-table-click');
+        });
+
+        table.on('tool(middle_money)', function (obj) {
+            var data = obj.data
+                , layEvent = obj.event;
+
+            if (layEvent === 'payed') {
+                layer.confirm('确认支付?', function (index) {
+                    layer.close(index);
+                    //向服务端发送删除指令
+                    $.ajax({
+                        type: 'POST',
+                        url: '/finance/sub_middle_money?id=' + data.id,
+                        dataType: 'json',
+                        success: function (data) {
+                            // 成功提示框
+                            if (data.code == 0) {
+                                parent.layer.msg(data.msg, {
+                                    icon: 6, time: 1000
+                                });
+                                location.reload()
+                            } else if (data.code == 502) {
+                                parent.layer.msg(data.msg, {
+                                    icon: 5
+                                });
+                            }
+
+                        },
+                        error: function (data) {
+                            // 异常提示
+                            parent.layer.msg('出现网络故障', {
+                                icon: 2
+                            });
+                        }
+                    });
+                });
+
+            }
+        });
+
 	table.render({
             elem: '#top_up1'
             , height: 'full-250'
@@ -1009,18 +1107,18 @@ Welcome to BenTo
         $('#card_admin').on('click',function () {
            element.tabChange('demo', 10);
         });
-	$('#bento_refund').on('click',function () {
-           element.tabChange('demo', 11);
+        $('#bento_refund').on('click',function () {
+               element.tabChange('demo', 11);
+            });
+        $('#decline_da').on('click', function(){
+           element.tabChange('demo', 12)
         });
-	$('#decline_da').on('click', function(){
-	   element.tabChange('demo', 12)	
-	});
-	$('#account_decline').on('click', function(){
-            element.tabChange('demo', 13)
-         });
-	$('#account_alltrans').on('click', function(){
-             element.tabChange('demo', 14)
-         });
+        $('#account_decline').on('click', function(){
+                element.tabChange('demo', 13)
+             });
+        $('#account_alltrans').on('click', function(){
+                 element.tabChange('demo', 14)
+             });
 
 
 

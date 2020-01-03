@@ -579,5 +579,41 @@ def account_trans():
     return jsonify(results)
 
 
+@finance_blueprint.route('/sub_middle_money', methods=['POST'])
+@finance_required
+def sub_middle_money():
+    info_id = request.args.get('id')
+    n_time = xianzai_time()
+    SqlData.update_middle_sub('已确认', n_time, int(info_id))
+    return jsonify({"code": RET.OK, "msg": MSG.OK})
+
+
+@finance_blueprint.route('/middle_money', methods=['GET'])
+@finance_required
+def middle_money():
+    try:
+        limit = request.args.get('limit')
+        page = request.args.get('page')
+        results = dict()
+        results['code'] = RET.OK
+        results['msg'] = MSG.OK
+        info_list = SqlData.search_middle_money_admin()
+        if not info_list:
+            results['code'] = RET.OK
+            results['msg'] = MSG.NODATA
+            return jsonify(results)
+        info_list = sorted(info_list, key=operator.itemgetter('start_time'))
+        page_list = list()
+        info_list = list(reversed(info_list))
+        for i in range(0, len(info_list), int(limit)):
+            page_list.append(info_list[i:i + int(limit)])
+        results['data'] = page_list[int(page) - 1]
+        results['count'] = len(info_list)
+        return jsonify(results)
+    except Exception as e:
+        logging.error(str(e))
+        return jsonify({'code': RET.SERVERERROR, 'msg': MSG.SERVERERROR})
+
+
 finance_blueprint.add_url_rule("/login/", view_func=FinanceLogin.as_view("financelogin"))
 finance_blueprint.add_url_rule("/index/", view_func=FinanceIndex.as_view("financeindex"))
