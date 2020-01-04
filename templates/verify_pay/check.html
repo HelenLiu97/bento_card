@@ -104,7 +104,6 @@
 
       //监听提交
         form.on('submit(formDemo)', function(data){
-            {#layer.msg(JSON.stringify(data.field));#}
             var data_info = {data:JSON.stringify(data.field)};
             var $ = layui.jquery;
             $.ajax({
