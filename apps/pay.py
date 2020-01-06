@@ -268,6 +268,11 @@ def pay_pic():
                     file_name = cus_account + "_" + str(now_time) + str(i) + ".png"
                     file_path = os.path.join(DIR_PATH.PHOTO_DIR, file_name)
                     fileobj.save(file_path)
+                    with open(file_path, 'rb') as f:
+                        c = f.read()
+                        if b'Adobe Photoshop' in c:
+                            logging.error('上传PS的图片可客户名称：' + cus_name)
+                            return jsonify({'code': RET.SERVERERROR, 'msg': "图片存在异常，请勿使用PS截图凭证！"})
                     pic_list.append(file_path)
             n_time = xianzai_time()
             vir_code = str(uuid.uuid1())[:6]
