@@ -113,6 +113,7 @@
         <table class="layui-hide" id="account_all" lay-filter="account_all"></table>
         <script type="text/html" id="barDemo">
             <a class="layui-btn layui-btn-xs" lay-event="top_up">充值</a>
+            <a class="layui-btn layui-btn-normal layui-btn-xs" lay-event="pay">消费</a>
             <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="edit">编辑</a>
         </script>
     </div>
@@ -910,7 +911,7 @@ Welcome to BenTo
                         html += ">";
                         return html;
                     }}
-                , {fixed: 'right', width: 150, align: 'center', toolbar: '#barDemo'}
+                , {fixed: 'right', width: 180, align: 'center', toolbar: '#barDemo'}
             ]]
             , id: 'account_info'
             , page: true
@@ -1370,8 +1371,46 @@ Welcome to BenTo
                     layer.close(index);
 
                 });
-            } else if (layEvent === 'lock') {
-                layer.msg('冻结卡操作!')
+            } if (layEvent === 'pay') {
+                layer.prompt({title: '请输出消费金额！'}, function (num, index) {
+
+                    if (isNaN(num)) {
+                        layer.msg('请输入数字!')
+                    } else {
+
+                        $.ajax({
+                            type: 'POST',
+                            url: '/admin/acc_pay/',
+                            data: {'money': num, 'name': data.name},
+                            dataType: 'json',
+                            success: function (data) {
+                                // 成功提示框
+                                if (data.code == 0) {
+                                    parent.layer.msg(data.msg, {
+                                        icon: 6,
+                                    });
+                                    parent.layer.closeAll('iframe'); //关闭弹框
+                                    window.parent.location.reload()
+                                } else if (data.code == 502) {
+                                    parent.layer.msg(data.msg, {
+                                        icon: 5
+                                    });
+                                }
+
+                            },
+                            error: function (data) {
+                                // 异常提示
+                                parent.layer.msg('出现网络故障', {
+                                    icon: 5
+                                });
+                                parent.layer.closeAll('iframe'); //关闭弹框
+                            }
+                        });
+
+                    }
+                    layer.close(index);
+
+                });
             } else if (layEvent === 'edit') {
                 layui.layer.open({
                     title: '修改客户为 [ ' + data.name + ' ] 的相关信息',

@@ -8,15 +8,41 @@ import os
 from apps.bento_create_card.public import change_today
 from flask import request, render_template, jsonify, session, g
 from tools_me.mysql_tools import SqlData
-from tools_me.other_tools import admin_required, sum_code, xianzai_time, get_nday_list
+from tools_me.other_tools import admin_required, sum_code, xianzai_time, get_nday_list, check_float
 from tools_me.parameter import RET, MSG, DIR_PATH
 from tools_me.redis_tools import RedisTool
 from tools_me.send_sms.send_sms import CCP
 from tools_me.sm_photo import sm_photo
 from apps.bento_create_card.sqldata_native import SqlDataNative
-from apps.bento_create_card.main_transactionrecord import main_alias_datas, TransactionRecord
 from . import admin_blueprint
 from config import cache
+
+
+@admin_blueprint.route('/acc_pay/', methods=['POST'])
+@admin_required
+def acc_pay():
+    if request.method == 'POST':
+        money = request.form.get('money')
+        name = request.form.get('name')
+        try:
+            _money = float(money)
+            f_money = round(_money, 2)
+            if f_money < 0:
+                return jsonify({'code': RET.SERVERERROR, 'msg': '请输入正数金额！'})
+            balance = SqlData.search_user_field_name('balance', name)
+            if f_money > balance:
+                return jsonify({'code': RET.SERVERERROR, 'msg': '扣费余额不足！'})
+            user_id = SqlData.search_user_field_name('id', name)
+            SqlData.update_balance(-f_money, user_id)
+            a_balance = SqlData.search_user_field("balance", user_id)
+            # balance = before_balance - create_price
+            n_time = xianzai_time()
+            SqlData.insert_account_trans(n_time, '支出', '系统扣费', 0000, '后台手工扣费',
+                                         f_money, 0, balance, a_balance, user_id)
+            return jsonify({'code': RET.OK, 'msg': MSG.OK})
+        except Exception as e:
+            logging.error(str(e))
+            return jsonify({'code': RET.SERVERERROR, 'msg': '请输入正确的消费金额！'})
 
 
 @admin_blueprint.route('/edit_bank_money/', methods=['POST'])
