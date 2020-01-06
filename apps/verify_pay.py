@@ -1,5 +1,4 @@
 import json
-import time
 import re
 import logging
 from flask import render_template, request, jsonify, redirect, session

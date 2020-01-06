@@ -1005,7 +1005,7 @@ def top_up():
         phone = SqlData.search_user_field_name('phone_num', name)
 
         if phone:
-            CCP().send_Template_sms(phone, [name, t, money], 478898)
+            CCP().send_Template_sms(phone, [name, t, money], 485108)
 
         return jsonify(results)
 
@@ -1081,7 +1081,6 @@ def account_info():
         results['MSG'] = MSG.NODATA
         return results
     task_info = list()
-    all_moneys = TransactionRecord().all_alias_money()
     for u in task_one:
         u_id = u.get('u_id')
         # card_count = SqlData.search_card_count(u_id, '')
@@ -1090,17 +1089,21 @@ def account_info():
         # u['card_num'] = card_count
         u['out_money'] = float("%.2f" % float(out_money - bento_income_money))
 
-        account_all_amount = 0
-        # all_moneys = TransactionRecord().all_alias_money()
+        account_all_amount = SqlDataNative.select_alias_balance(u.get("name"))
+        count_del_quant = SqlDataNative.count_del_data(alias=u.get("name"))
         all_cardids = SqlDataNative.attribution_fount_cardid(alias=u.get("name"))
+
+        '''
         if len(all_moneys) > 0 and len(all_cardids) > 0:
             for all_cardid in all_cardids:
                 for all_money in all_moneys:
                     if all_cardid == all_money.get("cardid"):
                         account_all_amount = account_all_amount + all_money.get("availableAmount")
         count_del_quant = SqlDataNative.count_del_data(alias=u.get("name"))
+        '''
+
         u['del_card_num'] = count_del_quant
-        u['account_all_money'] = float("%.2f" % account_all_amount)
+        u['account_all_money'] = account_all_amount
         u['in_card_num'] = len(all_cardids)
         task_info.append(u)
     page_list = list()
