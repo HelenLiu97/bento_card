@@ -62,6 +62,10 @@ from apps.finance import finance_blueprint
 app.register_blueprint(finance_blueprint)
 
 
+from apps.index import index_blueprint
+app.register_blueprint(index_blueprint)
+
+
 '''
 if not app.debug:
     if not os.path.exists('logs'):

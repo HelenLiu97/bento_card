@@ -22,4 +22,7 @@ finance_blueprint = Blueprint('finance', __name__, url_prefix='/finance', templa
 
 study_blueprint = Blueprint('study', __name__, url_prefix='/study', template_folder='../template')
 
-from . import upload, user,  middle, admin
+
+index_blueprint = Blueprint('/', __name__, url_prefix='/', template_folder='../template')
+
+from . import upload, user,  middle, admin, index
