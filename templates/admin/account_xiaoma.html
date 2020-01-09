@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>小马</title>
+    <link rel="stylesheet" href="/static/layui/css/layui.css" media="all">
+</head>
+<body>
+
+<div class="layui-form">
+  <table class="layui-table">
+    <colgroup>
+      <col width="150">
+      <col width="150">
+      <col width="200">
+      <col>
+    </colgroup>
+    <thead>
+      <tr>
+        <th>名称</th>
+        <th>账号</th>
+        <th>开卡单价</th>
+        <th>最低充值</th>
+        <th>最高充值</th>
+        <th>余额</th>
+        <th>总充值</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for i in accounts %}
+            <tr>
+                <td>{{ i.name }}</td>
+                <td>{{ i.account }}</td>
+                <td>{{ i.create_price }}</td>
+                <td>{{ i.min_top }}</td>
+                <td>{{ i.max_top }}</td>
+                <td>{{ i.balance }}</td>
+                <td>{{ i.sum_balance }}</td>
+            </tr>
+        {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+</body>
+</html>

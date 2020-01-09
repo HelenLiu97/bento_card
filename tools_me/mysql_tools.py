@@ -665,7 +665,7 @@ class SqlData(object):
             return info_list
 
     def admin_info(self):
-        sql = "SELECT account, password, name, balance FROM admin"
+        sql = "SELECT account, password, name, balance FROM admin_info"
         conn, cursor = self.connect()
         cursor.execute(sql)
         rows = cursor.fetchall()

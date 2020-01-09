@@ -18,6 +18,49 @@ from . import admin_blueprint
 from config import cache
 
 
+@admin_blueprint.route('/xiao_ma/', methods=['GET'])
+def xiaoma():
+    res = SqlData.search_account_info('')
+    info_list = list()
+    # 去除密码信息
+    for i in res:
+        i.pop('password')
+        i.pop('u_id')
+        info_list.append(i)
+    context = dict()
+    context['accounts'] = info_list
+    return render_template('admin/account_xiaoma.html', **context)
+
+
+@admin_blueprint.route('/account_chart_line/', methods=['GET', 'POST'])
+@admin_required
+def account_chart_line():
+    if request.method == 'GET':
+        account_name = request.args.get('user_name')
+        context = dict()
+        context['user_name'] = account_name
+        return render_template('admin/account_chart_line.html', **context)
+    if request.method == 'POST':
+        account_name = request.args.get('user_name')
+        info = SqlDataNative.one_bento_alltrans(account_name)
+        day_list = get_nday_list(10)
+        day_dict = dict()
+        for d in day_list:
+            day_dict.update({d: 0})
+        for i in info:
+            do_money = i.get('do_money')
+            date = i.get('date').split(' ')[0]
+            if date in day_list:
+                day_dict[date] = day_dict.get(date) + do_money
+        res_list = list()
+        for k in day_dict:
+            res_l = list()
+            res_l.append(k)
+            res_l.append(day_dict.get(k))
+            res_list.append(res_l)
+        return jsonify({'code': RET.OK, 'data': res_list})
+
+
 @admin_blueprint.route('/acc_pay/', methods=['POST'])
 @admin_required
 def acc_pay():

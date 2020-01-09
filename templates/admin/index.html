@@ -1260,6 +1260,31 @@ Welcome to BenTo
             obj.tr.addClass('layui-table-click').siblings().removeClass('layui-table-click');
         });
 
+        table.on('row(account_all)', function (obj) {
+            var data = obj.data;
+            layer.open({
+                type: 2
+                , offset: 'auto' //具体配置参考：http://www.layui.com/doc/modules/layer.html#offset
+                , skin: 'layui-layer-demo'
+                , id: 'account_info'//防止重复弹出
+                , title: '客户为 ' + data.name + ' 的消费信息'
+                , area: ['90%', '88%']
+                , anim: 2
+                , shadeClose: true
+                , content: '/admin/account_chart_line/?user_name=' + data.name
+                , btn: '关闭全部'
+                , btnAlign: 'c' //按钮居中a
+                , shade: [0.8, '#393D49'] //弹框背景选项
+                , success: function (layero, index) {
+                    var body = layer.getChildFrame('body', index);
+                    body.contents().find("#user_id").val(data.u_id);
+                }
+            });
+
+            //标注选中样式
+            obj.tr.addClass('layui-table-click').siblings().removeClass('layui-table-click');
+        });
+
         table.on('rowDouble(middle_info)', function (obj) {
             var data = obj.data;
             layer.open({

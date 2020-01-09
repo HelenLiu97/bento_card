@@ -532,7 +532,7 @@ class SqlDataNative(object):
         return row[0]
 
     def count_del_data(self, alias):
-        sql = "select COUNT(label) from bento_create_card where label='已注销' and attribution='{}'".format(alias)
+        sql = "select COUNT(label) from bento_create_card where card_status='已注销' and attribution='{}'".format(alias)
         conn, cursor = self.connect()
         cursor.execute(sql)
         row = cursor.fetchone()
