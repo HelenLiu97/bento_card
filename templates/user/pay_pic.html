@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <title>订单确认界面</title>
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <link rel="stylesheet" href="/static/layui/css/layui.css" media="all">
+    <style>
+        body {
+            margin: 10px;
+        }
+    </style>
+</head>
+<body>
+    <blockquote class="layui-elem-quote">上传支付截图(如是美元充值请直接上传截图): </blockquote>
+
+    <div class="layui-form-item">
+        <label class="layui-form-label">金额: </label>
+          <h2 id="sum_money" name="sum_money" style="line-height:35px; color: red"></h2>
+    </div>
+
+    <div class="layui-upload" style="width: 100%; height: 100%">
+      <div class="layui-upload-list" style="padding-left: 130px;" id="alipay">
+          <img src="{{ url }}" id="qr_code" width=200px height=200px style="padding:-1px 1px 1px 1px;">
+      </div>
+          <div style="display: none; padding-left: 130px;width: 50%; height: 200px;padding-top: 10px" id="bank_info">
+            <h2 id="bank_name">收款人姓名: {{bank_name}}</h2>
+            <h2 id="bank_number">收款人卡号: {{bank_number}}</h2>
+              <h2>银行卡归属分行:</h2>
+              <h2 id="bank_address">{{bank_address}}</h2>
+          </div>
+
+        <p id="demoText"></p>
+      </div>
+        &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp<button type="button" class="layui-btn layui-btn-danger" id="test1"><i class="layui-icon"></i>上传图片</button>
+
+
+
+    <div id="details" style="padding: 20px;" lay-filter="detail">
+    <form class="layui-form" lay-filter="example" id="myForm" enctype="multipart/form-data">
+        <div class="layui-form-item" style="display: none">
+            <label class="layui-form-label">隐藏域</label>
+            <div class="layui-input-block">
+                <input type ="text" name="sum_money" id="sum_m" value="{{ sum_money }}">
+            </div>
+        </div>
+
+        <div class="layui-form-item" style="display: none">
+            <label class="layui-form-label">隐藏域</label>
+            <div class="layui-input-block">
+                <input type ="text" name="top_money"  id="top_money" value="{{ top_money }}">
+            </div>
+        </div>
+
+        <div class="layui-form-item" style="display: none">
+            <label class="layui-form-label">隐藏域</label>
+            <div class="layui-input-block">
+                <input type ="text" name="ex_change"  id="ex_change" value="{{ ex_change }}">
+            </div>
+        </div>
+
+        <div class="layui-form-item">
+        <label class="layui-form-label"></label>
+        <div class="layui-input-block" id="sex">
+        <input type="radio" name="sex" value="pic" lay-filter="sex" title="支付宝" checked>
+        <input type="radio" name="sex" value="bank" lay-filter="sex" title="银行卡">
+        </div>
+        </div>
+
+        &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp<button type="button" class="layui-btn site-demo-active" id="test9">确认完成</button>
+
+    </form>
+</div>
+
+
+
+<script src="/static/layui/layui.js"></script>
+<script src="/static/layui/layui.all.js"></script>
+<script src="/static/js/jquery-1.8.0.min.js"></script>
+<script>
+    layui.use(['form', 'laydate', 'upload'], function(){
+        var form = layui.form
+           , upload = layui.upload
+           , $ = layui.$;
+
+        //自定义方法hideElement()
+        function hideElement(id){
+            document.getElementById(id).style.display="none";
+        }
+
+        //自定义方法showElement()
+        function showElement(id){
+            document.getElementById(id).style.display="";
+        }
+
+        form.on('radio(sex)', function (data) {
+    　　　　if (data.value == 'pic'){
+                hideElement('bank_info');
+                showElement('alipay');
+            } else if (data.value == 'bank'){
+                hideElement('alipay');
+                showElement('bank_info');
+            }
+　　　  });
+
+        var sum_money = $("#sum_m").val(),
+            top_money = $('#top_money').val(),
+            exchange = $('#ex_change').val();
+        var data_info = {sum_money:sum_money, top_money: top_money, exchange:exchange};
+        /*
+         upload.render({
+             elem: '#test1'
+             ,url: '/pay/pay_pic/'
+             ,auto: false
+             ,accept: 'images'
+             ,acceptMime: 'image/*'
+             ,multiple: true
+             ,number:5
+             ,before: function () {
+                layer.load(2, {shade: false})
+                }
+             ,data: {data: JSON.stringify(data_info)}
+            ,bindAction: '#test9'
+            ,done: function(res){
+                 if (res.code == 0){
+                        layer.closeAll();
+                        parent.layer.msg(res.msg
+                            , {offset:['100px'],
+						        icon : 6,
+                                time:4000
+					    });
+                        parent.layer.closeAll('iframe');
+                    }else if(res.code == 502){
+                        layer.closeAll();
+                        parent.layer.msg(data.msg, {
+                            offset:['100px'],
+						icon : 5
+					});
+                    }
+            }
+          });
+          */
+
+        //储存客户上传的图片
+        var files;
+        upload.render({
+        elem: "#test1"
+        ,auto: false
+        ,accept: 'images'
+        ,acceptMime: 'image/*'
+        ,multiple: true
+        ,number:5
+        ,bindAction: ''
+        ,choose: function(obj){
+            parent.layer.msg('已选择图片!确认无误后确认完成!'
+            , {offset:['100px'],
+                icon : 6,
+                time:4000});
+            files = obj.pushFile();
+            }
+        });
+
+        //监听提交取出客户存储的文件,加入新的form集体发送请求
+        $('#test9').on('click', function () {
+
+            // 单击之后提交按钮不可选,防止重复提交
+            var DISABLED = 'layui-btn-disabled';
+            // 增加样式
+            $('.site-demo-active').addClass(DISABLED);
+            // 增加属性
+            $('.site-demo-active').attr('disabled', true);
+
+            var form = new FormData();
+            var num = 1;
+            var change_type = $('input:radio:checked').val();
+            for ( let i in files){
+                form.append("file_" + num.toString(), files[i]);
+                num += 1
+            }
+            var url = $("#qr_code")[0].src;
+            var bank_name = $("#bank_name").html();
+            var bank_number = $("#bank_number").html();
+            var bank_address = $("#bank_address").html();
+            console.log(bank_name);
+
+            form.append('data', JSON.stringify(data_info));
+            form.append('change_type', '"'+change_type+'"');
+            form.append('url', '"'+url+'"');
+            form.append('bank_name', '"'+bank_name+'"');
+            form.append('bank_number', '"'+bank_number+'"');
+            form.append('bank_address', '"'+bank_address+'"');
+
+            $.ajax({
+                type : 'POST',
+                url : '/user/pay_pic/',
+                data : form,
+                contentType:false,
+                processData:false,
+                dataType : 'json',
+                beforeSend:function () {
+                    layer.load()
+                },
+                success : function(data) {
+                    // 成功提示框
+                    if (data.code == 0){
+			            layer.closeAll();
+                        layer.alert(data.msg);
+                    }else if(data.code == 502){
+			            layer.closeAll();
+                        layer.alert(data.msg);
+                    }
+                },
+                complete:function () {
+                    // 增加样式
+                    $('.site-demo-active').removeClass(DISABLED);
+                    // 增加属性
+                    $('.site-demo-active').attr('disabled', false);
+                }
+            });
+        })
+
+    });
+</script>
+</body>
+</html>
