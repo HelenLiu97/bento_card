@@ -53,7 +53,7 @@ def account_chart_line():
             if date in day_list:
                 day_dict[date] = day_dict.get(date) + do_money
         res_list = list()
-        for k in day_dict:
+        for k in sorted(day_dict):
             res_l = list()
             res_l.append(k)
             res_l.append(day_dict.get(k))
