@@ -130,7 +130,6 @@ def task_list():
 # 查询折线图数据(today, week, month)
 @middle_blueprint.route('/line_chart/', methods=['GET'])
 @middle_required
-@cache.cached(timeout=60*60*12, key_prefix='middle_line')
 def test():
     day_num = 30
     day_list = get_nday_list(day_num)

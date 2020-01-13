@@ -314,7 +314,7 @@ def notice():
     if request.method == 'POST':
         data = json.loads(request.form.get('data'))
         note = data.get('note')
-        SqlDataNative.update_bento_notice(note)
+        SqlData.update_admin_field('notice', note)
         return jsonify({"code": RET.OK, "msg": MSG.OK})
 
 

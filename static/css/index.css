@@ -31,10 +31,12 @@
 }
 .password{
      position: absolute;
-     top: 12.8rem;
+     top: 8.8rem;
      right: 4rem;
      display: flex;
 }
+
+
 .btn{
     position: absolute;
     top: 23.5rem;
@@ -72,7 +74,7 @@
     text-align: center;    
    
 }
-input{	 
+input{
      height: 55px;
      width: 373px;
      text-indent: 55px;
@@ -80,12 +82,22 @@ input{
      background: #eef6fd;
      border-bottom:2px #d6e7fa solid ;
 }
+
+.img_input{
+     height: 55px;
+     width: 203px;
+     text-indent: 55px;
+     outline:none;
+     background: #eef6fd;
+     border-bottom:2px #d6e7fa solid ;
+}
+
 .password input{
 	border: 0;
 }
 .user{
 	 position: absolute;
-     top: 7.8rem;
+     top: 3.8rem;
      right:4rem;
      display: flex;	
 }
@@ -97,6 +109,12 @@ input{
      margin-right: 51px;
 }
 
+.code_img{
+     position: absolute;
+     top: 13.8rem;
+     right:4rem;
+     display: flex;
+}
 
 #yonghu img{
 	height: 30px;
@@ -104,3 +122,5 @@ input{
 	left: 10px;
 	top: 13px;
 }
+
+

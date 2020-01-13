@@ -44,12 +44,8 @@
 <div class="layui-layout layui-layout-admin">
   <div class="layui-header {{ bg_color }}">
     <div class="layui-logo">FaceBook 4754</div>
-      <ul class="layui-nav layui-layout-left ">
-          <li class="layui-nav-item"> <span style="font-weight: normal;font-size: 16px;color: ghostwhite;">卡总余额统计时间： </span><span style="font-weight: normal;font-size: 16px;color: palevioletred;">{{ up_remain_time }}</span> </li>
-
-      </ul>
     <ul class="layui-nav layui-layout-right ">
-	<li class="layui-nav-item"  title="所剩余额 = 累计充值 - 累计消费 decline比例 = decline交易量 / 总交易量"><span style="font-weight: normal;font-size: 16px;color: ghostwhite;"> 所拥有的卡的总余额: </span><span style="font-weight: normal;font-size:     16px;color: gold"> {{ all_money }}</span><span style="font-weight: normal;font-size: 16px;color: ghostwhite;"> decline比例: </span><span style="font-weight: normal;font-size:     16px;color: gold"> {{ decline_ratio }}</span>decline数量: </span><span style="font-weight: normal;font-size: 16px;color: gold"> {{ decline_data }}</span>可开卡数量: </span><span style="font-weight: normal;font-size: 16px;color: gold"> {{ bento_label }}</span><span style="font-weight: normal;font-size: 16px;color: ghostwhite;">已开卡数量: </span><span style="font-weight: normal;font-size: 16px;color: red"> {{ use_label }}</span><span style="font-weight: normal;font-size: 16px;color: ghostwhite;">所剩余额: </span><span style="font-weight: normal;font-size: 16px;color: gold"> {{ balance }}</span> 累计消费: <span style="font-weight: normal;font-size: 16px;color: palegreen"> {{ out_money }}</span>累计充值: <span style="font-weight: normal;font-size: 16px;color: darkkhaki"> {{ sum_balance }}</span></li>
+        <li class="layui-nav-item"  title="所剩余额 = 累计充值 - 累计消费 decline比例 = decline交易量 / 总交易量"><span style="font-weight: normal;font-size: 16px;color: ghostwhite;"> decline比例: </span><span style="font-weight: normal;font-size:     16px;color: gold"> {{ decline_ratio }}</span>&nbsp;&nbsp;&nbsp;&nbsp;<span style="font-weight: normal;font-size: 16px;color: ghostwhite;">已开卡数量: </span><span style="font-weight: normal;font-size: 16px;color: red"> {{ use_label }}</span>&nbsp;&nbsp;&nbsp;&nbsp;<span style="font-weight: normal;font-size: 16px;color: ghostwhite;">所剩余额: </span><span style="font-weight: normal;font-size: 16px;color: gold"> {{ balance }}</span>&nbsp;&nbsp;&nbsp;&nbsp;</li>
       <li class="layui-nav-item">
         <a href="javascript:">
           {{ user_name }}
@@ -60,6 +56,9 @@
           <dd id="change_info"><a href="javascript:">更改电话</a></dd>
         </dl>
 
+      </li>
+        <li class="layui-nav-item">
+        <a href="javascript:" id="showNotice">公告<span class="layui-badge-dot"></span></a>
       </li>
         <li class="layui-nav-item">
             <a href="javascript:">
@@ -321,11 +320,6 @@
         </li>
       </ul>
 
-      <div ><p>&nbsp;&nbsp;</p>
-            <p>&nbsp;&nbsp;</p>
-            <p>&nbsp;&nbsp;</p>
-            <p style="letter-spacing:5px;color: greenyellow;">通知:</p>
-            <p style="letter-spacing:5px;color:#54FF9F;padding: 8px 8px 8px 8px">&nbsp;&nbsp; {{ notice }}</p></div>
     </div>
 
     </div>
@@ -355,6 +349,54 @@
             , element = layui.element //元素操作
             , $ = layui.$
             , form = layui.form;
+
+
+        //公告层
+        function showNotice(){
+            layer.open({
+                type: 2,
+                title: "475440系统公告",
+                area: ['350px', '500px'],
+                shade: 0.8,
+                skin: "layui-layer-molv",
+                id: 'LAY_layuipro',
+                btn: ['我知道了'],
+                moveType: 1,
+                content: '/user/notice/',
+                success: function(layero){
+                    var btn = layero.find('.layui-layer-btn');
+                    btn.css('text-align', 'center');
+                    btn.on("click",function(){
+                        tipsShow();
+                    });
+                },
+                cancel: function(index, layero){
+                    tipsShow();
+                }
+            });
+        }
+        function tipsShow(){
+            sessionStorage.setItem("showNotice","true");
+            if($(window).width() > 432){  //如果页面宽度不足以显示顶部“系统公告”按钮，则不提示
+                layer.tips('系统公告躲在了这里', '#showNotice', {
+                    tips: 3,
+                    time : 1000
+                });
+            }
+        }
+        $("#showNotice").on("click",function(){
+            showNotice();
+        });
+
+
+        function show_notice(){
+            var status = sessionStorage.getItem('showNotice');
+            if (status=='true'){
+            }else{
+                showNotice()
+            }
+        }
+        show_notice();
 
         form.on('submit(create_one)', function(data){
 	    // 单击之后提交按钮不可选,防止重复提交
@@ -406,24 +448,24 @@
 			return false;
             });
 
-	form.on('submit(sea_alltrans)', function(data){
+	    form.on('submit(sea_alltrans)', function(data){
 
               var $ = layui.jquery;
               var acc_name = $('#decline_name').val(),
                  order_num = $('#decline_num').val(),
-		 trans_status = $('#trans_status').val(),
-                 time_range = $('#test10').val();
-              table.reload("bento_alltrans", {
-                  page: {
-                    curr: 1 //重新从第 1 页开始
-                  },where: {
-                      acc_name:acc_name,
-                      order_num:order_num,
-		      trans_status: trans_status,
-                      time_range:time_range,
-                    }
-                }, '/user/all_trans');
-            return false;
+             trans_status = $('#trans_status').val(),
+                     time_range = $('#test10').val();
+                  table.reload("bento_alltrans", {
+                      page: {
+                        curr: 1 //重新从第 1 页开始
+                      },where: {
+                          acc_name:acc_name,
+                          order_num:order_num,
+                  trans_status: trans_status,
+                          time_range:time_range,
+                        }
+                    }, '/user/all_trans');
+                return false;
           });
 
         form.on('submit(formDemo)', function(data){
@@ -488,7 +530,6 @@
         });
 
         $(".layui-tab-title li").click(function(){
-            {#var picTabNum = $(this).index();#}
             var picTabNum = $(this).attr('lay-id');
             sessionStorage.setItem("picTabNum",picTabNum);
             });
@@ -770,7 +811,7 @@
                 type: 2
                 ,title: false //不显示标题栏
                 ,closeBtn: false
-                ,area: ['500px','390px']
+                ,area: ['500px','680px']
                 ,shade: 0.8
                 ,id: 'user_detail' //设定一个id，防止重复弹出
                 ,btn: ['关闭']
@@ -805,7 +846,7 @@
                 type: 2
                 ,title: false //不显示标题栏
                 ,closeBtn: false
-                ,area: ['500px','400px']
+                ,area: ['550px','400px']
                 ,shade: 0.8
                 ,shadeClose:true
                 ,id: 'change_pass' //设定一个id，防止重复弹出

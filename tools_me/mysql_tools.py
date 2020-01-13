@@ -108,6 +108,14 @@ class SqlData(object):
         self.close_connect(conn, cursor)
         return rows[0][0]
 
+    def search_user_id(self, account):
+        sql = "SELECT id FROM account WHERE account='{}'".format(account)
+        conn, cursor = self.connect()
+        cursor.execute(sql)
+        rows = cursor.fetchone()
+        self.close_connect(conn, cursor)
+        return rows[0]
+
     # 更新用户的某一个字段信息(str)
     def update_user_field(self, field, value, user_id):
         sql = "UPDATE account SET {} = '{}' WHERE id = {}".format(field, value, user_id)

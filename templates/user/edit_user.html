@@ -20,7 +20,7 @@
 </head>
 <body>
     <div id="details" style="padding: 20px;" lay-filter="detail">
-    <form class="layui-form" lay-filter="example" id="example" enctype="multipart/form-data">
+    <form class="layui-form layui-form-pane" lay-filter="example" id="example" enctype="multipart/form-data">
         <div class="layui-form-item">
             <label class="layui-form-label">旧密码</label>
             <div class="layui-input-block">
@@ -28,10 +28,15 @@
                        class="layui-input" id="old_pass">
             </div>
         </div>
+
+        <div class="layui-form-item">
+            <label class="layui-form-label">密码要求</label>
+              <div class="layui-form-mid layui-word-aux"><span style="color:red;font-size: 5px">&nbsp;&nbsp;长度范围8-16位，必须包含数字,字符,符号任意两种或以上！</span></div>
+        </div>
         <div class="layui-form-item">
             <label class="layui-form-label">新密码</label>
             <div class="layui-input-block">
-                <input type="password" name="new_pass_one" required lay-verify="required" placeholder="请输入新密码" autocomplete="off"
+                <input type="password" name="new_pass_one" required lay-verify="required" placeholder="输入新密码" autocomplete="off"
                        class="layui-input" id="new_pass_one">
             </div>
         </div>

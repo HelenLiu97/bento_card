@@ -3,6 +3,7 @@ import datetime
 import logging
 import operator
 import os
+import re
 import time
 import uuid
 from concurrent.futures.thread import ThreadPoolExecutor
@@ -12,8 +13,10 @@ from tools_me.parameter import RET, MSG, TRANS_TYPE, DO_TYPE, DIR_PATH
 from tools_me.redis_tools import RedisTool
 from tools_me.remain import get_card_remain
 from tools_me.send_email import send
+from tools_me.img_code import createCodeImage
+from tools_me.des_code import ImgCode
 from . import user_blueprint
-from flask import render_template, request, jsonify, session, g
+from flask import render_template, request, jsonify, session, g, redirect
 from tools_me.mysql_tools import SqlData
 from apps.bento_create_card.main_create_card import main_createcard, CreateCard, get_bento_data
 from apps.bento_create_card.sqldata_native import SqlDataNative
@@ -913,25 +916,10 @@ def account_html():
     min_top = dict_info.get('min_top')
     max_top = dict_info.get('max_top')
     balance = dict_info.get('balance')
-    sum_balance = dict_info.get('sum_balance')
-    out_money = SqlData.search_trans_sum(user_id)
-    bento_income_money = SqlData.search_income_money(user_id)
-    # 获取交易数量
-    # cardid_list = SqlDataNative.attribution_fount_cardid(user_name)
-    # decline_rati = RechargeCard().declined_statistics(cardid_list[1: 100])
 
-    t_data = SqlDataNative.account_sum_transaction(attribution=user_name)
-
-    # 获取decline数量
     today_time = time.strftime('%Y-%m-%d', time.localtime(time.time()))
     max_today = "{} {}".format(change_today(today_time, 0), "23:59:59")
     min_today = "{} {}".format(change_today(today_time, -3), "00:00:00")
-    decline_data = SqlDataNative.count_decline_data(attribution=user_name, min_today=min_today, max_today=max_today)
-    # decline_data = SqlDataNative.count_decline_data(user_name)
-
-    # decline / 交易总量
-    # decline_ratio = "{}{}".format(float("%.4f"%(decline_data / t_data))) if t_data != 0 else 0
-
     # one_t_data = SqlDataNative.account_sum_transaction(attribution=user_name)
     three_data = SqlDataNative.count_decline_data(attribution=user_name, min_today=min_today, max_today=max_today)
     three_tran_data = SqlDataNative.search_d(user_name)
@@ -942,41 +930,14 @@ def account_html():
     # 获取已开卡数量
     use_label = SqlDataNative.count_alias_data(user_name)
     context = dict()
-    # label为开卡数量
-    label = SqlData.label_data(user_id)
+
     # 公告
     notice = SqlDataNative.bento_notice()
     # 用户的所有卡金额
-    """
-    account_all_amount = 0
-    all_moneys = TransactionRecord().all_alias_money()
-    all_cardids = SqlDataNative.attribution_fount_cardid(alias=user_name)
-    if len(all_moneys) > 0 and len(all_cardids) > 0:
-        for all_cardid in all_cardids:
-            for all_money in all_moneys:
-                if all_cardid == all_money.get("cardid"):
-                    account_all_amount = account_all_amount + all_money.get("availableAmount")
-    """
-    bento_allias_balance = SqlDataNative.select_alias_balance(attribution=user_name)
-    context['all_money'] = bento_allias_balance
-
-    # 查询上次卡余额统计时间
-    card_remain_time = SqlData.search_admin_field('up_remain_time')
-    if card_remain_time:
-        up_remain_time = str(card_remain_time)
-    else:
-        up_remain_time = '上次获取时间异常'
-    context['up_remain_time'] = up_remain_time
-
-    if label:
-        context["bento_label"] = label[0]
-    else:
-        context["bento_label"] = 50
     if use_label:
         context['use_label'] = use_label[0]
     else:
         context['use_label'] = "异常, 请联系管理员"
-    context['decline_data'] = decline_data
 
     if g.vice_id:
         context['bg_color'] = 'layui-bg-blue'
@@ -988,8 +949,6 @@ def account_html():
     context['create_card'] = create_card
     context['min_top'] = min_top
     context['max_top'] = max_top
-    context['sum_balance'] = sum_balance
-    context['out_money'] = float("%.2f" % float(out_money - bento_income_money))
     context['notice'] = notice
     return render_template('user/index.html', **context)
 
@@ -1144,17 +1103,18 @@ def change_pass():
     user_id = g.user_id
     pass_word = SqlData.search_user_field('password', user_id)
     results = {'code': RET.OK, 'msg': MSG.OK}
+    res = re.match('(?!.*\s)(?!^[\u4e00-\u9fa5]+$)(?!^[0-9]+$)(?!^[A-z]+$)(?!^[^A-z0-9]+$)^.{8,16}$', new_pass_one)
+    if not res:
+        results['code'] = RET.SERVERERROR
+        results['msg'] = '密码不符合要求！'
+        return jsonify(results)
     if not (old_pass == pass_word):
         results['code'] = RET.SERVERERROR
         results['msg'] = MSG.PSWDERROR
         return jsonify(results)
     if not (new_pass_one == new_pass_two):
         results['code'] = RET.SERVERERROR
-        results['msg'] = MSG.PSWDERROR
-        return jsonify(results)
-    if len(new_pass_one) < 6:
-        results['code'] = RET.SERVERERROR
-        results['msg'] = MSG.PSWDLEN
+        results['msg'] = '两次密码输入不一致！'
         return jsonify(results)
     try:
         SqlData.update_user_field('password', new_pass_one, g.user_id)
@@ -1175,14 +1135,40 @@ def user_info():
     user_name = g.user_name
     user_id = g.user_id
     dict_info = SqlData.search_user_detail(user_id)
+    dict_info_1 = SqlData.search_user_index(user_id)
+    out_money = SqlData.search_trans_sum(user_id)
+    bento_income_money = SqlData.search_income_money(user_id)
+    bento_allias_balance = SqlDataNative.select_alias_balance(attribution=user_name)
+    sum_balance = dict_info_1.get('sum_balance')
     account = dict_info.get('account')
     phone_num = dict_info.get('phone_num')
     balance = dict_info.get('balance')
+    # context['sum_balance'] = sum_balance
+    # context['out_money'] = float("%.2f" % float(out_money - bento_income_money))
+    # 获取decline数量
+    today_time = time.strftime('%Y-%m-%d', time.localtime(time.time()))
+    max_today = "{} {}".format(change_today(today_time, 0), "23:59:59")
+    min_today = "{} {}".format(change_today(today_time, -3), "00:00:00")
+    decline_data = SqlDataNative.count_decline_data(attribution=user_name, min_today=min_today, max_today=max_today)
+    # 查询上次卡余额统计时间
+    card_remain_time = SqlData.search_admin_field('up_remain_time')
+    if card_remain_time:
+        up_remain_time = str(card_remain_time)
+    else:
+        up_remain_time = '上次获取时间异常'
+    # label为开卡数量
+    label = SqlData.label_data(user_id)[0]
     context = {
         'user_name': user_name,
         'account': account,
         'balance': balance,
         'phone_num': phone_num,
+        'card_remain': bento_allias_balance,
+        'out_money': float("%.2f" % float(out_money - bento_income_money)),
+        'sum_balance': sum_balance,
+        'decline_data': decline_data,
+        'up_remain_time': up_remain_time,
+        'label': label,
     }
     return render_template('user/user_info.html', **context)
 
@@ -1193,32 +1179,110 @@ def logout():
     session.pop('user_id')
     session.pop('name')
     session.pop('vice_id')
-    return render_template('user/login.html')
+    return redirect('/user/login')
+
+
+@user_blueprint.route('/material/', methods=['GET', 'POST'])
+def material():
+    if request.method == 'GET':
+        '''完善资料的HTML界面'''
+        user_name = request.args.get('name')
+        if not user_name:
+            return redirect('/user/')
+        context = dict()
+        context['user_name'] = user_name
+        return render_template('user/material.html', **context)
+    if request.method == 'POST':
+
+        '''新用户的首次登录更换密码和完善电话信息'''
+
+        data = json.loads(request.form.get('data'))
+        pass_1 = data.get('pass_1')
+        pass_2 = data.get('pass_2')
+        phone = data.get('phone')
+        user_acc = data.get('user_name')
+        if not all([pass_1, pass_2, phone]):
+            return jsonify({'code': RET.SERVERERROR, 'msg': '必填项不能为空！'})
+        if pass_1 != pass_2:
+            return jsonify({'code': RET.SERVERERROR, 'msg': '两次输入密码不一致！'})
+        res = re.match('(?!.*\s)(?!^[\u4e00-\u9fa5]+$)(?!^[0-9]+$)(?!^[A-z]+$)(?!^[^A-z0-9]+$)^.{8,16}$', pass_1)
+        if not res:
+            return jsonify({'code': RET.SERVERERROR, 'msg': '密码不符合要求！'})
+        res_phone = re.match('^1(3[0-9]|4[5,7]|5[0-9]|6[2,5,6,7]|7[0,1,7,8]|8[0-9]|9[1,8,9])\d{8}$', phone)
+        if not res_phone:
+            return jsonify({'code': RET.SERVERERROR, 'msg': '请输入规范手机号码！'})
+        try:
+            user_id = SqlData.search_user_id(user_acc)
+            SqlData.update_user_field('password', pass_1, user_id)
+            SqlData.update_user_field('phone_num', phone, user_id)
+            user_name = SqlData.search_user_field('name', user_id)
+            session['user_id'] = user_id
+            session['name'] = user_name
+            session['vice_id'] = None
+            session.permanent = True
+            return jsonify({'code': RET.OK, 'msg': MSG.OK})
+        except Exception as e:
+            logging.error(str(e))
+            return jsonify({'code': RET.SERVERERROR, 'MSG': MSG.SERVERERROR})
+
+
+@user_blueprint.route('/img_code/', methods=['GET'])
+def img_code():
+    try:
+        code, img_str = createCodeImage()
+        string = ImgCode().jiami(code)
+        return jsonify({'code': RET.OK, 'data': {'string': string, 'src': img_str}})
+    except Exception as e:
+        logging.error(str(e))
+        return jsonify({'code': RET.SERVERERROR, 'msg': MSG.SERVERERROR})
+
+
+@user_blueprint.route('/notice/', methods=['GET'])
+@login_required
+def notice():
+    notice = SqlData.search_admin_field('notice')
+    s = '<html><body><div style="padding:15px 20px; text-align:justify; line-height: 22px; text-indent:2em;"><p class="layui-red">{}</p></div></body></html>'.format(notice)
+    return s
 
 
 @user_blueprint.route('/login', methods=['POST', 'GET'])
 def login():
     if request.method == 'GET':
-        return render_template('user/login.html')
+        code, img_str = createCodeImage()
+        context = dict()
+        string = ImgCode().jiami(code)
+        context['img'] = img_str
+        context['code'] = string
+        return render_template('user/login.html', **context)
 
     if request.method == 'POST':
+        results = {'code': RET.OK, 'msg': MSG.OK}
         data = json.loads(request.form.get('data'))
         user_name = data.get('user_name')
         user_pass = data.get('pass_word')
         cus_status = data.get('cus_status')
-        results = {'code': RET.OK, 'msg': MSG.OK}
+        image_real = data.get('image_real')
+        image_code = data.get('image_code')
         try:
+            img_code = ImgCode().jiemi(image_real)
+            if image_code.lower() != img_code.lower():
+                results['code'] = RET.SERVERERROR
+                results['msg'] = '验证码错误！'
+                return jsonify(results)
             if cus_status == "main":
                 user_data = SqlData.search_user_info(user_name)
                 user_id = user_data.get('user_id')
                 pass_word = user_data.get('password')
                 name = user_data.get('name')
                 if user_pass == pass_word:
-                    session['user_id'] = user_id
-                    session['name'] = name
-                    session['vice_id'] = None
-                    session.permanent = True
-                    return jsonify(results)
+                    if user_pass == 'verifyto475':
+                       return jsonify({'code': 307, 'msg': MSG.OK})
+                    else:
+                        session['user_id'] = user_id
+                        session['name'] = name
+                        session['vice_id'] = None
+                        session.permanent = True
+                        return jsonify(results)
                 else:
                     results['code'] = RET.SERVERERROR
                     results['msg'] = MSG.PSWDERROR
@@ -1245,7 +1309,6 @@ def login():
 
         except Exception as e:
             logging.error(str(e))
-            print(e)
             results['code'] = RET.SERVERERROR
-            results['msg'] = MSG.DATAERROR
+            results['msg'] = MSG.PSWDERROR
             return jsonify(results)

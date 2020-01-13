@@ -146,7 +146,7 @@ def login_required(view_func):
             user_name = session.get('name')
             vice_id = session.get('vice_id')
             if not user_id:
-                return render_template('user/login.html')
+                return redirect('/user/login')
             else:
                 # 当用户已登录，使用g变量记录用户的user_id，方便被装饰是的视图函数中可以直接使用
                 g.user_id = user_id

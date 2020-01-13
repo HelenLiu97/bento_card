@@ -18,11 +18,17 @@
 <div class="table">
 	<div class="wel">Welcome</div>
 	<div class="wel1">Login</div>
-    <form class="layui-form" action="">
+    <form class="layui-form" onsubmit="return false">
+        <div style="display: none">
+            <div >
+                <input type="text" name="image_real" id="image_real" value="{{ code }}">
+            </div>
+        </div>
+
         <div class="layui-form-item layui-form-text">
             <div class="user">
                 <div id="yonghu" style=""><img src="/static/img/yhm.png" /></div>
-                <input type="text" placeholder="请输入账号" name="user_name" lay-verify="required">
+                <input type="text" placeholder="请输入账号" name="user_name" lay-verify="required" id="user_name">
             </div>
         </div>
 
@@ -33,13 +39,23 @@
             </div>
         </div>
 
+        <div class="layui-form-item layui-form-text">
+            <div class="code_img" style="left: 522px;">
+                <div id="yonghu"><img src="/static/img/mm.png" /></div>
+                <input type="text" name="image_code" lay-verify="required" maxlength="5" placeholder="图片验证码" autocomplete="off">
+
+                <span style="opacity: 1; right: -5px;top: -3px; border-bottom:2px #9400D3 solid ;">
+                    <img src="{{ img }}" alt="验证码图片" title="点击再换一张" id="valid-img">
+                </span>
+            </div>
+        </div>
+
         <div class="layui-form-item main_vice">
             <div class="layui-input-block">
               <input type="radio" name="cus_status" value="main" title="主账号" checked="">
               <input type="radio" name="cus_status" value="vice" title="子账号">
             </div>
           </div>
-
 
         <button class="btn" lay-submit="" lay-filter="login">登录</button>
     </form>
@@ -50,6 +66,35 @@
         var form = layui.form,
             $ = layui.jquery;
 
+        $("#valid-img").click(function () {
+            $.ajax({
+				type : 'GET',
+				url : '/user/img_code/',
+                beforeSend:function () {
+                layer.load({shade: false})
+                },
+				success : function(data) {
+					// 成功提示框
+                    if (data.code == 0){
+                        var src=data.data.src,
+                            strimg=data.data.string;
+                        $("#valid-img").attr('src', src);
+                        $("#image_real").val(strimg);
+
+                    }else if(data.code == 502){
+                       parent.layer.msg(data.msg, {
+						icon : 5
+					});
+                    }
+				},
+				error : function(data) {
+					// 异常提示
+					parent.layer.msg('出现网络故障', {
+						icon : 5
+					});
+				},complete:function () {layer.closeAll();}
+			});
+        });
 
         form.on('submit(login)',function (data) {
             var data_info = {data:JSON.stringify(data.field)};
@@ -67,9 +112,11 @@
 					});*/
 					location.href='/user/'; //关闭弹框
                     }else if(data.code == 502){
-                        parent.layer.msg('账户或密码错误!', {
+                        parent.layer.msg(data.msg, {
 						icon : 5
 					});
+                    }else if (data.code == 307){
+                        location.href = '/user/material/?name='+ $("#user_name").val()
                     }
 				},
 				error : function(data) {
