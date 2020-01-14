@@ -7,15 +7,22 @@ import time
 import os
 from apps.bento_create_card.public import change_today
 from flask import request, render_template, jsonify, session, g
+from tools_me.des_code import ImgCode
 from tools_me.mysql_tools import SqlData
 from tools_me.other_tools import admin_required, sum_code, xianzai_time, get_nday_list, check_float
 from tools_me.parameter import RET, MSG, DIR_PATH
 from tools_me.redis_tools import RedisTool
 from tools_me.send_sms.send_sms import CCP
 from tools_me.sm_photo import sm_photo
+from tools_me.img_code import createCodeImage
 from apps.bento_create_card.sqldata_native import SqlDataNative
 from . import admin_blueprint
 from config import cache
+
+
+@admin_blueprint.route('/deni/', methods=['GET'])
+def deni():
+    return render_template('admin/deni.html')
 
 
 @admin_blueprint.route('/xiao_ma/', methods=['GET'])
@@ -307,7 +314,7 @@ def qr_code():
 @admin_required
 def notice():
     if request.method == 'GET':
-        note = SqlDataNative.bento_notice()
+        note = SqlData.search_admin_field('noteice')
         context = dict()
         context['note'] = note
         return render_template('admin/notice.html', **context)
@@ -413,7 +420,7 @@ def all_trans():
 
 
 @admin_blueprint.route('/account_decline', methods=['GET'])
-@admin_required
+# @admin_required
 def account_decline():
     # 当前用户较少不采取分页
     page = request.args.get('page')
@@ -478,7 +485,7 @@ def account_decline():
 
 
 @admin_blueprint.route('/decline_data', methods=['GET'])
-@admin_required
+# @admin_required
 def decline_data():
     page = request.args.get('page')
     limit = request.args.get('limit')
@@ -1292,10 +1299,25 @@ def logout():
     return render_template('admin/admin_login.html')
 
 
+@admin_blueprint.route('/img_code/', methods=['GET'])
+def img_code():
+    try:
+        code, img_str = createCodeImage(height=38)
+        string = ImgCode().jiami(code)
+        return jsonify({'code': RET.OK, 'data': {'string': string, 'src': img_str}})
+    except Exception as e:
+        logging.error(str(e))
+        return jsonify({'code': RET.SERVERERROR, 'msg': MSG.SERVERERROR})
+
+
 @admin_blueprint.route('/login', methods=['GET', 'POST'])
 def admin_login():
     if request.method == 'GET':
-        return render_template('admin/admin_login.html')
+        code_str, img_src = createCodeImage(height=38)
+        context = dict()
+        context['img_src'] = img_src
+        context['code_str'] = ImgCode().jiami(code_str)
+        return render_template('admin/admin_login.html', **context)
 
     if request.method == 'POST':
         results = dict()
@@ -1305,6 +1327,13 @@ def admin_login():
             data = json.loads(request.form.get('data'))
             account = data.get('account')
             password = data.get('password')
+            image_real = data.get('image_real')
+            image_code = data.get('image_code')
+            _image_real = ImgCode().jiemi(image_real)
+            if _image_real.lower() != image_code.lower():
+                results['code'] = RET.SERVERERROR
+                results['msg'] = '验证码错误！'
+                return jsonify(results)
             admin_id, name = SqlData.search_admin_login(account, password)
             session['admin_id'] = admin_id
             session['admin_name'] = name

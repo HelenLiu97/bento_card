@@ -24,12 +24,9 @@ def rgbcolor():
 
 # 创建图片的高度和宽度
 
-width = 160
-height = 50
-
 
 # 绘制线条
-def create_line(draw):
+def create_line(draw, width, height):
     for i in range(8):
         x1 = random.randint(0, width)
         x2 = random.randint(0, width)
@@ -39,14 +36,14 @@ def create_line(draw):
 
 
 # 绘制随机点
-def create_point(draw):
+def create_point(draw, width, height):
     for i in range(50):
         x_point = random.randint(0, width)
         y_point = random.randint(0, height)
         draw.point((x_point, y_point), fill=rgbcolor())
 
 
-def createCodeImage():
+def createCodeImage(width=160, height=50):
     background_color = rgbcolor()
     # 创建一张随机的背景图片
     img = Image.new(mode="RGB", size=(width, height), color=background_color)
@@ -67,8 +64,8 @@ def createCodeImage():
         draw.text((10 + 30 * index, 3), text=str_or_num, fill=text_color, font=font)
         str_data += str_or_num
     # print(str_data)  # 生成的验证码
-    create_line(draw)
-    create_point(draw)
+    create_line(draw, width, height)
+    create_point(draw, width, height)
 
     # 不保存图片，转为Base64赋值给img的src属性显示
     buffered = BytesIO()

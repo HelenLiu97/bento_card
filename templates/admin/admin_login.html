@@ -69,6 +69,11 @@
 			</fieldset>
 			<div class="layui-row layui-col-space15">
 				<form class="layui-form zyl_pad_01" action="">
+					<div style="display: none;">
+						<div class="layui-form-item">
+							<input type="text" name="image_real" id="image_real" value="{{ code_str }}">
+						</div>
+					</div>
 					<div class="layui-col-sm12 layui-col-md12">
 						<div class="layui-form-item">
 							<input type="text" name="account" lay-verify="required|userName" autocomplete="off" placeholder="账号" class="layui-input">
@@ -82,6 +87,15 @@
 						</div>
 					</div>
 					<div class="layui-col-sm12 layui-col-md12">
+						<div class="layui-input-inline" >
+							<input type="text" name="image_code" lay-verify="required" maxlength="5" placeholder="图片验证码" autocomplete="off" class="layui-input">
+							<i class="layui-icon layui-icon-password zyl_lofo_icon"></i>
+						</div>
+						<span style="opacity: 1; right: -5px;top: -3px; border-bottom:2px #9400D3 solid ;">
+								<img src="{{ img_src }}" alt="验证码图片" title="点击再换一张" id="valid-img">
+							</span>
+					</div>
+					<div class="layui-col-sm12 layui-col-md12" style="padding-top: 14px">
 						<button class="layui-btn layui-btn-fluid" lay-submit="" lay-filter="demo1">立即登录</button>
 					</div>
 				</form>
@@ -103,6 +117,36 @@
 				var carousel = layui.carousel,
 				    form = layui.form,
                     $ = layui.jquery;
+
+				$("#valid-img").click(function () {
+					$.ajax({
+						type : 'GET',
+						url : '/admin/img_code/',
+						beforeSend:function () {
+						layer.load({shade: false})
+						},
+						success : function(data) {
+							// 成功提示框
+							if (data.code == 0){
+								var src=data.data.src,
+									strimg=data.data.string;
+								$("#valid-img").attr('src', src);
+								$("#image_real").val(strimg);
+
+							}else if(data.code == 502){
+							   parent.layer.msg(data.msg, {
+								icon : 5
+							});
+							}
+						},
+						error : function(data) {
+							// 异常提示
+							parent.layer.msg('出现网络故障', {
+								icon : 5
+							});
+						},complete:function () {layer.closeAll();}
+					});
+				});
 				
 				//监听提交
 				form.on('submit(demo1)', function(data){
@@ -121,11 +165,10 @@
                             });*/
                             location.href='/admin/'; //关闭弹框
                             }else if(data.code == 502){
-                                parent.layer.msg('账户或密码错误!', {
+                                parent.layer.msg(data.msg, {
                                 icon : 5
                             });
                             }
-
                         },
                         error : function(data) {
                             // 异常提示

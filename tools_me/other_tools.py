@@ -172,7 +172,7 @@ def admin_required(view_func):
         admin_id = session.get('admin_id')
         admin_name = session.get('admin_name')
         if not admin_id:
-            return render_template('admin/admin_login.html')
+            return redirect('/admin/login')
         else:
             # 当用户已登录，使用g变量记录用户的user_id，方便被装饰是的视图函数中可以直接使用
             g.admin_id = admin_id
