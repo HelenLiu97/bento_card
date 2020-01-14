@@ -20,16 +20,16 @@
 </head>
 <body>
     <div id="details" style="padding: 20px;" lay-filter="detail">
-    <form class="layui-form" lay-filter="example" id="example" enctype="multipart/form-data">
+    <form class="layui-form layui-form-pane" lay-filter="example" id="example" enctype="multipart/form-data">
         <div class="layui-form-item">
             <label class="layui-form-label">汇  率:</label>
             <div class="layui-input-block">
-                <input type="number" name="exchange"  placeholder="备用,以防爬虫爬取异常!" autocomplete="off"
+                <input type="number" name="exchange"  placeholder="设置的汇率" autocomplete="off"
                        class="layui-input" id="exchange">
             </div>
         </div>
         <div class="layui-form-item">
-            <label class="layui-form-label">汇率波动溢价:</label>
+            <label class="layui-form-label">波动溢价:</label>
             <div class="layui-input-block">
                 <input type="number" name="ex_range" placeholder="汇率波动溢价" autocomplete="off"
                        class="layui-input" id="ex_range">
@@ -72,7 +72,7 @@
 
             $.ajax({
 				type : 'POST',
-				url : '/admin/ex_change',
+				url : '/admin/ex_change/',
 				data : data_info,
 				dataType : 'json',
 				success : function(data) {

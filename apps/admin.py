@@ -212,9 +212,9 @@ def ex_change():
             hand = data.get('hand')
             dollar_hand = data.get('dollar_hand')
             if exchange:
-                SqlData.update_admin_field('ex_change', float(exchange))
+                SqlData.update_admin_field('set_change', float(exchange))
             if ex_range:
-                SqlData.update_admin_field('ex_range', float(ex_range))
+                SqlData.update_admin_field('set_range', float(ex_range))
             if hand:
                 SqlData.update_admin_field('hand', float(hand))
             if dollar_hand:
