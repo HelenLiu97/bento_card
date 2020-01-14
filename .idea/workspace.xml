@@ -2,11 +2,10 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="2e3a79c2-654f-4461-8bb9-30d5ac53702e" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/tools_me/test.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/apps/admin.py" beforeDir="false" afterPath="$PROJECT_DIR$/apps/admin.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/static/log/card.log" beforeDir="false" afterPath="$PROJECT_DIR$/static/log/card.log" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/templates/admin/exchange_edit.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/admin/exchange_edit.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tools_me/test.py" beforeDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -56,7 +55,7 @@
         <entry file="file://$PROJECT_DIR$/apps/admin.py">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="245">
-              <caret line="207" column="53" lean-forward="true" selection-start-line="207" selection-start-column="53" selection-end-line="207" selection-end-column="53" />
+              <caret line="1293" column="44" lean-forward="true" selection-start-line="1293" selection-start-column="44" selection-end-line="1293" selection-end-column="44" />
               <folding>
                 <element signature="e#0#11#0" expanded="true" />
               </folding>
@@ -75,7 +74,7 @@
         <entry file="file://$PROJECT_DIR$/templates/admin/exchange_edit.html">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="-30">
-              <caret line="30" column="37" lean-forward="true" selection-start-line="30" selection-start-column="37" selection-end-line="30" selection-end-column="37" />
+              <caret line="30" column="37" selection-start-line="30" selection-start-column="37" selection-end-line="30" selection-end-column="37" />
             </state>
           </provider>
         </entry>
@@ -104,20 +103,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/tools_me/mysql_tools.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="335">
-              <caret line="687" column="40" selection-start-line="687" selection-start-column="40" selection-end-line="687" selection-end-column="40" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/tools_me/test.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="1230">
-              <caret line="41" column="20" selection-start-line="41" selection-start-column="20" selection-end-line="41" selection-end-column="20" />
-              <folding>
-                <element signature="e#0#14#0" expanded="true" />
-              </folding>
+            <state relative-caret-position="846">
+              <caret line="603" column="48" selection-start-line="603" selection-start-column="48" selection-end-line="603" selection-end-column="48" />
             </state>
           </provider>
         </entry>
@@ -147,7 +134,6 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>cus_trans_log</find>
       <find>account_all</find>
       <find>充值</find>
       <find>消费</find>
@@ -165,7 +151,6 @@
       <find>out_money</find>
       <find>assets</find>
       <find>sessionStorage</find>
-      <find>logout</find>
       <find>notice</find>
       <find>'/'</find>
       <find>img_code</find>
@@ -177,6 +162,8 @@
       <find>note</find>
       <find>admin_info</find>
       <find>ex_change</find>
+      <find>logout</find>
+      <find>login</find>
     </findStrings>
     <replaceStrings>
       <replace>SqlData</replace>
@@ -243,9 +230,9 @@
         <option value="$PROJECT_DIR$/tools_me/img_code.py" />
         <option value="$PROJECT_DIR$/templates/admin/admin_login.html" />
         <option value="$PROJECT_DIR$/templates/admin/deni.html" />
-        <option value="$PROJECT_DIR$/apps/admin.py" />
-        <option value="$PROJECT_DIR$/tools_me/test.py" />
         <option value="$PROJECT_DIR$/templates/admin/exchange_edit.html" />
+        <option value="$PROJECT_DIR$/tools_me/test.py" />
+        <option value="$PROJECT_DIR$/apps/admin.py" />
       </list>
     </option>
   </component>
@@ -495,7 +482,7 @@
       <workItem from="1578364773528" duration="459000" />
       <workItem from="1578365268849" duration="1946000" />
       <workItem from="1578379538045" duration="2947000" />
-      <workItem from="1578468912197" duration="88564000" />
+      <workItem from="1578468912197" duration="90763000" />
     </task>
     <task id="LOCAL-00001" summary="接手后的第一次更新">
       <created>1576568923787</created>
@@ -735,11 +722,18 @@
       <option name="project" value="LOCAL" />
       <updated>1578982473898</updated>
     </task>
-    <option name="localTasksCounter" value="35" />
+    <task id="LOCAL-00035" summary="添加终端登录图片验证码">
+      <created>1578991213168</created>
+      <option name="number" value="00035" />
+      <option name="presentableId" value="LOCAL-00035" />
+      <option name="project" value="LOCAL" />
+      <updated>1578991213169</updated>
+    </task>
+    <option name="localTasksCounter" value="36" />
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="532512000" />
+    <option name="totallyTimeSpent" value="534711000" />
   </component>
   <component name="TodoView">
     <todo-panel id="selected-file">
@@ -754,13 +748,13 @@
     <frame x="-8" y="-8" width="1936" height="1066" extended-state="6" />
     <editor active="true" />
     <layout>
-      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.16204691" />
+      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.16204691" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info id="Favorites" order="2" side_tool="true" />
       <window_info id="Alibaba Cloud Explorer" order="3" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Find" order="1" weight="0.32939914" />
-      <window_info active="true" anchor="bottom" id="Run" order="2" sideWeight="0.4989339" visible="true" weight="0.31759655" />
+      <window_info anchor="bottom" id="Run" order="2" sideWeight="0.4989339" visible="true" weight="0.31759655" />
       <window_info anchor="bottom" id="Debug" order="3" weight="0.39914164" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
@@ -1195,10 +1189,10 @@
         <state relative-caret-position="-210" />
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/tools_me/mysql_tools.py">
+    <entry file="file://$PROJECT_DIR$/templates/admin/exchange_edit.html">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="335">
-          <caret line="687" column="40" selection-start-line="687" selection-start-column="40" selection-end-line="687" selection-end-column="40" />
+        <state relative-caret-position="-30">
+          <caret line="30" column="37" selection-start-line="30" selection-start-column="37" selection-end-line="30" selection-end-column="37" />
         </state>
       </provider>
     </entry>
@@ -1212,17 +1206,17 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/templates/admin/exchange_edit.html">
+    <entry file="file://$PROJECT_DIR$/tools_me/mysql_tools.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-30">
-          <caret line="30" column="37" lean-forward="true" selection-start-line="30" selection-start-column="37" selection-end-line="30" selection-end-column="37" />
+        <state relative-caret-position="846">
+          <caret line="603" column="48" selection-start-line="603" selection-start-column="48" selection-end-line="603" selection-end-column="48" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/apps/admin.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="245">
-          <caret line="207" column="53" lean-forward="true" selection-start-line="207" selection-start-column="53" selection-end-line="207" selection-end-column="53" />
+          <caret line="1293" column="44" lean-forward="true" selection-start-line="1293" selection-start-column="44" selection-end-line="1293" selection-end-column="44" />
           <folding>
             <element signature="e#0#11#0" expanded="true" />
           </folding>

@@ -6,7 +6,7 @@ import re
 import time
 import os
 from apps.bento_create_card.public import change_today
-from flask import request, render_template, jsonify, session, g
+from flask import request, render_template, jsonify, session, g, redirect
 from tools_me.des_code import ImgCode
 from tools_me.mysql_tools import SqlData
 from tools_me.other_tools import admin_required, sum_code, xianzai_time, get_nday_list, check_float
@@ -1296,7 +1296,7 @@ def test():
 def logout():
     session.pop('admin_id')
     session.pop('admin_name')
-    return render_template('admin/admin_login.html')
+    return redirect('/admin/login')
 
 
 @admin_blueprint.route('/img_code/', methods=['GET'])
