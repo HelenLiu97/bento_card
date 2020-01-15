@@ -2,7 +2,7 @@ import datetime
 import logging
 from flask import render_template, request
 from apps.bento_create_card.sqldata_native import SqlDataNative
-from apps.bento_create_card.main_recharge import main_transaction_data
+from apps.bento_create_card.main_recharge import main_transaction_data, card_trans
 from flask.views import MethodView
 from . import bentodata_blueprint
 
@@ -60,7 +60,6 @@ class BentoIndex(MethodView):
         fname, fext = os.path.splitext(fileobj.filename)
         upload_name = [".xls", ".xlsx", ]
         if upload_name.count(fext) == 1:
-            info_list = []
             f = fileobj.read()
             data = xlrd.open_workbook(file_contents=f)
             table = data.sheets()[0]
@@ -68,24 +67,14 @@ class BentoIndex(MethodView):
             context = {}
             context['balance'] = "f_balance"
             context['remain'] = 0
+            card_list = list()
             for cardname in cardnames:
                 try:
                     cardid = SqlDataNative.alias_fount_cardid(alias=cardname)
+                    card_list.append(cardid)
                 except Exception as e:
                     continue
-                else:
-                    transaction_data, availableAmount = main_transaction_data(cards=cardid, alias=cardname)
-                    for td in transaction_data:
-                        info_list.append({
-                            "status": td.get("status"),
-                            "amount": td.get("amount"),
-                            "description": td.get("description"),
-                            "date": td.get("date"),
-                            "cardTransactionId": td.get("cardTransactionId"),
-                            "lastFour": td.get("lastFour"),
-                            "alias": td.get("alias"),
-                            "originalCurrency": td.get("originalCurrency"),
-                        })
+            info_list = card_trans(card_list)
             context['pay_list'] = info_list
             return render_template('user/card_detail.html', **context)
         return "上传文件异常"

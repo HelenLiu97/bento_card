@@ -1,3 +1,4 @@
+import threading
 import requests
 import json
 import time
@@ -154,6 +155,62 @@ def main_transaction_data(cards, alias):
     return transactions_datas, availableAmount
 
 
+# 批量查询卡消费记录的方法(使用多线程处理数据，所以写在此方法内)
+def some_transaction_data(cards):
+    transactions_datas = RechargeCard().transaction_data(cards=cards)
+    info_list = list()
+    for td in transactions_datas:
+        info_list.append({
+            "status": td.get("status"),
+            "amount": td.get("amount"),
+            "description": td.get("description"),
+            "date": td.get("date"),
+            "cardTransactionId": td.get("cardTransactionId"),
+            "lastFour": td.get("lastFour"),
+            "alias": td.get("alias"),
+            "originalCurrency": td.get("originalCurrency"),
+        })
+    return info_list
+
+
+# 继承threading模块重写run方法获取返回值
+class MyThread(threading.Thread):
+    def __init__(self, func, args, name=''):
+        threading.Thread.__init__(self)
+        self.name = name
+        self.func = func
+        self.args = args
+
+    def run(self):
+        self.result = self.func(*self.args)
+
+    def get_result(self):
+        try:
+            return self.result
+        except Exception:
+            return None
+
+
+# 使用多线程并发查询卡的交易记录，提高批量查询效率
+def card_trans(card_list):
+    threads = []
+    nloops = range(len(card_list))
+    for i in nloops:
+        cardid = card_list[i]
+        t = MyThread(some_transaction_data, (cardid, ), main_transaction_data.__name__)
+        threads.append(t)
+    for i in nloops:  # start threads 此处并不会执行线程，而是将任务分发到每个线程，同步线程。等同步完成后再开始执行start方法
+        threads[i].start()
+    info_list = list()
+    for i in nloops:  # jion()方法等待线程完成
+        threads[i].join()
+        res = threads[i].get_result()
+        info_list.extend(res)
+    return info_list
+
+
 if __name__ == "__main__":
     # r = RechargeCard().recharge(cardnumber="9845", recharge_amount=0.1, alias="Margie Simpson")
+    l = ['913207', '913206', '913488', '913487', '913486', '913485', '913491', '913490', '915438', '915437', '915436', '915435', '915434', '915433', '915432', '915430', '915429', '915428', '915462', '915461', '916536', '916540', '916539', '916561', '920180', '929967', '943096', '967596', '990349', '990751', '990786', '989822', '989823', '990368', '943107', '993228', '994631', '994623', '994616', '994615', '994614', '993773', '993772', '993130', '990358', '989835', '996182', '995318', '996863', '997194', '996601', '997069', '998923', '998924', '996207', '996211', '998041', '1000311', '1000238']
+    card_trans(l)
     pass
