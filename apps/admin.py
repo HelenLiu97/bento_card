@@ -58,7 +58,7 @@ def account_chart_line():
             do_money = i.get('do_money')
             date = i.get('date').split(' ')[0]
             if date in day_list:
-                day_dict[date] = day_dict.get(date) + do_money
+                day_dict[date] = day_dict.get(date) + abs(do_money)
         res_list = list()
         for k in sorted(day_dict):
             res_l = list()
@@ -422,6 +422,7 @@ def all_trans():
 @admin_blueprint.route('/account_decline', methods=['GET'])
 # @admin_required
 def account_decline():
+    # cache.delete('decline_data')
     # 当前用户较少不采取分页
     page = request.args.get('page')
     limit = request.args.get('limit')
@@ -461,10 +462,8 @@ def account_decline():
         for n in acc_sum_trans:
             value = acc_sum_trans.get(n)
             value['alias'] = n
-            value['all_bili'] = "{} {}".format(float("%.4f" % (value.get('decl') / value.get('t_data') * 100)),
-                                      "%") if value.get('decl') != 0 else 0
-            value['bili'] = "{} {}".format(float("%.4f" % (value.get('three_decl') / value.get('three_tran') * 100)),
-                                      "%") if value.get('three_tran') != 0 else 0
+            value['all_bili'] = float("%.4f" % (value.get('decl') / value.get('t_data') * 100)) if value.get('decl') != 0 else 0
+            value['bili'] = float("%.4f" % (value.get('three_decl') / value.get('three_tran') * 100)) if value.get('three_tran') != 0 else 0
             if value.get('three_tran') != 0 and value.get('three_decl') / value.get('three_tran') > 0.1:
                 value['show'] = 'T'
             else:
@@ -699,6 +698,7 @@ def card_info_all():
         field = request.args.get('field')
         value = request.args.get('value')
 
+        card_status = request.args.get('card_status')
         if field == "card_cus":
             sql = "WHERE label LIKE'%{}%'".format(value)
         elif field == "card_no":
@@ -707,9 +707,10 @@ def card_info_all():
             sql = "WHERE attribution LIKE '%{}%'".format(value)
         elif field == "card_name":
             sql = "WHERE alias LIKE '%{}%'".format(value)
+        elif card_status == "hide":
+            sql = "WHERE card_status != '已注销'"
         else:
             sql = ""
-
         results = dict()
         results['code'] = RET.OK
         results['msg'] = MSG.OK
@@ -1353,7 +1354,7 @@ def index():
     admin_name = g.admin_name
     # spent = SqlData.search_trans_sum_admin()
     # sum_balance = SqlData.search_user_sum_balance()
-    decline = SqlDataNative.count_admin_decline()
+    # decline = SqlDataNative.count_admin_decline()
     card_remain = SqlDataNative.search_sum_remain()
     sum_top = SqlData.search_table_sum('sum_balance', 'account', '')
     sum_remain = SqlData.search_table_sum('balance', 'account', '')
@@ -1365,7 +1366,7 @@ def index():
     context['admin_name'] = admin_name
     context['up_remain_time'] = up_remain_time
     # context['spent'] = spent
-    context['advance'] = decline
+    # context['advance'] = decline
     context['sum_top'] = sum_top
     context['sum_remain'] = sum_remain
     context['card_remain'] = round(card_remain, 3)

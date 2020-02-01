@@ -113,16 +113,16 @@
                 <input type="number" id="top_money" name="top_money" required lay-verify="required" placeholder="充值的金额不能为小数" autocomplete="off"
                        class="layui-input">
             </div>
+            <div class="layui-form-mid layui-word-aux">最低充值范围: $ {{ min_top }}</div>
         </div>
-        &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;<span style="font-weight: normal;font-size: 16px;color: blue;">最低充值范围:</span>$ {{ min_top }}
         <div class="layui-form-item">
             <label class="layui-form-label">标签</label>
             <div class="layui-input-inline">
                 <input type="text" id="label" name="label" placeholder="卡标签" autocomplete="off"
                        class="layui-input">
             </div>
+            <!--<div class="layui-form-mid layui-word-aux">开卡费用: $ {{ create_card }}</div>-->
         </div>
-        &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;<span style="font-weight: normal;font-size: 16px;color: #188479;">开卡费用: </span> $ {{ create_card }}
         <div class="layui-form-item">
             <div class="layui-input-block">
                 <button  class="layui-btn layui-btn-lg demo-active" lay-submit="" lay-filter="create_one" id="sub" type="submit">确认</button>
@@ -164,8 +164,8 @@
                 <input type="text" id="limit" name="limit" required lay-verify="required" placeholder="充值的金额不能为小数" autocomplete="off"
                        class="layui-input">
             </div>
+            <div class="layui-form-mid layui-word-aux">最低充值范围: $ {{ min_top }}</div>
         </div>
-        &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;<span style="font-weight: normal;font-size: 16px;color: blue;">最低充值范围:</span>$ {{ min_top }}
         <div class="layui-form-item">
             <label class="layui-form-label">标签</label>
             <div class="layui-input-inline">
@@ -173,7 +173,6 @@
                        class="layui-input">
             </div>
         </div>
-        &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;<span style="font-weight: normal;font-size: 16px;color: #188479;">开卡费用(单价): </span> $ {{ create_card }}
         <div class="layui-form-item">
             <div class="layui-input-block">
                 <button  class="layui-btn demo-active" lay-submit="" lay-filter="formDemo" id="sub" type="submit">确认</button>

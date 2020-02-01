@@ -34,7 +34,7 @@
           <li class="layui-nav-item"> <span style="font-weight: normal;font-size: 16px;color: ghostwhite;">卡总余额统计时间： </span><span style="font-weight: normal;font-size: 16px;color: palevioletred;">{{ up_remain_time }}</span> </li>
       </ul>
     <ul class="layui-nav layui-layout-right">
-        <li class="layui-nav-item"><span style="font-weight: normal;font-size: 16px;color: #D1EEEE;">客户总充值 </span><span style="font-weight: normal;font-size: 16px;color: lightgoldenrodyellow"> {{ sum_top }}</span>&nbsp;&nbsp;&nbsp;&nbsp;<span style="font-weight: normal;font-size: 16px;color: #F0F8FF;">客户可分配 </span><span style="font-weight: normal;font-size: 16px;color: lightgoldenrodyellow"> {{ sum_remain }}</span>&nbsp;&nbsp;&nbsp;&nbsp;<span style="font-weight: normal;font-size: 16px;color: #EDEDED;">客户卡总余额 </span><span style="font-weight: normal;font-size: 16px;color: lightgoldenrodyellow"> {{ card_remain }}</span>&nbsp;&nbsp;&nbsp;&nbsp;<span style="font-weight: normal;font-size: 16px;color: ghostwhite;">decline的数量 </span><span style="font-weight: normal;font-size: 16px;color: lightgoldenrodyellow"> {{ advance }}</span></li>
+        <li class="layui-nav-item"><span style="font-weight: normal;font-size: 16px;color: #D1EEEE;">客户总充值 </span><span style="font-weight: normal;font-size: 16px;color: lightgoldenrodyellow"> {{ sum_top }}</span>&nbsp;&nbsp;&nbsp;&nbsp;<span style="font-weight: normal;font-size: 16px;color: #F0F8FF;">客户可分配 </span><span style="font-weight: normal;font-size: 16px;color: lightgoldenrodyellow"> {{ sum_remain }}</span>&nbsp;&nbsp;&nbsp;&nbsp;<span style="font-weight: normal;font-size: 16px;color: #EDEDED;">客户卡总余额 </span><span style="font-weight: normal;font-size: 16px;color: lightgoldenrodyellow"> {{ card_remain }}</span>&nbsp;&nbsp;&nbsp;&nbsp;</li>
       <li class="layui-nav-item">
         <a href="javascript:">
           {{ admin_name }}
@@ -109,6 +109,12 @@
             <button class="layui-btn" lay-submit="" lay-filter="sea_account" type="submit">搜索</button>
             <button class="layui-btn layui-btn-primary" >重置</button>
             </div>
+            <script type="text/html" id="acc_title">
+              <div class="layui-btn-container">
+                <button class="layui-btn layui-btn-sm layui-btn-radius" lay-event="show_title">基本信息</button>
+                <button class="layui-btn layui-btn-sm layui-btn-radius layui-btn-normal" lay-event="show_all">详细信息</button>
+              </div>
+            </script>
         </form>
         <table class="layui-hide" id="account_all" lay-filter="account_all"></table>
         <script type="text/html" id="barDemo">
@@ -413,6 +419,10 @@
                      <button class="layui-btn" lay-submit="" lay-filter="sea_card" type="submit">搜索</button>
                      <button class="layui-btn layui-btn-primary">重置</button>
                  </div>
+                     <div class="layui-inline">
+                     <input type="radio" name="card_status" value="show" lay-filter="card_status" title="显示全部卡">
+                     <input type="radio" name="card_status" value="hide" lay-filter="card_status" title="不显示注销卡" checked >
+                     </div>
                  </div>
             </div>
           </form>
@@ -742,12 +752,14 @@ Welcome to BenTo
         //      , page: true
         //  });
 
+        var card_status= $('input[name="card_status"]:checked').val();
+
         //执行一个 table 实例
         table.render({
             elem: '#card_all'
             , height: 'full-250'
             , cellMinWidth: '80'
-            , url: '/admin/card_all' //数据接口
+            , url: '/admin/card_all?card_status='+card_status //数据接口
             , title: '卡信息'
             , toolbar: '#toolbarDemo'
             , limit: 50
@@ -768,6 +780,26 @@ Welcome to BenTo
             , id: 'card_all'
             , page: true
         });
+
+        form.on('radio(card_status)', function (data) {
+    　　　　if (data.value == 'show'){
+                table.reload("card_all", {
+                    url:'/admin/card_all?card_status=show',
+                    page: {
+                        curr: 1 //重新从第 1 页开始
+                    }
+                });
+                return false;
+            } else if (data.value == 'hide'){
+                table.reload("card_all", {
+                    url:'/admin/card_all?card_status=hide',
+                    page: {
+                        curr: 1 //重新从第 1 页开始
+                    }
+                });
+                return false;
+            }
+　　　  });
 
         table.render({
             elem: '#bento_alltrans'
@@ -859,7 +891,7 @@ Welcome to BenTo
             , title: '客户信息'
             , limit: 50
             , limits: [50, 100, 150, 200, 250, 300, 350, 400, 450, 500]
-            , toolbar: "r" //开启工具栏，此处显示默认图标，可以自定义模板，详见文档
+            , toolbar: "#acc_title" //开启工具栏，此处显示默认图标，可以自定义模板，详见文档
             , totalRow: true //开启合计行
             , cols: [[ //表头
                 {type: 'numbers'}
@@ -869,39 +901,11 @@ Welcome to BenTo
                 , {field: 'create_price', title: '开卡费', align: 'center', sort: true,}
                 , {field: 'min_top', title: '最低充值金额', align: 'center', sort: true,}
                 //, {field: 'max_top', title: '最高充值金额', align: 'center', sort: true,}
-                , {
-                    field: 'card_num',
-                    title: '开卡数量',
-                    align: 'center',
-                    sort: true,
-                    totalRow: true,
-                    style: "color: #000000"
-                }
-                , {
-                    field: 'in_card_num',
-                    title: '已开卡数量',
-                    align: 'center',
-                    sort: true,
-                    totalRow: true,
-                    style: "color: #000000"
-                }
-                , {
-                    field: 'del_card_num',
-                    title: '已删卡数量',
-                    align: 'center',
-                    sort: true,
-                    totalRow: true,
-                    style: "color: #000000"
-                }
+                , {field: 'card_num', title: '开卡数量', align: 'center', sort: true, totalRow: true, style: "color: #000000"}
+                , {field: 'in_card_num', title: '已开卡数量', align: 'center', sort: true, totalRow: true, style: "color: #000000"}
+                , {field: 'del_card_num', title: '已删卡数量', align: 'center', sort: true, totalRow: true, style: "color: #000000"}
                 , {field: 'out_money', title: '总消费金额', align: 'center', sort: true, totalRow: true, style: "color: red"}
-                , {
-                    field: 'account_all_money',
-                    title: '卡的总余额',
-                    align: 'center',
-                    sort: true,
-                    totalRow: true,
-                    style: "color: red"
-                }
+                , {field: 'account_all_money', title: '卡的总余额', align: 'center', sort: true, totalRow: true, style: "color: red"}
                 , {field: 'balance', title: '账户余额', align: 'center', sort: true, totalRow: true, style: "color: purple"}
                 , {field: 'sum_balance', title: '总充值金额', align: 'center', sort: true, totalRow: true}
                 , {field: 'status', title: '状态', align: 'center', templet:function(row){
@@ -917,6 +921,70 @@ Welcome to BenTo
             , id: 'account_info'
             , page: true
         });
+
+        var title_base = [ //表头
+                {type: 'numbers'}
+                , {field: 'name', title: '客户', align: 'center', sort: true, totalRowText: '合计：'}
+                , {field: 'account', title: '账号', align: 'center', sort: true,}
+                , {field: 'password', title: '密码', align: 'center', sort: true,}
+                , {field: 'create_price', title: '开卡费', align: 'center', sort: true,}
+                , {field: 'min_top', title: '最低充值金额', align: 'center', sort: true,}
+            ];
+
+        var title_all=[ //表头
+                {type: 'numbers'}
+                , {field: 'name', title: '客户', align: 'center', sort: true, totalRowText: '合计：'}
+                , {field: 'card_num', title: '开卡数量', align: 'center', sort: true, totalRow: true, style: "color: #000000"}
+                , {field: 'in_card_num', title: '已开卡数量', align: 'center', sort: true, totalRow: true, style: "color: #000000"}
+                , {field: 'del_card_num', title: '已删卡数量', align: 'center', sort: true, totalRow: true, style: "color: #000000"}
+                , {field: 'out_money', title: '总消费金额', align: 'center', sort: true, totalRow: true, style: "color: red"}
+                , {field: 'account_all_money', title: '卡的总余额', align: 'center', sort: true, totalRow: true, style: "color: red"}
+                , {field: 'balance', title: '账户余额', align: 'center', sort: true, totalRow: true, style: "color: purple"}
+                , {field: 'sum_balance', title: '总充值金额', align: 'center', sort: true, totalRow: true}
+                , {field: 'status', title: '状态', align: 'center', templet:function(row){
+                        var html = "<input type='checkbox' lay-skin='switch' lay-text='ON|OFF' lay-filter='checkboxIsSelected' table-index='"+row.LAY_TABLE_INDEX+"' class='checkboxIsSelected'";
+                        if(row.status == 'T'){
+                            html += " checked ";
+                        }
+                        html += ">";
+                        return html;
+                    }}
+                , {fixed: 'right', width: 210, align: 'center', toolbar: '#barDemo'}
+            ];
+
+        table.on('toolbar(account_all)', function(obj){
+            var checkStatus = table.checkStatus(obj.config.id);
+            switch(obj.event){
+              case 'show_title':
+                table.render({
+                    elem: '#account_all'
+                    , height: 'full-250'
+                    , cellMinWidth: '80'
+                    , url: '/admin/account_info' //数据接口
+                    , title: '客户信息'
+                    , limit: 50
+                    , limits: [50, 100, 150, 200, 250, 300, 350, 400, 450, 500]
+                    , toolbar: "#acc_title" //开启工具栏，此处显示默认图标，可以自定义模板，详见文档
+                    , totalRow: true //开启合计行
+                    , cols: [title_base]
+                });
+              break;
+              case 'show_all':
+                  table.render({
+                    elem: '#account_all'
+                    , height: 'full-250'
+                    , cellMinWidth: '80'
+                    , url: '/admin/account_info' //数据接口
+                    , title: '客户信息'
+                    , limit: 50
+                    , limits: [50, 100, 150, 200, 250, 300, 350, 400, 450, 500]
+                    , toolbar: "#acc_title" //开启工具栏，此处显示默认图标，可以自定义模板，详见文档
+                    , totalRow: true //开启合计行
+                    , cols: [title_all]
+                });
+              break;
+            };
+          });
 
         form.on('switch(checkboxIsSelected)', function(obj){
             var data = $(obj.elem);
@@ -1072,10 +1140,10 @@ Welcome to BenTo
                 , {field: 'alias', title: '客户名', align: 'center', sort: true}
                 , {field: 'decl', title: 'decline数量', align: 'center', sort: true}
                 , {field: 't_data', title: '所有卡交易数量', align: 'center', sort: true, style: 'color: green'}
-                , {field: 'all_bili', title: '所有交易decline比例', align: 'center', sort: true, style: 'color: #A52A2A'}
+                , {field: 'all_bili', title: '所有交易decline比例(%)', align: 'center', sort: true, style: 'color: #A52A2A'}
                 , {field: 'three_decl', title: '三天内所有decline数量', align: 'center', sort: true, style: 'color: green'}
                 , {field: 'three_tran', title: '三天内所有交易数量', align: 'center', sort: true, style: 'color: green'}
-                , {field: 'bili', title: '三天decline比', align: 'center', sort: true,}
+                , {field: 'bili', title: '三天decline比例(%)', align: 'center', sort: true,}
             ]]
             , id: 'account_decl'
             , page: true
@@ -1648,7 +1716,6 @@ Welcome to BenTo
         });
 
         form.on('submit(sea_card)', function (data) {
-
             var $ = layui.jquery;
             var field = $('#field').val(),
                 value = $('#value').val();
