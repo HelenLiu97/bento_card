@@ -5,6 +5,8 @@ import operator
 import re
 import time
 import os
+import xlwt
+from flask import send_file
 from apps.bento_create_card.public import change_today
 from flask import request, render_template, jsonify, session, g, redirect
 from tools_me.des_code import ImgCode
@@ -314,7 +316,7 @@ def qr_code():
 @admin_required
 def notice():
     if request.method == 'GET':
-        note = SqlData.search_admin_field('noteice')
+        note = SqlData.search_admin_field('notice')
         context = dict()
         context['note'] = note
         return render_template('admin/notice.html', **context)
@@ -1240,6 +1242,69 @@ def middle_info_html():
     context = dict()
     context['pay_list'] = middle_data
     return render_template('admin/middle_info.html', **context)
+
+
+@admin_blueprint.route('/30DayData')
+@admin_required
+def chart_excel():
+    day_num = 30
+    day_list = get_nday_list(day_num)
+    account_list = SqlData.search_user_field_admin()
+    data = list()
+    if account_list:
+        for u_id in account_list:
+            info_dict = dict()
+            count_list = list()
+            for i in day_list:
+                sql_str = "AND do_date BETWEEN '{} 00:00:00' AND '{} 23:59:59'".format(i, i)
+                alias = u_id.get("id")
+                card_count = SqlData.bento_chart_data(alias=alias, time_range=sql_str)
+                count_list.append(card_count)
+            info_dict['name'] = u_id.get('name')
+            info_dict['data'] = count_list
+            data.append(info_dict)
+    else:
+        data = [{'name': '无客户',
+                 'data': [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]}]
+
+    sum_list = list()
+    for i in data:
+        one_cus = i.get('data')
+        sum_list.append(one_cus)
+
+    res_list = list()
+    for n in range(30):
+        res = 0
+        for i in range(len(sum_list)):
+            card_num = sum_list[i][n]
+            if card_num != "":
+                res += card_num
+        res_list.append(res)
+    name_list = list()
+    name_list.append("")
+    colum = list()
+    colum.append(day_list)
+    for d in data:
+        name = d.get('name')
+        name_list.append(name)
+        colum.append(d.get('data'))
+    name_list.append("合计：")
+    colum.append(res_list)
+
+    f = xlwt.Workbook()
+    sheet1 = f.add_sheet('近30天折线图数据', cell_overwrite_ok=True)
+    for i in range(0, len(name_list)):
+        sheet1.write(0, i, name_list[i])
+    # 写第一列
+    c = 0
+    for d in colum:
+        for i in range(0, len(d)):
+            sheet1.write(i + 1, c, d[i])
+        c += 1
+    path = 'line_chart.xls'
+    f.save(path)
+
+    return send_file(path)
 
 
 @admin_blueprint.route('/line_chart', methods=['GET'])

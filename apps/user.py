@@ -1041,14 +1041,19 @@ def card_info():
     page = request.args.get('page')
     label = request.args.get('label')
     range_time = request.args.get('range_time')
+    card_status = request.args.get('card_status')
     results = {}
     results['code'] = RET.OK
     results['msg'] = MSG.OK
     user_id = g.user_id
     if not label and not card_name and not card_num and not range_time:
         # 这里gt需修改成查询全部数据
+        if card_status == 'show':
+            status = ''
+        else:
+            status = '已注销'
         attribution = SqlData.search_user_field("name", user_id)
-        data = SqlDataNative.search_alias_data(label, attribution)
+        data = SqlDataNative.search_alias_data(status, attribution)
     else:
         name_sql = ""
         if card_name:

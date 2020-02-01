@@ -121,11 +121,12 @@
                 <input type="text" id="label" name="label" placeholder="卡标签" autocomplete="off"
                        class="layui-input">
             </div>
-            <!--<div class="layui-form-mid layui-word-aux">开卡费用: $ {{ create_card }}</div>-->
+            <div class="layui-form-mid layui-word-aux">卡费: $ <span id="price">{{ create_card }}</span></div>
         </div>
         <div class="layui-form-item">
             <div class="layui-input-block">
                 <button  class="layui-btn layui-btn-lg demo-active" lay-submit="" lay-filter="create_one" id="sub" type="submit">确认</button>
+                <div class="layui-form-mid layui-word-aux" style="float: right;margin-right: 113px">合计: $ <span id="sum_money" style="color: red">0.00</span></div>
             </div>
         </div>
     </form>
@@ -172,10 +173,12 @@
                 <input type="text" id="label" name="label" placeholder="卡标签" autocomplete="off"
                        class="layui-input">
             </div>
+            <div class="layui-form-mid layui-word-aux">卡费: $ <span>{{ create_card }}</span></div>
         </div>
         <div class="layui-form-item">
             <div class="layui-input-block">
                 <button  class="layui-btn demo-active" lay-submit="" lay-filter="formDemo" id="sub" type="submit">确认</button>
+                <div class="layui-form-mid layui-word-aux" style="float: right;margin-right: 113px">合计: $ <span id="sum_money_2" style="color: red">0.00</span></div>
             </div>
         </div>
     </form>
@@ -205,6 +208,12 @@
             </div>
             <button class="layui-btn" data-type="reload" id="sub_card">搜索</button>
             <button class="layui-btn layui-btn-primary" id="">重置</button>
+
+             <div class="layui-inline">
+                 <input type="radio" name="card_status" value="show" lay-filter="card_status" title="显示全部卡">
+                 <input type="radio" name="card_status" value="hide" lay-filter="card_status" title="不显示注销卡" checked >
+             </div>
+
 
             </div>
         </form>
@@ -397,6 +406,67 @@
         }
         show_notice();
 
+        function accAdd(num1, num2) {
+            var r1, r2, m;
+            try {
+                r1 = num1.toString().split('.')[1].length;
+            } catch (e) {
+                r1 = 0;
+            }
+            try {
+                r2 = num2.toString().split(".")[1].length;
+            } catch (e) {
+                r2 = 0;
+            }
+            m = Math.pow(10, Math.max(r1, r2));
+            // return (num1*m+num2*m)/m;
+            return Math.round(num1 * m + num2 * m) / m;
+        }
+
+        function accMul(num1, num2) {
+            var m = 0, s1 = num1.toString(), s2 = num2.toString();
+            try {
+                m += s1.split(".")[1].length
+            } catch (e) {
+            }
+            try {
+                m += s2.split(".")[1].length
+            } catch (e) {
+            }
+            return Number(s1.replace(".", "")) * Number(s2.replace(".", "")) / Math.pow(10, m);
+        }
+
+        $(function () {
+            $('#top_money').bind('input propertychange', function () {
+                var a = $('#top_money').val(),
+                    price = $('#price').text();
+                var card_money = accAdd(a, price);
+                $('#sum_money').html(card_money);
+            });
+        });
+
+        $(function () {
+            $('#card_num').bind('input propertychange', function () {
+                var card_num = $('#card_num').val(),
+                    price = $('#price').text(),
+                    limit = $("#limit").val();
+                var one_card = accAdd(limit, price);
+                var sum = accMul(one_card, card_num);
+                $('#sum_money_2').html(sum);
+            });
+        });
+
+        $(function () {
+            $('#limit').bind('input propertychange', function () {
+                var card_num = $('#card_num').val(),
+                    price = $('#price').text(),
+                    limit = $("#limit").val();
+                var one_card = accAdd(limit, price);
+                var sum = accMul(one_card, card_num);
+                $('#sum_money_2').html(sum);
+            });
+        });
+
         form.on('submit(create_one)', function(data){
 	    // 单击之后提交按钮不可选,防止重复提交
             var DISABLED = 'layui-btn-disabled';
@@ -562,13 +632,14 @@
 	    range: true
 	});
 
+        var card_status= $('input[name="card_status"]:checked').val();
 
         //执行一个 table 实例
         table.render({
             elem: '#card_info'
             , height: 'full-250'
             , cellMinWidth: '80'
-            , url: '/user/card_info' //数据接口
+            , url: '/user/card_info?card_status='+card_status //数据接口
             , title: '卡列表'
             , skin: 'line'
             , limit:20
@@ -590,6 +661,26 @@
             , id: 'card_info'
             , page: true
         });
+
+        form.on('radio(card_status)', function (data) {
+    　　　　if (data.value == 'show'){
+                table.reload("card_info", {
+                    url:'/user/card_info?card_status=show',
+                    page: {
+                        curr: 1 //重新从第 1 页开始
+                    }
+                });
+                return false;
+            } else if (data.value == 'hide'){
+                table.reload("card_info", {
+                    url:'/user/card_info?card_status=hide',
+                    page: {
+                        curr: 1 //重新从第 1 页开始
+                    }
+                });
+                return false;
+            }
+　　　  });
 
         var remain = $('#search_re');
         remain.on('click',function () {

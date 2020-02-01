@@ -78,10 +78,10 @@ class SqlDataNative(object):
             logging.warning(str(e))
         return data
 
-    def search_alias_data(self, user_label, attribution):
+    def search_alias_data(self, card_status, attribution):
         # sql = "SELECT * FROM bento_create_card WHERE label='{}' and attribution='{}'".format(user_label, attribution)
         # if not user_label: 
-        sql = "SELECT * FROM bento_create_card WHERE attribution='{}'".format(attribution)
+        sql = "SELECT * FROM bento_create_card WHERE card_status!='{}' AND attribution='{}'".format(card_status, attribution)
         conn, cursor = self.connect()
         cursor.execute(sql)
         rows = cursor.fetchall()

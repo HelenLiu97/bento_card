@@ -13,6 +13,8 @@
     <script src="/static/layui/layui.js"></script>
     <script src="http://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js"></script>
     <script src="http://code.highcharts.com/highcharts.js"></script>
+    <script src="https://code.highcharts.com.cn/highcharts/modules/exporting.js"></script>
+    <script src="https://img.hcharts.cn/highcharts-plugins/highcharts-zh_CN.js"></script>
     <style>
         .divForm{
             width: 500px;
@@ -84,9 +86,10 @@
       <li lay-id="4">客户自己的充值记录</li>
       <!--<li lay-id="5">客户历史余额记录</li>-->
       <li lay-id="6">新增客户</li>
-      <li lay-id="7">新增中介</li>
-      <li lay-id="8">中介管理</li>
-      <li lay-id="9">中介提成</li>
+      <li lay-id="7">中介信息</li>
+      <!--<li lay-id="7">新增中介</li>-->
+      <!--<li lay-id="8">中介管理</li>-->
+      <!--<li lay-id="9">中介提成</li>-->
       <li lay-id="10">所有卡信息</li>
       <li lay-id="12">卡的decline记录</li>
       <li lay-id="13">用户decline比例记录</li>
@@ -95,6 +98,7 @@
   </ul>
   <div class="layui-tab-content" style="height: 100%;">
       <div class="layui-tab-item layui-show">
+          <a href="/admin/30DayData"><button type="button" class="layui-btn layui-btn-normal layui-btn-radius" style="float: right">下载Excel</button></a>
         <div id="month" style="width: 100%; height: 800px; margin: 0 auto"></div>
   </div>
     <div class="layui-tab-item">
@@ -111,7 +115,7 @@
             </div>
             <script type="text/html" id="acc_title">
               <div class="layui-btn-container">
-                <button class="layui-btn layui-btn-sm layui-btn-radius" lay-event="show_title">基本信息</button>
+                <button class="layui-btn layui-btn-sm layui-btn-radius" lay-event="show_title">账号资料</button>
                 <button class="layui-btn layui-btn-sm layui-btn-radius layui-btn-normal" lay-event="show_all">详细信息</button>
               </div>
             </script>
@@ -120,8 +124,10 @@
         <script type="text/html" id="barDemo">
             <a class="layui-btn layui-btn-xs" lay-event="top_up">充值</a>
             <a class="layui-btn layui-btn-normal layui-btn-xs" lay-event="pay">消费</a>
-            <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="edit">编辑</a>
             <a class="layui-btn layui-btn-xs layui-btn-warm" lay-event="chart">查看</a>
+        </script>
+        <script type="text/html" id="barDemo1">
+            <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="edit">编辑</a>
         </script>
     </div>
 
@@ -310,87 +316,97 @@
     </div>
 
       <div class="layui-tab-item">
+          <div class="layui-tab layui-tab-brief" lay-filter="docDemoTabBrief">
+          <ul class="layui-tab-title">
+            <li class="layui-this">新增中介</li>
+            <li>中介管理</li>
+            <li>中介提成</li>
+          </ul>
+          <div class="layui-tab-content">
+            <div class="layui-tab-item layui-show">
+                <div class="divForm">
+                    <form class="layui-form" lay-filter=""  enctype="multipart/form-data">
+                        <div class="layui-form-item">
+                            <label class="layui-form-label">姓   名</label>
+                            <div class="layui-input-inline">
+                                <input type="text" name="name" required lay-verify="required" placeholder="客户姓名" autocomplete="off"
+                                       class="layui-input">
+                            </div>
+                        </div>
+                        <div class="layui-form-item">
+                            <label class="layui-form-label">账   号</label>
+                            <div class="layui-input-inline">
+                                <input type="text" name="account" required lay-verify="required" placeholder="客户登录账号" autocomplete="off"
+                                       class="layui-input">
+                            </div>
+                        </div>
 
-          <div class="divForm">
-        <form class="layui-form" lay-filter=""  enctype="multipart/form-data">
-            <div class="layui-form-item">
-                <label class="layui-form-label">姓   名</label>
-                <div class="layui-input-inline">
-                    <input type="text" name="name" required lay-verify="required" placeholder="客户姓名" autocomplete="off"
-                           class="layui-input">
-                </div>
-            </div>
-            <div class="layui-form-item">
-                <label class="layui-form-label">账   号</label>
-                <div class="layui-input-inline">
-                    <input type="text" name="account" required lay-verify="required" placeholder="客户登录账号" autocomplete="off"
-                           class="layui-input">
-                </div>
-            </div>
+                        <div class="layui-form-item">
+                            <label class="layui-form-label">密   码</label>
+                            <div class="layui-input-inline">
+                                <input type="text" name="password" placeholder="客户登录密码" required lay-verify="required" autocomplete="off"
+                                       class="layui-input">
+                            </div>
+                        </div>
 
-            <div class="layui-form-item">
-                <label class="layui-form-label">密   码</label>
-                <div class="layui-input-inline">
-                    <input type="text" name="password" placeholder="客户登录密码" required lay-verify="required" autocomplete="off"
-                           class="layui-input">
-                </div>
-            </div>
+                        <div class="layui-form-item">
+                            <label class="layui-form-label">电   话</label>
+                            <div class="layui-input-inline">
+                                <input type="number" name="phone_num" placeholder="接收短息通知号码"  autocomplete="off"
+                                       class="layui-input">
+                            </div>
+                        </div>
 
-            <div class="layui-form-item">
-                <label class="layui-form-label">电   话</label>
-                <div class="layui-input-inline">
-                    <input type="number" name="phone_num" placeholder="接收短息通知号码"  autocomplete="off"
-                           class="layui-input">
-                </div>
-            </div>
+                        <div class="layui-form-item">
+                            <label class="layui-form-label">0-3个客户</label>
+                            <div class="layui-input-inline">
+                                <input type="number" name="price_one" placeholder="开一张卡中介多少钱" required lay-verify="required" autocomplete="off"
+                                       class="layui-input">
+                            </div>
+                        </div>
 
-            <div class="layui-form-item">
-                <label class="layui-form-label">0-3个客户</label>
-                <div class="layui-input-inline">
-                    <input type="number" name="price_one" placeholder="开一张卡中介多少钱" required lay-verify="required" autocomplete="off"
-                           class="layui-input">
-                </div>
-            </div>
+                        <div class="layui-form-item">
+                            <label class="layui-form-label">4-6个客户</label>
+                            <div class="layui-input-inline">
+                                <input type="number" name="price_two" placeholder="开一张卡中介多少钱" required lay-verify="required" autocomplete="off"
+                                       class="layui-input">
+                            </div>
+                        </div>
 
-            <div class="layui-form-item">
-                <label class="layui-form-label">4-6个客户</label>
-                <div class="layui-input-inline">
-                    <input type="number" name="price_two" placeholder="开一张卡中介多少钱" required lay-verify="required" autocomplete="off"
-                           class="layui-input">
-                </div>
-            </div>
+                        <div class="layui-form-item">
+                            <label class="layui-form-label">7个以上客户</label>
+                            <div class="layui-input-inline">
+                                <input type="number" name="price_three" placeholder="开一张卡中介多少钱" required lay-verify="required" autocomplete="off"
+                                       class="layui-input">
+                            </div>
+                        </div>
 
-            <div class="layui-form-item">
-                <label class="layui-form-label">7个以上客户</label>
-                <div class="layui-input-inline">
-                    <input type="number" name="price_three" placeholder="开一张卡中介多少钱" required lay-verify="required" autocomplete="off"
-                           class="layui-input">
+                        <div class="layui-form-item">
+                            <div class="layui-input-block">
+                                <button  class="layui-btn layui-btn-lg" lay-submit="" lay-filter="add_middle" type="submit">确认</button>
+                            </div>
+                        </div>
+                    </form>
                 </div>
             </div>
+            <div class="layui-tab-item">
+                <tablse class="layui-hide" id="middle_info" lay-filter="middle_info"></tablse>
+                <script type="text/html" id="middle_bar">
+                    <a class="layui-btn layui-btn-normal layui-btn-xs" lay-event="mid_edit">编辑</a>
+                    <a class="layui-btn layui-btn-warm layui-btn-xs" lay-event="del">提成</a>
+                </script>
+            </div>
+            <div class="layui-tab-item">
+                <table class="layui-show" id="middle_money" lay-filter="middle_money"></table>
+                <script type="text/html" id="middle_money_bar">
+                    <a class="layui-btn layui-btn-xs" lay-event="payed" id="pay">确认支付</a>
+                </script>
+            </div>
+          </div>
+        </div>
 
-            <div class="layui-form-item">
-                <div class="layui-input-block">
-                    <button  class="layui-btn layui-btn-lg" lay-submit="" lay-filter="add_middle" type="submit">确认</button>
-                </div>
-            </div>
-        </form>
-    </div>
   </div>
 
-      <div class="layui-tab-item">
-          <tablse class="layui-hide" id="middle_info" lay-filter="middle_info"></tablse>
-          <script type="text/html" id="middle_bar">
-            <a class="layui-btn layui-btn-normal layui-btn-xs" lay-event="mid_edit">编辑</a>
-            <a class="layui-btn layui-btn-warm layui-btn-xs" lay-event="del">提成</a>
-        </script>
-      </div>
-
-      <div class="layui-tab-item">
-          <table class="layui-show" id="middle_money" lay-filter="middle_money"></table>
-          <script type="text/html" id="middle_money_bar">
-            <a class="layui-btn layui-btn-xs" lay-event="payed" id="pay">确认支付</a>
-        </script>
-      </div>
 
       <div class="layui-tab-item">
 
@@ -541,9 +557,10 @@
         <li class="layui-nav-item layui-nav-itemed">
           <a class="" href="javascript:">中介管理</a>
           <dl class="layui-nav-child">
-            <dd><a href="javascript:" id="add_mid">新增中介</a></dd>
-            <dd><a href="javascript:" id="mid_info">中介管理</a></dd>
-            <dd><a href="javascript:" id="mid_money">中介提成</a></dd>
+            <dd><a href="javascript:" id="add_mid">中介信息</a></dd>
+            <!--<dd><a href="javascript:" id="add_mid">新增中介</a></dd>-->
+            <!--<dd><a href="javascript:" id="mid_info">中介管理</a></dd>-->
+            <!--<dd><a href="javascript:" id="mid_money">中介提成</a></dd>-->
           </dl>
         </li>
       </ul>
@@ -896,11 +913,6 @@ Welcome to BenTo
             , cols: [[ //表头
                 {type: 'numbers'}
                 , {field: 'name', title: '客户', align: 'center', sort: true, totalRowText: '合计：'}
-                , {field: 'account', title: '账号', align: 'center', sort: true,}
-                , {field: 'password', title: '密码', align: 'center', sort: true,}
-                , {field: 'create_price', title: '开卡费', align: 'center', sort: true,}
-                , {field: 'min_top', title: '最低充值金额', align: 'center', sort: true,}
-                //, {field: 'max_top', title: '最高充值金额', align: 'center', sort: true,}
                 , {field: 'card_num', title: '开卡数量', align: 'center', sort: true, totalRow: true, style: "color: #000000"}
                 , {field: 'in_card_num', title: '已开卡数量', align: 'center', sort: true, totalRow: true, style: "color: #000000"}
                 , {field: 'del_card_num', title: '已删卡数量', align: 'center', sort: true, totalRow: true, style: "color: #000000"}
@@ -929,6 +941,7 @@ Welcome to BenTo
                 , {field: 'password', title: '密码', align: 'center', sort: true,}
                 , {field: 'create_price', title: '开卡费', align: 'center', sort: true,}
                 , {field: 'min_top', title: '最低充值金额', align: 'center', sort: true,}
+                , {fixed: 'right', width: 210, align: 'center', toolbar: '#barDemo1'}
             ];
 
         var title_all=[ //表头
@@ -1281,12 +1294,12 @@ Welcome to BenTo
         $('#add_mid').on('click', function () {
             element.tabChange('demo', 7);
         });
-        $('#mid_info').on('click', function () {
-            element.tabChange('demo', 8);
-        });
-        $('#mid_money').on('click', function () {
-            element.tabChange('demo', 9);
-        });
+        // $('#mid_info').on('click', function () {
+        //     element.tabChange('demo', 8);
+        // });
+        // $('#mid_money').on('click', function () {
+        //     element.tabChange('demo', 9);
+        // });
         $('#card_admin').on('click', function () {
             element.tabChange('demo', 10);
         });
