@@ -23,6 +23,17 @@ class SqlDataNative(object):
         cursor.close()
         conn.close()
 
+    def search_card_fail(self):
+        sql = "SELECT card_number FROM bento_create_card WHERE card_status='已注销'"
+        conn, cursor = self.connect()
+        cursor.execute(sql)
+        rows = cursor.fetchall()
+        self.close_connect(conn, cursor)
+        card_list = list()
+        for c in rows:
+            card_list.append(c[0])
+        return card_list
+
     def count_bento_data(self, sqld):
         sql = "select COUNT(*) from bento_create_card {}".format(sqld)
         conn, cursor = self.connect()

@@ -27,7 +27,7 @@ def rgbcolor():
 
 # 绘制线条
 def create_line(draw, width, height):
-    for i in range(8):
+    for i in range(2):
         x1 = random.randint(0, width)
         x2 = random.randint(0, width)
         y1 = random.randint(0, height)

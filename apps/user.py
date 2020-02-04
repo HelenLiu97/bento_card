@@ -600,13 +600,23 @@ def account_trans():
 
     user_id = g.user_id
     task_info = SqlData.search_account_trans(user_id, card_sql, time_sql, type_sql=do_sql)
-
     results = {"code": RET.OK, "msg": MSG.OK, "count": 0, "data": ""}
     if len(task_info) == 0:
         results['MSG'] = MSG.NODATA
         return jsonify(results)
+
+    # 查询注销的卡，隐藏注销的卡号
+    fail_card = SqlDataNative.search_card_fail()
+    card_info = list()
+    for i in task_info:
+        card_number = i.get('card_no')
+        card_no = card_number.split()[0]
+        if card_no in fail_card:
+            i['card_no'] = "****" + card_no[-4:]
+        card_info.append(i)
+
     page_list = list()
-    task_info = list(reversed(task_info))
+    task_info = list(reversed(card_info))
     for i in range(0, len(task_info), int(limit)):
         page_list.append(task_info[i:i + int(limit)])
     results['data'] = page_list[int(page) - 1]

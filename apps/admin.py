@@ -472,7 +472,10 @@ def account_decline():
                 value['show'] = 'F'
             res.append(value)
             # 设置缓存
+        data = sorted(res, key=operator.itemgetter("bili"))
+        res = list(reversed(data))
         cache.set('decline_data', res, timeout=60 * 60 * 6)
+        return jsonify({"code": 0, "count": len(res), "data": res, "msg": "SUCCESSFUL"})
 
     else:
         res = ca_data
@@ -794,14 +797,32 @@ def card_info():
     return jsonify(results)
 
 
+@admin_blueprint.route('/search_acc/', methods=['GET'])
+@admin_required
+def search_acc():
+    results = {"code": RET.OK, "msg": MSG.OK}
+    return jsonify(results)
+
+
 @admin_blueprint.route('/acc_to_middle/', methods=['GET', 'POST'])
 @admin_required
 def acc_to_middle():
     if request.method == 'GET':
         middle_id = request.args.get('middle_id')
-        middle_sql = "WHERE middle_id=" + middle_id + ""
-        cus_list = SqlData.search_cus_list(sql_line=middle_sql)
-        null_list = SqlData.search_cus_list(sql_line="WHERE middle_id is null")
+        search_na = request.args.get('search_na')
+        search_na_2 = request.args.get('search_na_2')
+        if not middle_id:
+            name = request.args.get('name')
+            middle_id = SqlData.search_middle_name('id', name)
+        middle_sql = "WHERE middle_id=" + str(middle_id) + ""
+        s_search = ""
+        if search_na_2:
+            s_search = ' AND name LIKE "%' + search_na_2 + '%"'
+        cus_list = SqlData.search_cus_list(sql_line=middle_sql + s_search)
+        sql_search = ""
+        if search_na:
+            sql_search = ' AND name LIKE "%' + search_na + '%"'
+        null_list = SqlData.search_cus_list(sql_line="WHERE middle_id is null" + sql_search)
         context = dict()
         context['cus_list'] = cus_list
         context['null_list'] = null_list
