@@ -498,7 +498,9 @@ def bento_update():
     data = get_bento_data(cardid=s)
     if data.get("pan"):
         SqlDataNative.update_card_data(pan=data.get("pan"), cvv=data.get("cvv"), expiration=data.get("expiration"),
-                                         alias=alias)
+                                        alias=alias)
+        card_id = SqlDataNative.search_card_number('card_id', alias)[0]
+        SqlData.update_account_trans(card_id, data.get("pan"))
         return jsonify({"code": RET.OK, "msg": "更新成功"})
     else:
         return jsonify({"code": RET.OK, "msg": "更新失败, 请稍后再试"})
@@ -1256,7 +1258,10 @@ def img_code():
 @login_required
 def notice():
     notice = SqlData.search_admin_field('notice')
-    s = '<html><body><div style="padding:15px 20px; text-align:justify; line-height: 22px; text-indent:2em;"><p class="layui-red">{}</p></div></body></html>'.format(notice)
+    note_list = notice.split("!@#")
+    note = note_list[0]
+    date = note_list[1]
+    s = '<html><body><div style="padding-left:20px; color:red;">公告时间：{}</div><div style="padding:15px 20px; text-align:justify; line-height: 22px; text-indent:2em;"><p class="layui-red">{}</p></div></body></html>'.format(date, note)
     return s
 
 
@@ -1290,7 +1295,7 @@ def login():
                 pass_word = user_data.get('password')
                 name = user_data.get('name')
                 if user_pass == pass_word:
-                    if user_pass == 'verifyto475':
+                    if user_pass == '456456':
                        return jsonify({'code': 307, 'msg': MSG.OK})
                     else:
                         session['user_id'] = user_id

@@ -7,6 +7,7 @@ import time
 import os
 import xlwt
 from flask import send_file
+from xpinyin import Pinyin
 from apps.bento_create_card.public import change_today
 from flask import request, render_template, jsonify, session, g, redirect
 from tools_me.des_code import ImgCode
@@ -322,7 +323,9 @@ def notice():
         return render_template('admin/notice.html', **context)
     if request.method == 'POST':
         data = json.loads(request.form.get('data'))
+        t = xianzai_time()
         note = data.get('note')
+        note = note + "!@#" + t
         SqlData.update_admin_field('notice', note)
         return jsonify({"code": RET.OK, "msg": MSG.OK})
 
@@ -1171,9 +1174,13 @@ def account_info():
     page = request.args.get('page')
     limit = request.args.get('limit')
     customer = request.args.get('customer')
+    middle_name = request.args.get('middle')
     results = {"code": RET.OK, "msg": MSG.OK, "count": 0, "data": ""}
     if customer:
         sql = "WHERE name LIKE '%" + customer + "%'"
+    elif middle_name:
+        middle_id = SqlData.search_middle_name('id', middle_name)
+        sql = "WHERE middle_id={}".format(middle_id)
     else:
         sql = ''
     task_one = SqlData.search_account_info(sql)
@@ -1207,7 +1214,7 @@ def account_info():
         u['in_card_num'] = len(all_cardids)
         task_info.append(u)
     page_list = list()
-    task_info_status = list()
+    task_info_status = dict()
     for c in task_info:
         u_id = c.get('u_id')
         r = RedisTool.string_get(u_id)
@@ -1215,8 +1222,13 @@ def account_info():
             c['status'] = 'T'
         else:
             c['status'] = 'F'
-        task_info_status.append(c)
-    task_info = list(reversed(task_info_status))
+        # 使用中文字母拍寻排列客户信息
+        user_name = Pinyin().get_pinyin(c.get('name')).lower().strip()
+        task_info_status[user_name] = c
+    task_info = list()
+    for i in sorted(task_info_status):
+        # print i.keys()
+        task_info.append(task_info_status[i])
     for i in range(0, len(task_info), int(limit)):
         page_list.append(task_info[i:i + int(limit)])
     results['data'] = page_list[int(page) - 1]
@@ -1442,6 +1454,7 @@ def index():
     # sum_balance = SqlData.search_user_sum_balance()
     # decline = SqlDataNative.count_admin_decline()
     card_remain = SqlDataNative.search_sum_remain()
+    middle = SqlData.search_middle_name_list()
     sum_top = SqlData.search_table_sum('sum_balance', 'account', '')
     sum_remain = SqlData.search_table_sum('balance', 'account', '')
     card_use = SqlDataNative.count_bento_data(sqld="")
@@ -1459,4 +1472,5 @@ def index():
     context['card_use'] = card_use
     context['card_no'] = card_no
     context['card_un'] = card_un
+    context['middle'] = middle
     return render_template('admin/index.html', **context)

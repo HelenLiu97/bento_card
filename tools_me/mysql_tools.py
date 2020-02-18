@@ -877,7 +877,8 @@ class SqlData(object):
             else:
                 info_dict['pay_time'] = ""
             info_dict['name'] = i[12]
-            info_list.append(info_dict)
+            if not i[6]:
+                info_list.append(info_dict)
         return info_list
 
     def update_middle_sub(self, pay_status, pay_time, info_id):
@@ -1512,6 +1513,28 @@ class SqlData(object):
         user_data['user_id'] = rows[0][0]
         user_data['user_name'] = rows[0][1]
         return user_data
+
+    def update_account_trans(self, card_id, card_no):
+        sql = "UPDATE account_trans SET card_no='{}' WHERE num={}".format(card_no, card_id)
+        conn, cursor = self.connect()
+        try:
+            cursor.execute(sql)
+            conn.commit()
+        except Exception as e:
+            logging.error("更新充值用户交易记录卡号失败")
+            conn.rollback()
+        self.close_connect(conn, cursor)
+
+    def search_middle_name_list(self):
+        sql = "SELECT `name` FROM middle"
+        conn, cursor = self.connect()
+        cursor.execute(sql)
+        rows = cursor.fetchall()
+        self.close_connect(conn, cursor)
+        info_list = list()
+        for i in rows:
+            info_list.append(i[0])
+        return info_list
 
 
 SqlData = SqlData()

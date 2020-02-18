@@ -237,7 +237,14 @@
             </div>
             操作类型：
             <div class="layui-inline">
-                <input type="text" class="layui-input" name="trans_card" id="do_type" autocomplete="off">
+                <select name="interest" lay-filter="aihao" id="do_type">
+                <option value=""></option>
+                <option value="开卡">开卡</option>
+                <option value="充值">充值</option>
+                <option value="退款">退款</option>
+                <option value="转移">转移退款</option>
+                <option value="系统扣费">系统扣费</option>
+              </select>
             </div>
             时间范围:
             <div class="layui-inline">

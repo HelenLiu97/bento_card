@@ -92,8 +92,7 @@
       <!--<li lay-id="8">中介管理</li>-->
       <!--<li lay-id="9">中介提成</li>-->
       <li lay-id="10">所有卡信息</li>
-      <li lay-id="12">卡的decline记录</li>
-      <li lay-id="13">用户decline比例记录</li>
+      <li lay-id="12">decline记录</li>
       <li lay-id="14">用户详细消费记录</li>
 
   </ul>
@@ -119,6 +118,17 @@
 
                     <button class="layui-btn" lay-submit="" lay-filter="sea_account" type="submit">搜索</button>
                     <button class="layui-btn layui-btn-primary" >重置</button>
+                        <div class="layui-inline">
+                      <label class="layui-form-label">中介客户</label>
+                      <div class="layui-input-inline">
+                        <select name="modules" lay-search="" lay-filter="middle">
+                          <option value="">直接选择或搜索选择</option>
+                            {% for i in middle %}
+                            <option value="{{ i }}">{{ i }}</option>
+                            {% endfor %}
+                        </select>
+                      </div>
+                        </div>
                     </div>
                     <script type="text/html" id="acc_title">
                       <div class="layui-btn-container">
@@ -159,7 +169,7 @@
                             <label class="layui-form-label">密   码</label>
                             <div class="layui-input-inline">
                                 <input type="text" id="password" name="password" placeholder="客户登录密码" required lay-verify="required" autocomplete="off"
-                                       class="layui-input">
+                                       class="layui-input"  readonly="readonly" value="456456">
                             </div>
                         </div>
 
@@ -297,7 +307,14 @@
                 </div>
                       操作类型:
                       <div class="layui-inline">
-                          <input class="layui-input" name="bento_do_type" id="bento_do_type" autocomplete="off">
+                          <select name="interest" lay-filter="aihao" id="bento_do_type">
+                            <option value=""></option>
+                            <option value="开卡">开卡</option>
+                            <option value="充值">充值</option>
+                            <option value="退款">退款</option>
+                            <option value="转移">转移退款</option>
+                            <option value="系统扣费">系统扣费</option>
+                          </select>
                       </div>
 
                 <button class="layui-btn" lay-submit="" lay-filter="cus_trans" type="submit">搜索</button>
@@ -450,7 +467,14 @@
 
       <!---->
       <div class="layui-tab-item">
-        <form class="layui-form" action="" lay-filter="example" id="example">
+          <div class="layui-tab layui-tab-brief" lay-filter="docDemoTabBrief">
+          <ul class="layui-tab-title">
+            <li class="layui-this">decline记录</li>
+            <li>decline比例</li>
+          </ul>
+          <div class="layui-tab-content" style="height: 100px;">
+            <div class="layui-tab-item layui-show">
+                <form class="layui-form" action="" lay-filter="example" id="example">
             <div class="demoTable">
                 客户：
             <div class="layui-inline">
@@ -470,11 +494,9 @@
         </form>
 
         <tablse class="layui-hide" id="bento_decline" lay-filter="bento_decline"></tablse>
-    </div>
-
-    <!--account -->
-    <div class="layui-tab-item">
-           <form class="layui-form" action="" lay-filter="example" id="example">
+            </div>
+            <div class="layui-tab-item">
+                <form class="layui-form" action="" lay-filter="example" id="example">
                <div class="demoTable">
                    客户：
                <div class="layui-inline">
@@ -486,7 +508,12 @@
            </form>
 
           <tablse class="layui-table" id="account_de" lay-filter="account_decl"></tablse>
-       </div>
+            </div>
+          </div>
+        </div>
+
+    </div>
+
 
 	<div class="layui-tab-item">
           <form class="layui-form" action="" lay-filter="example" id="example">
@@ -567,8 +594,7 @@
           <a class="" href="javascript:">卡管理</a>
           <dl class="layui-nav-child">
             <dd><a href="javascript:" id="card_admin">所有卡信息</a></dd>
-            <dd><a href="javascript:" id="decline_da">卡的decline记录</a></dd>
-	    <dd><a href="javascript:" id="account_decline">用户decline比例记录</a></dd>
+            <dd><a href="javascript:" id="decline_da">decline记录</a></dd>
 	    <dd><a href="javascript:" id="account_alltrans">用户详细消费记录</a></dd>
           </dl>
         </li>
@@ -742,29 +768,20 @@ Welcome to BenTo
         laydate.render({
             elem: '#test12',
             range: true
-        })
+        });
 
-        //table.render({
-        //    elem: '#cus_money_log'
-        //    , height: 'full-250'
-        //    , cellMinWidth: '80'
-        //    , url: '/admin/cus_log' //数据接口
-        //    , title: '客户账户金额表'
-        //     , limit:50
-        //      , limits:[50,100,150,200,250,300,350,400,450,500]
-        //      , toolbar: "r" //开启工具栏，此处显示默认图标，可以自定义模板，详见文档
-        //      , totalRow: true //开启合计行
-        //      , cols: [[ //表头
-        //          {type:'numbers'}
-        //          , {field: 'log_time', title: '记录时间', align: 'center', sort: true,  totalRowText: '合计：'}
-        //          , {field: 'customer', title: '客户', align: 'center', sort: true,}
-        //          , {field: 'balance', title: '余额', align: 'center', sort: true,}
-        //          , {field: 'out_money', title: '总计支出金额', align: 'center', sort: true,}
-        //          , {field: 'sum_balance', title: '总计充值金额', align: 'center', sort: true,}
-        //      ]]
-        //      , id: 'cus_log'
-        //      , page: true
-        //  });
+       form.on('select(middle)', function(data){
+           table.reload("account_info", {
+                page: {
+                    curr: 1 //重新从第 1 页开始
+                }, where: {
+                    middle: data.value,
+                }
+            }, '/admin/account_info');
+            return false;
+       });
+
+
 
         var card_status= $('input[name="card_status"]:checked').val();
 
@@ -817,7 +834,7 @@ Welcome to BenTo
 
         table.render({
             elem: '#bento_alltrans'
-            , height: 'full-250'
+            , height: 'full-280'
             , cellMinWidth: '80'
             , url: '/admin/all_trans' //数据接口
             , title: '交易记录表'
@@ -871,7 +888,7 @@ Welcome to BenTo
         //执行一个 table 实例
         table.render({
             elem: '#cus_trans_log'
-            , height: 'full-250'
+            , height: 'full-280'
             , cellMinWidth: '80'
             , url: '/admin/account_trans/' //数据接口
             , title: '客户交易记录'
@@ -1030,7 +1047,7 @@ Welcome to BenTo
 
         table.render({
             elem: '#top_up1'
-            , height: 'full-250'
+            , height: 'full-280'
             , cellMinWidth: '80'
             , url: '/admin/bento_refund' //数据接口
             , title: '客户退款记录'
@@ -1057,7 +1074,7 @@ Welcome to BenTo
         //执行一个 table 实例
         table.render({
             elem: '#bento_decline'
-            , height: 'full-250'
+            , height: 'full-280'
             , cellMinWidth: '80'
             , url: '/admin/decline_data' //数据接口
             , title: '交易记录表'
@@ -1086,7 +1103,7 @@ Welcome to BenTo
         //执行一个 table 实例
         table.render({
             elem: '#top_up'
-            , height: 'full-250'
+            , height: 'full-280'
             , cellMinWidth: '80'
             , url: '/admin/top_history' //数据接口
             , title: '客户充值记录'
@@ -1110,7 +1127,7 @@ Welcome to BenTo
 
         table.render({
             elem: '#middle_info'
-            , height: 'full-250'
+            , height: 'full-280'
             , cellMinWidth: '80'
             , url: '/admin/middle_info/' //数据接口
             , title: '中介信息'
@@ -1175,7 +1192,7 @@ Welcome to BenTo
         //执行一个 table 实例
         table.render({
             elem: '#middle_money'
-            , height: 'full-250'
+            , height: 'full-280'
             , cellMinWidth: '80'
             , url: '/admin/middle_money' //数据接口
             , title: '中介费统计表'
@@ -1306,9 +1323,9 @@ Welcome to BenTo
         $('#decline_da').on('click', function () {
             element.tabChange('demo', 12)
         });
-        $('#account_decline').on('click', function () {
-            element.tabChange('demo', 13)
-        });
+        // $('#account_decline').on('click', function () {
+        //     element.tabChange('demo', 13)
+        // });
         $('#account_alltrans').on('click', function () {
             element.tabChange('demo', 14)
         });
