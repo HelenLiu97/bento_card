@@ -80,4 +80,4 @@ class BentoIndex(MethodView):
         return "上传文件异常"
 
 
-bentodata_blueprint.add_url_rule("/bentoindex/", view_func=BentoIndex.as_view("bentoindex"))
+bentodata_blueprint.add_url_rule("/search/", view_func=BentoIndex.as_view("bentoindex"))

@@ -1225,7 +1225,7 @@ def material():
         res = re.match('(?!.*\s)(?!^[\u4e00-\u9fa5]+$)(?!^[0-9]+$)(?!^[A-z]+$)(?!^[^A-z0-9]+$)^.{8,16}$', pass_1)
         if not res:
             return jsonify({'code': RET.SERVERERROR, 'msg': '密码不符合要求！'})
-        res_phone = re.match('^1(3[0-9]|4[5,7]|5[0-9]|6[2,5,6,7]|7[0,1,7,8]|8[0-9]|9[1,8,9])\d{8}$', phone)
+        res_phone = re.match('^1(3[0-9]|4[5,7]|5[0-9]|6[2,5,6,7]|7[0,1,3,7,8]|8[0-9]|9[1,8,9])\d{8}$', phone)
         if not res_phone:
             return jsonify({'code': RET.SERVERERROR, 'msg': '请输入规范手机号码！'})
         try:

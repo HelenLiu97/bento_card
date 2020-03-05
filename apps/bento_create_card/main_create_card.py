@@ -17,6 +17,8 @@ class CreateCard(object):
         url = "https://api.bentoforbusiness.com/cards"
         r = requests.post(url=url, data=json.dumps(
             bento_data(card_alias=card_alias, card_amount=card_amount, attribution=attribution)), headers=self.headers)
+        r.json()
+        return
         user_data["alias"] = r.json().get("alias")
         user_data["cardId"] = r.json().get("cardId")
         user_data["card_amount"] = card_amount
@@ -119,6 +121,6 @@ def get_bento_data(cardid):
 
 if __name__ == "__main__":
     s = CreateCard()
-    s.get_card_list()
+    s.create_card('liuxiao', 1, '测试', 'gt')
     # main(limit_num=3, card_amount=300, label="杨经理kevin")
     pass

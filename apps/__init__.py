@@ -14,7 +14,7 @@ admin_blueprint = Blueprint('admin', __name__, url_prefix='/admin',  template_fo
 
 pay_blueprint = Blueprint('pay', __name__, url_prefix='/pay',  template_folder='../templates')
 
-bentodata_blueprint = Blueprint('bentodata', __name__, url_prefix='/bentodata', template_folder='../template')
+bentodata_blueprint = Blueprint('bentodata', __name__, url_prefix='/475440', template_folder='../template')
 
 verify_pay_blueprint = Blueprint('verify_pay', __name__, url_prefix='/verify_pay', template_folder='../templates')
 

@@ -24,12 +24,9 @@ class Key():
 
 def get_time():
     customStartDate = int(round(time.time() * 1000))
-
-    y = datetime.datetime.now().year
-    m = datetime.datetime.now().month
-    d = datetime.datetime.now().day
-    end_time = "{}-{}-{} 00:00:00".format(y + 1, m, d)
-    customEndDate = int(time.mktime(time.strptime(end_time, "%Y-%m-%d %H:%M:%S"))) * 1000
+    t = datetime.datetime.now()
+    t2 = (t + datetime.timedelta(days=365)).strftime("%Y-%m-%d 00:00:00")
+    customEndDate = int(time.mktime(time.strptime(t2, "%Y-%m-%d %H:%M:%S"))) * 1000
     return customStartDate, customEndDate
 
 
