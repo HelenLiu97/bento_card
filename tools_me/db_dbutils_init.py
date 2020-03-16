@@ -16,10 +16,10 @@ class ConnMysql(object):
             user = "root"
             password = "admin"
             database = "bento"
-            self.__pool = PooledDB(pymysql, 6, host=host, port=port,
-                                 user=user, passwd=password, db=database,
-                                 charset='utf8', setsession=['SET AUTOCOMMIT = 1']
-                                 )
+            self.__pool = PooledDB(pymysql, maxconnections=6, mincached=3, maxcached=5, maxshared=3, blocking=True,
+                                   maxusage=None, ping=0, host=host, port=port, user=user, passwd=password, db=database,
+                                   charset='utf8', setsession=[]
+                                   )
         return self.__pool.connection()
 
     def __exit__(self, exc_type, exc_val, exc_tb):

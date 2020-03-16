@@ -1,13 +1,11 @@
 import re
-
-import requests
 import json
 import datetime
 import logging
 import operator
-import time
-from apps.bento_create_card.public import change_today
-from config import cache
+
+from xpinyin import Pinyin
+
 from tools_me.other_tools import finance_required, sum_code, xianzai_time
 from tools_me.parameter import RET, MSG
 from flask import render_template, request, jsonify, session, url_for, redirect
@@ -15,6 +13,7 @@ from tools_me.mysql_tools import SqlData
 from apps.bento_create_card.sqldata_native import SqlDataNative
 from apps.bento_create_card.main_transactionrecord import TransactionRecord
 from flask.views import MethodView
+from tools_me.redis_tools import RedisTool
 from . import finance_blueprint
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s :: %(levelname)s :: %(message)s', filename="error.log")
@@ -123,9 +122,13 @@ def account_info():
     page = request.args.get('page')
     limit = request.args.get('limit')
     customer = request.args.get('customer')
+    middle_name = request.args.get('middle')
     results = {"code": RET.OK, "msg": MSG.OK, "count": 0, "data": ""}
     if customer:
         sql = "WHERE name LIKE '%" + customer + "%'"
+    elif middle_name:
+        middle_id = SqlData.search_middle_name('id', middle_name)
+        sql = "WHERE middle_id={}".format(middle_id)
     else:
         sql = ''
     task_one = SqlData.search_account_info(sql)
@@ -133,7 +136,6 @@ def account_info():
         results['MSG'] = MSG.NODATA
         return results
     task_info = list()
-    all_moneys = TransactionRecord().all_alias_money()
     for u in task_one:
         u_id = u.get('u_id')
         # card_count = SqlData.search_card_count(u_id, '')
@@ -142,22 +144,39 @@ def account_info():
         # u['card_num'] = card_count
         u['out_money'] = float("%.2f" % float(out_money - bento_income_money))
 
-        account_all_amount = 0
-        # all_moneys = TransactionRecord().all_alias_money()
+        account_all_amount = SqlDataNative.select_alias_balance(u.get("name"))
+        count_del_quant = SqlDataNative.count_del_data(alias=u.get("name"))
         all_cardids = SqlDataNative.attribution_fount_cardid(alias=u.get("name"))
+
+        '''
         if len(all_moneys) > 0 and len(all_cardids) > 0:
             for all_cardid in all_cardids:
                 for all_money in all_moneys:
                     if all_cardid == all_money.get("cardid"):
                         account_all_amount = account_all_amount + all_money.get("availableAmount")
         count_del_quant = SqlDataNative.count_del_data(alias=u.get("name"))
+        '''
+
         u['del_card_num'] = count_del_quant
-        u['account_all_money'] = float("%.2f" % account_all_amount)
-        u['card_balance'] = float("%.2f" % float(out_money - bento_income_money - account_all_amount))
+        u['account_all_money'] = account_all_amount
         u['in_card_num'] = len(all_cardids)
         task_info.append(u)
     page_list = list()
-    task_info = list(reversed(task_info))
+    task_info_status = dict()
+    for c in task_info:
+        u_id = c.get('u_id')
+        r = RedisTool.string_get(u_id)
+        if not r:
+            c['status'] = 'T'
+        else:
+            c['status'] = 'F'
+        # 使用中文字母拍寻排列客户信息
+        user_name = Pinyin().get_pinyin(c.get('name')).lower().strip()
+        task_info_status[user_name] = c
+    task_info = list()
+    for i in sorted(task_info_status):
+        # print i.keys()
+        task_info.append(task_info_status[i])
     for i in range(0, len(task_info), int(limit)):
         page_list.append(task_info[i:i + int(limit)])
     results['data'] = page_list[int(page) - 1]
@@ -240,65 +259,24 @@ def decline_data():
 @finance_blueprint.route('/account_decline/', methods=['GET'])
 @finance_required
 def account_decline():
+    # cache.delete('decline_data')
+    # 当前用户较少不采取分页
     page = request.args.get('page')
     limit = request.args.get('limit')
     alias_name = request.args.get("acc_name")
-    ca_data = cache.get('finance_decline_data')
-    if not ca_data:
-        data = SqlDataNative.bento_alltrans()
-        acc_sum_trans = dict()
-        for i in data:
-            cus = i.get('before_balance')
-            if cus not in acc_sum_trans:
-                cus_dict = dict()
-                cus_dict[cus] = {'decl': 0, 't_data': 0, 'three_decl': 0, 'three_tran': 0}
-                acc_sum_trans.update(cus_dict)
-        for n in data:
-            date = n.get('date')
-            do_type = n.get('do_type')
-            cus = n.get('before_balance')
-            value = {'t_data': acc_sum_trans.get(cus).get('t_data') + 1}
-            acc_sum_trans.get(cus).update(value)
-            if do_type == 'DECLINED':
-                value = {'decl': acc_sum_trans.get(cus).get('decl') + 1}
-                acc_sum_trans.get(cus).update(value)
-            today_time = time.strftime('%Y-%m-%d', time.localtime(time.time()))
-            max_today = datetime.datetime.strptime("{} {}".format(change_today(today_time, 0), "23:59:59"),
-                                                   '%Y-%m-%d %H:%M:%S')
-            min_today = datetime.datetime.strptime("{} {}".format(change_today(today_time, -3), "23:59:59"),
-                                                   '%Y-%m-%d %H:%M:%S')
-            trans_t = datetime.datetime.strptime(date, '%Y-%m-%d %H:%M:%S')
-            if min_today <= trans_t <= max_today:
-                value = {'three_tran': acc_sum_trans.get(cus).get('three_tran') + 1}
-                acc_sum_trans.get(cus).update(value)
-            if min_today < trans_t < max_today and do_type == 'DECLINED':
-                value = {'three_decl': acc_sum_trans.get(cus).get('three_decl') + 1}
-                acc_sum_trans.get(cus).update(value)
-        res = list()
-        for n in acc_sum_trans:
-            value = acc_sum_trans.get(n)
-            value['alias'] = n
-            value['all_bili'] = "{} {}".format(float("%.4f" % (value.get('decl') / value.get('t_data') * 100)),
-                                               "%") if value.get('decl') != 0 else 0
-            value['bili'] = "{} {}".format(float("%.4f" % (value.get('three_decl') / value.get('three_tran') * 100)),
-                                           "%") if value.get('three_tran') != 0 else 0
-            if value.get('three_tran') != 0 and value.get('three_decl') / value.get('three_tran') > 0.1:
-                value['show'] = 'T'
-            else:
-                value['show'] = 'F'
-            res.append(value)
-            # 设置缓存
-        cache.set('finance_decline_data', res, timeout=60 * 60 * 6)
 
-    else:
-        res = ca_data
-        if alias_name:
-            res_alias = list()
-            for i in res:
-                if alias_name in i.get('alias'):
-                    res_alias.append(i)
-            return jsonify({"code": 0, "count": len(res_alias), "data": res_alias, "msg": "SUCCESSFUL"})
-        return jsonify({"code": 0, "count": len(res), "data": res, "msg": "SUCCESSFUL"})
+    # 使用 redis 获取缓存的用户decline比例
+    res = RedisTool.hash_get('admin_cache', 'user_decline')
+
+    if not res:
+        return jsonify({"code": 0, "count": 1, "data": [{"all_bili": 'decline统计失败，联系管理员处理!'}], "msg": "SUCCESSFUL"})
+    if alias_name:
+        res_alias = list()
+        for i in res:
+            if alias_name in i.get('alias'):
+                res_alias.append(i)
+        return jsonify({"code": 0, "count": len(res_alias), "data": res_alias, "msg": "SUCCESSFUL"})
+    return jsonify({"code": 0, "count": len(res), "data": res, "msg": "SUCCESSFUL"})
 
 
 @finance_blueprint.route('/all_trans/', methods=['GET'])
@@ -318,13 +296,14 @@ def all_trans():
     trans_store = request.args.get("trans_store")
 
     args_list = []
-    ca_data = cache.get('all_trans')
-    # 设置缓存处理查询到的大量数据(6小时)
+
+    # 从redis中获取大量的交易数据(详情见定时任务)
+    ca_data = RedisTool.hash_get('admin_cache', 'card_all_trans')
+
     if ca_data:
         data = ca_data
     else:
-        data = SqlDataNative.bento_alltrans()
-        cache.set('all_trans', data, timeout=60 * 60 * 6)
+        return jsonify({"code": RET.OK, "msg": MSG.OK, "count": 1, "data": [{"trans_type": '卡消费统计失败，联系管理员处理！'}]})
     results = {"code": RET.OK, "msg": MSG.OK, "count": 0, "data": ""}
     if len(data) == 0:
         results["MSG"] = MSG.NODATA
@@ -381,7 +360,7 @@ def all_trans():
             if trans_store in trans_type:
                 store_list.append(i)
     else:
-        store_list = trans_list
+        store_list = time_list
 
     if not store_list:
         return jsonify({'code': RET.OK, 'msg': MSG.NODATA})

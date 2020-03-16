@@ -82,16 +82,18 @@ class RechargeCard(object):
                                                                      response.json().get("availableAmount"))}
         return {"error_msg": "bento后台数据查无此账号"}
 
-    def transaction_data(self, cards):
+    # 使用递归多次查询大于500条交易记录的卡交易数据
+    def transaction_data(self, cards, end_time=0, transactions_datas=None):
         url = "https://api.bentoforbusiness.com/transactions"
         params = {
             "cards": "{}".format(cards),
             "dateStart": 1570032000000,
-            "size": 1000
+            "dateEnd": int(round(time.time() * 1000)) if end_time == 0 else end_time
         }
         r = requests.get(url=url, headers=self.headers, params=params)
-        transactions_datas = []
-        print(r.json().get('size'), r.json().get('cardTransactions'))
+        size = r.json().get('size')
+        if not transactions_datas:
+            transactions_datas = []
         for transactions in r.json().get("cardTransactions"):
             transactions_datas.append({
                 "date": time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(transactions.get("transactionDate") / 1000)),
@@ -105,6 +107,10 @@ class RechargeCard(object):
                 "businessId": transactions.get("business").get("businessId"),
                 "availableAmount": transactions.get("availableAmount"),
             })
+        if size > 500:
+            end_data = transactions_datas[-1].get('date')
+            date = int(time.mktime(time.strptime(end_data, "%Y-%m-%d %H:%M:%S")) - 1) * 1000
+            transactions_datas = self.transaction_data(cards, date, transactions_datas)
         return transactions_datas
 
     def one_alias(self, alias):
