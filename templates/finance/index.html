@@ -54,14 +54,14 @@
       <li lay-id="3">给客户充值记录</li>
       <li lay-id="11">客户退款记录</li>
       <li lay-id="4">客户自己的充值记录</li>
-      <li lay-id="6">新增客户</li>
+      <!--<li lay-id="6">新增客户</li>-->
       <!--
       <li lay-id="5">客户历史余额记录</li>
       <li lay-id="7">新增中介</li>
       <li lay-id="8">中介管理</li>
       -->
       <li lay-id="9">中介提成</li>
-      <li lay-id="10">所有卡信息</li>
+      <!--<li lay-id="10">所有卡信息</li>-->
       <li lay-id="12">卡的decline记录</li>
       <li lay-id="13">用户decline比例记录</li>
       <li lay-id="14">用户详细消费记录</li>
@@ -188,92 +188,6 @@
       </div>
     -->
 
-    <div class="layui-tab-item">
-
-        <div class="divForm">
-        <form class="layui-form" lay-filter=""  enctype="multipart/form-data">
-            <div class="layui-form-item">
-                <label class="layui-form-label">姓   名</label>
-                <div class="layui-input-inline">
-                    <input type="text" name="name" required lay-verify="required" placeholder="客户姓名" autocomplete="off"
-                           class="layui-input"  id="name">
-                </div>
-            </div>
-            <div class="layui-form-item">
-                <label class="layui-form-label">账   号</label>
-                <div class="layui-input-inline">
-                    <input type="text" id="account" name="account" required lay-verify="required" placeholder="客户登录账号" autocomplete="off"
-                           class="layui-input">
-                </div>
-            </div>
-
-            <div class="layui-form-item">
-                <label class="layui-form-label">密   码</label>
-                <div class="layui-input-inline">
-                    <input type="text" id="password" name="password" placeholder="客户登录密码" required lay-verify="required" autocomplete="off"
-                           class="layui-input">
-                </div>
-            </div>
-
-            <div class="layui-form-item">
-                <label class="layui-form-label">电   话</label>
-                <div class="layui-input-inline">
-                    <input type="number" id="phone_num" name="phone_num" placeholder="接收短息通知号码"  autocomplete="off"
-                           class="layui-input">
-                </div>
-            </div>
-
-            <div class="layui-form-item">
-                <label class="layui-form-label">开 卡 费</label>
-                <div class="layui-input-inline">
-                    <input type="number" id="create_price" name="create_price" placeholder="开卡费" required lay-verify="required" autocomplete="off"
-                           class="layui-input">
-                </div>
-            </div>
-
-            <div class="layui-form-item">
-                <label class="layui-form-label">取现手续费</label>
-                <div class="layui-input-inline">
-                    <input type="number" id="refund" name="refund" placeholder="取现的手续费(例:0.05)" required lay-verify="required" autocomplete="off"
-                           class="layui-input">
-                </div>
-            </div>
-
-            <div class="layui-form-item">
-                <label class="layui-form-label">最低充值金额</label>
-                <div class="layui-input-inline">
-                    <input type="number" id="min_top" name="min_top" placeholder="最低充值到卡的金额" required lay-verify="required" autocomplete="off"
-                           class="layui-input">
-                </div>
-            </div>
-
-
-            <div class="layui-form-item">
-                <label class="layui-form-label">最高充值金额</label>
-                <div class="layui-input-inline">
-                    <input type="number" id="max_top" name="max_top" placeholder="最高充值到卡的金额" autocomplete="off"
-                           class="layui-input">
-                </div>
-            </div>
-
-
-            <div class="layui-form-item">
-                <label class="layui-form-label">开卡数量  </label>
-                <div class="layui-input-inline">
-                    <input type="text" id="note" name="note" placeholder="开卡数量" autocomplete="off"
-                           class="layui-input">
-                </div>
-            </div>
-
-            <div class="layui-form-item">
-                <div class="layui-input-block">
-                    <button  class="layui-btn layui-btn-lg" lay-submit="" lay-filter="formDemo" type="submit">确认</button>
-                </div>
-            </div>
-        </form>
-    </div>
-
-    </div>
     <!--
       <div class="layui-tab-item">
 
@@ -351,44 +265,6 @@
           <script type="text/html" id="middle_money_bar">
             <a class="layui-btn layui-btn-xs" lay-event="payed" id="pay">确认支付</a>
         </script>
-      </div>
-
-      <div class="layui-tab-item">
-
-          <form class="layui-form" action="" lay-filter="example" id="example">
-            <div class="demoTable">
-                 <div class="layui-form-item">
-                     <div class="layui-inline">
-                      <label class="layui-form-label">搜索选择框</label>
-                      <div class="layui-input-inline">
-                        <select name="modules" lay-verify="required" lay-search="" id="field">
-                          <option value="">直接选择或搜索选择</option>
-                          <option value="card_cus">标签</option>
-                          <option value="card_no">卡号</option>
-                          <option value="account_no">客户名</option>
-                        </select>
-                      </div>
-                     </div>
-                 <div class="layui-inline">
-
-                     <input type="text" id="value" name="value" placeholder="搜索条件对应的值" autocomplete="off"
-                           class="layui-input">
-
-                 </div>
-                 <div class="layui-inline">
-                     <button class="layui-btn" lay-submit="" lay-filter="sea_card" type="submit">搜索</button>
-                     <button class="layui-btn layui-btn-primary">重置</button>
-                 </div>
-                 </div>
-            </div>
-          </form>
-
-          <script type="text/html" id="toolbarDemo">
-              <div>数据库全部卡数量:{{ card_use[0] }}&nbsp;&nbsp;&nbsp;&nbsp;数据库标记为已注销的卡数量: {{ card_no[0] }}&nbsp;&nbsp;&nbsp;&nbsp;数据库使用中的卡数量{{ card_un[0] }}</div>
-          </script>
-
-          <table class="layui-show" id="card_all" lay-filter="card_all"></table>
-
       </div>
 
       <!---->
@@ -851,8 +727,8 @@ Welcome to BenTo
             , cols: [[ //表头
                 {type:'numbers'}
                 , {field: 'name', title: '客户', align: 'center', sort: true,  totalRowText: '合计：'}
-                , {field: 'account', title: '账号', align: 'center', sort: true,}
-                , {field: 'password', title: '密码', align: 'center', sort: true,}
+                //, {field: 'account', title: '账号', align: 'center', sort: true,}
+                //, {field: 'password', title: '密码', align: 'center', sort: true,}
                 , {field: 'create_price', title: '开卡费', align: 'center', sort: true,}
                 //, {field: 'refund', title: '取现手续费', align: 'center', sort: true,}
                 , {field: 'min_top', title: '最低充值金额', align: 'center', sort: true,}
@@ -865,7 +741,7 @@ Welcome to BenTo
                 , {field: 'balance', title: '账户余额', align: 'center', sort: true, totalRow:true, style: "color: purple"}
                 , {field: 'card_balance', title: '卡的消费总额', align: 'center', sort: true, totalRow:true}
                 , {field: 'sum_balance', title: '总充值金额', align: 'center', sort: true, totalRow:true}
-                , {fixed: 'right', width: 220, align: 'center', toolbar: '#barDemo'}
+                //, {fixed: 'right', width: 220, align: 'center', toolbar: '#barDemo'}
             ]]
             , id: 'account_info'
             , page: true
