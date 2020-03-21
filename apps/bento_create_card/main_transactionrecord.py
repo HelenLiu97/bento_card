@@ -15,6 +15,8 @@ class TransactionRecord(object):
             "Content-Type": "application/json",
             "authorization": GetToken(),
         }
+        self.requests = requests.session()
+        self.requests.keep_alive = False
 
     # 所有的用户与金额
     def alias_data(self):
@@ -22,7 +24,7 @@ class TransactionRecord(object):
         headers = {
             "Authorization": GetToken()
         }
-        r = requests.get(url=url, headers=headers)
+        r = self.requests.get(url=url, headers=headers)
         d = []
         for i in r.json().get("cards"):
             d.append({
@@ -40,7 +42,7 @@ class TransactionRecord(object):
         :return: 时间, 用途, 卡的名字, 卡的消费金额, 卡的状态, 卡的可用余额
         """
         url = "https://api.bentoforbusiness.com/transactions"
-        r = requests.get(url=url, headers=self.headers)
+        r = self.requests.get(url=url, headers=self.headers)
         transactions_datas = []
         for transactions in r.json().get("cardTransactions"):
             try:
@@ -67,7 +69,7 @@ class TransactionRecord(object):
 
     def retrieve_card(self, cardid=896434):
         url = "https://api.bentoforbusiness.com/cards/{}".format(cardid)
-        r = requests.get(url=url, headers=self.headers)
+        r = self.requests.get(url=url, headers=self.headers)
         print(r.json())
 
     # 查询用户的所有金额
@@ -81,13 +83,13 @@ class TransactionRecord(object):
                 "Authorization": GetToken()
             }
             data = []
-            r1 = requests.get(url=url[0], headers=headers)
+            r1 = self.requests.get(url=url[0], headers=headers)
             for i1 in r1.json().get("cards"):
                 data.append({
                     "availableAmount": i1.get("availableAmount"),
                     "cardid": i1.get("cardId"),
                 })
-            r2 = requests.get(url=url[1], headers=headers)
+            r2 = self.requests.get(url=url[1], headers=headers)
             for i2 in r2.json().get("cards"):
                 data.append({
                     "availableAmount": i2.get("availableAmount"),

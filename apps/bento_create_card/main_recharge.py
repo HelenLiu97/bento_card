@@ -15,13 +15,15 @@ class RechargeCard(object):
             "Content-Type": "application/json",
             "authorization": GetToken(),
         }
+        self.requests = requests.session()
+        self.requests.keep_alive = False
 
     def refund_data(self, cardid, recharge_amount):
         # 获取用户cardid
         # cardid = session.query(BentoCard.card_id).filter(BentoCard.alias=="{}".format(alias), BentoCard.card_number.ilike("%{}%".format(cardnumber))).first()
         # if alias:
         url = "https://api.bentoforbusiness.com/cards/{}".format(cardid)
-        r = requests.get(url=url, headers=self.headers)
+        r = self.requests.get(url=url, headers=self.headers)
         data = r.json()
         if data:
             try:
@@ -42,7 +44,7 @@ class RechargeCard(object):
                     "%.2f" % bento_use_amount) != float("%.2f" % spendingLimit_amount) else float(
                     "%.2f" % bento_use_amount) - 0.01
                 data["availableAmount"] = float("%.2f" % bento_use_amount)
-                response = requests.put(url=url, headers=self.headers, data=json.dumps(data))
+                response = self.requests.put(url=url, headers=self.headers, data=json.dumps(data))
                 if response.json().get("availableAmount") > bento_availableAmount:
                     return {"error_msg": "转移失败, 所剩余额未扣减"}
                 return {"msg": "已有金额: {}, 转移金额: {}, 卡内可用余额: {}".format(bento_availableAmount, recharge_amount,
@@ -54,7 +56,7 @@ class RechargeCard(object):
         # cardid = session.query(BentoCard.card_id).filter(BentoCard.alias=="{}".format(alias), BentoCard.card_number.ilike("%{}%".format(cardnumber))).first()
         # if alias:
         url = "https://api.bentoforbusiness.com/cards/{}".format(cardid)
-        r = requests.get(url=url, headers=self.headers)
+        r = self.requests.get(url=url, headers=self.headers)
         data = r.json()
         if data:
             try:
@@ -75,7 +77,7 @@ class RechargeCard(object):
                     "%.2f" % bento_use_amount) != float("%.2f" % spendingLimit_amount) else float(
                     "%.2f" % bento_use_amount) - 0.01
                 data["availableAmount"] = float("%.2f" % bento_use_amount)
-                response = requests.put(url=url, headers=self.headers, data=json.dumps(data))
+                response = self.requests.put(url=url, headers=self.headers, data=json.dumps(data))
                 if response.json().get("availableAmount") == bento_availableAmount:
                     return {"error_msg": "充值失败, 所剩余额未扣减"}
                 return {"msg": "已有金额: {}, 充值金额: {}, 可用余额: {}".format(bento_availableAmount, recharge_amount,
@@ -90,7 +92,7 @@ class RechargeCard(object):
             "dateStart": 1570032000000,
             "dateEnd": int(round(time.time() * 1000)) if end_time == 0 else end_time
         }
-        r = requests.get(url=url, headers=self.headers, params=params)
+        r = self.requests.get(url=url, headers=self.headers, params=params)
         size = r.json().get('size')
         if not transactions_datas:
             transactions_datas = []
@@ -121,7 +123,7 @@ class RechargeCard(object):
         params = {
             "cardName": "{}".format(alias),
         }
-        r = requests.get(url=url, headers=headers, params=params)
+        r = self.requests.get(url=url, headers=headers, params=params)
         try:
             for i in r.json().get("cards"):
                 if i.get("alias") == str(alias):
@@ -133,7 +135,7 @@ class RechargeCard(object):
     def del_card(self, cardid):
         try:
             url = "https://api.bentoforbusiness.com/cards/{}".format(cardid)
-            r = requests.delete(url=url, headers=self.headers)
+            r = self.requests.delete(url=url, headers=self.headers)
             return 404
         except Exception as e:
             logging.warning(str(e))
@@ -152,7 +154,7 @@ class RechargeCard(object):
                 # "dateStart": dateStart,
                 # "dateEnd": dateEnd,
             }
-            r = requests.get(url=url, headers=self.headers, params=params)
+            r = self.requests.get(url=url, headers=self.headers, params=params)
             decline_sum += len(r.json().get("cardTransactions"))
         return decline_sum
 
