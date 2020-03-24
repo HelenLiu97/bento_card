@@ -8,7 +8,7 @@ import time
 import uuid
 from concurrent.futures.thread import ThreadPoolExecutor
 from apps.bento_create_card.public import change_today
-from tools_me.other_tools import xianzai_time, login_required, check_float, account_lock, dic_key, sum_code
+from tools_me.other_tools import xianzai_time, login_required, check_float, account_lock, dic_key, sum_code, trans_lock
 from tools_me.parameter import RET, MSG, TRANS_TYPE, DO_TYPE, DIR_PATH
 from tools_me.redis_tools import RedisTool
 from tools_me.remain import get_card_remain
@@ -664,6 +664,7 @@ def label_update():
 @user_blueprint.route('/top_up/', methods=['POST'])
 @login_required
 @account_lock
+@trans_lock
 def top_up():
     # 判断是否是子账号用户
     vice_id = g.vice_id
@@ -674,8 +675,8 @@ def top_up():
         c_card = auth_dict.get('top_up')
         if c_card == 'F':
             return jsonify({'code': RET.SERVERERROR, 'msg': '抱歉您没有权限执行此操作！'})
-    data = json.loads(request.form.get('data'))
     user_id = g.user_id
+    data = json.loads(request.form.get('data'))
     card_no = data.get('card_no')
     top_money = data.get('top_money')
     user_data = SqlData.search_user_index(user_id)
@@ -721,7 +722,7 @@ def top_up():
 @user_blueprint.route('/create_some/', methods=['POST'])
 @login_required
 @account_lock
-# @choke_required
+@trans_lock
 def create_some():
     # 判断是否是子账号用户
     vice_id = g.vice_id
@@ -816,6 +817,7 @@ def create_some():
 @user_blueprint.route('/create_card/', methods=['POST'])
 @login_required
 @account_lock
+@trans_lock
 def create_card():
     # 判断是否是子账号用户
     vice_id = g.vice_id

@@ -33,5 +33,8 @@ class RedisTool(object):
 
 
 RedisTool = RedisTool()
-# s = RedisTool.string_del('flask_cache_decline_data')
+# s = RedisTool.string_set('齐天大圣', 'top')
 # print(s)
+RedisTool.string_del(158)
+r = RedisTool.string_get('齐天大圣')
+# print(r)

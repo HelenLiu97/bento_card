@@ -113,6 +113,30 @@ def verify_login_time(before_time, now_time):
         return
 
 
+def trans_lock(view_func):
+    """自定义装饰器判断用户是否正在交易
+       该装饰器避免用户刷新充值加载界面
+       重复充值，导致账号出现余额欠费的
+       情况，开卡和批量开卡同理添加
+    """
+    @wraps(view_func)
+    def wraaper(*args, **kwargs):
+        """具体实现判断用户账号是否正在交易（影响账户余额的操作）"""
+        # 判断该用户是否含有正在进行的交易，含有未处理完交易则让用户稍后重试
+        user_id = session.get('user_id')
+        res = RedisTool.string_get("trans_" + str(user_id))
+        if res:
+            return jsonify({'code': 502, 'msg': '账户有正在处理交易，请稍后重试！'})
+        else:
+            # 插入user_id到redis，标识为正在交易用户
+            RedisTool.string_set("trans_" + str(user_id), 'InTransaction')
+            f = view_func(*args, **kwargs)
+            # 删除标记，为已处理完交易用户
+            RedisTool.string_del("trans_" + str(user_id))
+            return f
+    return wraaper
+
+
 def account_lock(view_func):
     """自定义装饰器判断用户是否登录
     使用装饰器装饰函数时，会修改被装饰的函数的__name属性和被装饰的函数的说明文档
