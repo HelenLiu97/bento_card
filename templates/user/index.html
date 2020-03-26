@@ -220,13 +220,16 @@
             </div>
         </div>
         <table class="layui-table" id="card_info" lay-filter="card_info"></table>
+        <script type="text/html" id="copy">
+            <a class="layui-btn layui-btn-primary layui-btn-xs" lay-event="copy" title="复制卡号"><i class="layui-icon">&#xe655;</i></a>
+        </script>
         <script type="text/html" id="barDemo">
+            <a class="layui-btn layui-btn-xs" lay-event="remain" style="background-color: #00C5CD;">余额</a>
             <a class="layui-btn layui-btn-primary layui-btn-xs" lay-event="detail">更新</a>
             <a class="layui-btn layui-btn-xs" lay-event="edit">充值</a>
             <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="refund">退款</a>
-{#            <a class="layui-btn layui-btn-normal layui-btn-xs" lay-event="lock">冻结</a>#}
             <a class="layui-btn layui-btn-warm layui-btn-xs" lay-event="del">删卡</a>
-            <a class="layui-btn layui-btn-warm layui-btn-xs" lay-event="update_label">更新标签</a>
+            <a class="layui-btn layui-btn-warm layui-btn-xs" lay-event="update_label">标签</a>
         </script>
     </div>
     <div class="layui-tab-item">
@@ -655,15 +658,16 @@
             , totalRow: true //开启合计行
             , cols: [[ //表头
                 {type:'numbers'}
-                , {field: 'card_no', title: '卡号', align: 'center', sort: true,  style:"mso-number-format:'\@';",}
-                , {field: 'card_name', title: '卡名', align: 'center', sort: true,}
+                , {field: 'card_no', title: '卡号', align: 'center',  style:"mso-number-format:'\@';",}
+                , {field: '', toolbar:"#copy", width:50}
+                , {field: 'card_name', title: '卡名', align: 'center',}
                 , {field: 'expire', title: '有效期', align: 'center', sort: true}
                 , {field: 'cvv', title: '安全码', align: 'center', sort: true}
                 , {field: 'label', title: '标签', align: 'center', sort: true}
                 , {field: 'status', title: '状态', align: 'center', sort: true}
                 , {field: 'act_time', title: '最近操作时间', align: 'center', sort: true}
-                , {field: 'remain', title: '余额', align: 'center', sort: true, style: "color: red"}
-                , {fixed: 'right', width: 300, align: 'center', toolbar: '#barDemo'}
+                , {field: 'remain', title: '交易记录', align: 'center', sort: true, style: "color: red"}
+                , {fixed: 'right', width: 310, align: 'center', toolbar: '#barDemo'}
             ]]
             , id: 'card_info'
             , page: true
@@ -1150,7 +1154,7 @@
                 });
             }else if( layEvent === 'detail' ){
 
-		layer.confirm('该更新功能用于开卡进入process状态无法获取卡号及密码时, 点击确认后, 会重新获取卡号及密码, 如若二十四小时后还是无法更新, 请联系管理员',
+		            layer.confirm('该更新功能用于开卡进入process状态无法获取卡号及密码时, 点击确认后, 会重新获取卡号及密码, 如若二十四小时后还是无法更新, 请联系管理员',
 	                     {title:'更新功能提示!!!'}, function (index) {
                     layer.close(index);
                     //向服务端发送删除指令
@@ -1202,8 +1206,43 @@
                     },
                 });
                 return false
+            } else if (layEvent === "remain"){
+                layer.open({
+                type: 2
+                ,offset: 'auto' //具体配置参考：http://www.layui.com/doc/modules/layer.html#offset
+                ,id: 'layerUser'//防止重复弹出
+                ,title: '卡号为 ' + data.card_no + ' 的余额信息'
+                ,area: ['400px','220px']
+                ,anim: 2
+                ,skin: 'layui-layer-lan'
+                ,shadeClose:true
+                ,content: '/user/one_card_remain?card_no=' + data.card_name
+                ,btn: '关闭全部'
+                ,btnAlign: 'c' //按钮居中c
+                ,shade:  [0.8, '#393D49'] //弹框背景选项
+                ,success: function(layero, index) {
+                        var body = layer.getChildFrame('body', index);
+                        body.contents().find("#card_num").html(data.card_no);
+                    }
+
+              });
+            }else if (layEvent === 'copy'){
+                copyText(data.card_no.trim(), function () {
+                    layer.msg('复制卡号成功！')
+                })
             }
         });
+
+        function copyText(text, callback){ // text: 要复制的内容， callback: 回调
+            var tag = document.createElement('input');
+            tag.setAttribute('id', 'cp_hgz_input');
+            tag.value = text;
+            document.getElementsByTagName('body')[0].appendChild(tag);
+            document.getElementById('cp_hgz_input').select();
+            document.execCommand('copy');
+            document.getElementById('cp_hgz_input').remove();
+            if(callback) {callback(text)}
+        }
 
         //分页
         laypage.render({

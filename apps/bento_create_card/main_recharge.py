@@ -5,6 +5,7 @@ import time
 import logging
 # from apps.bento_create_card.sqldata import BentoCard, session
 from apps.bento_create_card.config import bento_data, GetToken, cut_list, change_time
+from requests.adapters import HTTPAdapter
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s :: %(levelname)s :: %(message)s', filename="error.log")
 
@@ -14,7 +15,9 @@ class RechargeCard(object):
         self.headers = {
             "Content-Type": "application/json",
             "authorization": GetToken(),
+            "Connection": "close"
         }
+        requests.adapters.DEFAULT_RETRIES = 5
         self.requests = requests.session()
         self.requests.keep_alive = False
 
@@ -64,6 +67,9 @@ class RechargeCard(object):
                 bento_availableAmount = data.get("availableAmount")
                 # 获取用户可用余额额度
                 spendingLimit_amount = data.get("spendingLimit").get("amount")
+                print(bento_availableAmount, spendingLimit_amount)
+                print(data)
+                # return
             except AttributeError as e:
                 logging.warning(str(e))
                 return {"error_msg": "bento账号查询数据异常"}
@@ -73,11 +79,10 @@ class RechargeCard(object):
                 bento_use_amount = bento_availableAmount + float(recharge_amount)
                 # 判断可用余额额度与可用余额是否相等
                 # if bento_use_amount = spendingLimit_amount:
-                data["spendingLimit"]["amount"] = float("%.2f" % bento_use_amount) if float(
-                    "%.2f" % bento_use_amount) != float("%.2f" % spendingLimit_amount) else float(
-                    "%.2f" % bento_use_amount) - 0.01
-                data["availableAmount"] = float("%.2f" % bento_use_amount)
+                data["spendingLimit"]["amount"] = 1
+                # data["availableAmount"] = 5
                 response = self.requests.put(url=url, headers=self.headers, data=json.dumps(data))
+                print(response.json())
                 if response.json().get("availableAmount") == bento_availableAmount:
                     return {"error_msg": "充值失败, 所剩余额未扣减"}
                 return {"msg": "已有金额: {}, 充值金额: {}, 可用余额: {}".format(bento_availableAmount, recharge_amount,
@@ -220,9 +225,16 @@ def card_trans(card_list):
 
 
 if __name__ == "__main__":
-    # r = RechargeCard().recharge(cardnumber="9845", recharge_amount=0.1, alias="Margie Simpson")
-    # l = ['913207', '913206', '913488', '913487', '913486', '913485', '913491', '913490', '915438', '915437', '915436', '915435', '915434', '915433', '915432', '915430', '915429', '915428', '915462', '915461', '916536', '916540', '916539', '916561', '920180', '929967', '943096', '967596', '990349', '990751', '990786', '989822', '989823', '990368', '943107', '993228', '994631', '994623', '994616', '994615', '994614', '993773', '993772', '993130', '990358', '989835', '996182', '995318', '996863', '997194', '996601', '997069', '998923', '998924', '996207', '996211', '998041', '1000311', '1000238']
-    # card_trans(l)
-    trans, remain = main_transaction_data(1043609, 'Morris Gerardo')
-    print(len(trans), trans, remain)
+    r = RechargeCard().transaction_data(887551)
+    n = 1
+    while True:
+        try:
+            r = RechargeCard().transaction_data(887551)
+            print(r)
+            print(n)
+            n += 1
+        except Exception as e:
+            print(e)
+    # trans, remain = main_transaction_data(1043609, 'Morris Gerardo')
+    # print(len(trans), trans, remain)
     pass

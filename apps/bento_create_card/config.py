@@ -3,6 +3,7 @@ import json
 import requests
 from datetime import datetime
 from apps.bento_create_card.public import Key, get_time
+from requests.adapters import HTTPAdapter
 
 
 def change_time(dt):
@@ -94,7 +95,11 @@ def RefreshToken():
         "accessKey": Key.ACCESSKEY,
         "secretKey": Key.SECRETKEY,
     }
-    token = requests.post(url=token_url, data=json.dumps(data))
+    headers = {"Connection": "close"}
+    requests.adapters.DEFAULT_RETRIES = 5
+    s = requests.session()
+    s.keep_alive = False
+    token = s.post(url=token_url, headers=headers, data=json.dumps(data))
     d = {
         "token": token.headers.get("authorization"),
         "time": datetime.now().hour
@@ -114,4 +119,4 @@ def GetToken():
 
 
 if __name__ == "__main__":
-    pass
+    RefreshToken()

@@ -25,4 +25,4 @@ study_blueprint = Blueprint('study', __name__, url_prefix='/study', template_fol
 
 index_blueprint = Blueprint('/', __name__, url_prefix='/', template_folder='../template')
 
-from . import upload, user,  middle, admin, index
+# from . import upload, user,  middle, admin, index

@@ -5,6 +5,7 @@ import logging
 from .config import bento_data, GetToken
 # from .bento_create_card.sqldata import BentoCard, session
 from .sqldata_native import SqlDataNative
+from requests.adapters import HTTPAdapter
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s :: %(levelname)s :: %(message)s', filename="error.log")
 
@@ -14,7 +15,9 @@ class TransactionRecord(object):
         self.headers = {
             "Content-Type": "application/json",
             "authorization": GetToken(),
+            "Connection": "close"
         }
+        requests.adapters.DEFAULT_RETRIES = 5
         self.requests = requests.session()
         self.requests.keep_alive = False
 

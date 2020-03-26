@@ -3,6 +3,7 @@ import json
 import time
 from apps.bento_create_card.config import bento_data, GetToken
 from apps.bento_create_card.sqldata_native import SqlDataNative
+from requests.adapters import HTTPAdapter
 
 
 class CreateCard(object):
@@ -10,46 +11,37 @@ class CreateCard(object):
         self.headers = {
             "Content-Type": "application/json",
             "authorization": GetToken(),
+            "Connection": "close"
         }
+        requests.adapters.DEFAULT_RETRIES = 5
         self.requests = requests.session()
         self.requests.keep_alive = False
 
     def create_card(self, card_alias, card_amount, label, attribution):
         user_data = {}
         url = "https://api.bentoforbusiness.com/cards"
-        r = self.requests.post(url=url, data=json.dumps(
-            bento_data(card_alias=card_alias, card_amount=card_amount, attribution=attribution)), headers=self.headers)
-        user_data["alias"] = r.json().get("alias")
-        user_data["cardId"] = r.json().get("cardId")
-        user_data["card_amount"] = card_amount
-        if user_data.get("cardId"):
-            pan_data = self.get_pan(cardid=user_data.get("cardId"))
-            user_data.update(pan_data)
-            expriation_data = self.get_expiration(cardid=user_data.get("cardId"))
-            user_data.update(expriation_data)
-            # update alias card_id, card_amount
-            SqlDataNative.insert_new_account(alias=user_data.get("alias"), card_id=user_data.get("cardId"),
-                                               card_amount=card_amount, card_number=user_data.get("pan"),
-                                               card_cvv=user_data.get("cvv"), label=label,
-                                               card_validity=user_data.get("expiration"), attribution=attribution,
-                                               create_time=time.strftime('%Y-%m-%d %H:%M:%S',
-                                                                         time.localtime(time.time())))
-            self.billing_address(user_data.get("cardId"))
-            """
-            d = BentoCard(alias=user_data.get("alias"), card_id=user_data.get("cardId"), card_amount=card_amount, card_number=user_data.get("pan"),
-                          card_cvv=user_data.get("cvv"), label=label,card_validity=user_data.get("expiration"),attribution=attribution, 
-                          create_time=time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time())))
-            try:
-                session.add(d)
-                session.commit()
-            except sqlalchemy.exc.InvalidRequestError as e:
-                session.rollback()
-            except Exception as e:
-                session.rollback()
-            finally:
-                session.close()
-            """
-        return user_data
+        try:
+            r = self.requests.post(url=url, data=json.dumps(
+                bento_data(card_alias=card_alias, card_amount=card_amount, attribution=attribution)), headers=self.headers)
+            user_data["alias"] = r.json().get("alias")
+            user_data["cardId"] = r.json().get("cardId")
+            user_data["card_amount"] = card_amount
+            if user_data.get("cardId"):
+                pan_data = self.get_pan(cardid=user_data.get("cardId"))
+                user_data.update(pan_data)
+                expriation_data = self.get_expiration(cardid=user_data.get("cardId"))
+                user_data.update(expriation_data)
+                # update alias card_id, card_amount
+                SqlDataNative.insert_new_account(alias=user_data.get("alias"), card_id=user_data.get("cardId"),
+                                                   card_amount=card_amount, card_number=user_data.get("pan"),
+                                                   card_cvv=user_data.get("cvv"), label=label,
+                                                   card_validity=user_data.get("expiration"), attribution=attribution,
+                                                   create_time=time.strftime('%Y-%m-%d %H:%M:%S',
+                                                                             time.localtime(time.time())))
+                self.billing_address(user_data.get("cardId"))
+            return user_data
+        except Exception as e:
+            return False
 
     # 获取pan cvv
     def get_pan(self, cardid):
@@ -121,6 +113,6 @@ def get_bento_data(cardid):
 
 if __name__ == "__main__":
     s = CreateCard()
-    s.create_card('liuxiao', 1, '测试', 'gt')
+    s.create_card('liuxiao11', 1, '测试', 'gt')
     # main(limit_num=3, card_amount=300, label="杨经理kevin")
     pass

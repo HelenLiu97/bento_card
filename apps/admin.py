@@ -8,6 +8,8 @@ import os
 import xlwt
 from flask import send_file
 from xpinyin import Pinyin
+
+from apps.bento_create_card.main_recharge import main_transaction_data
 from apps.bento_create_card.public import change_today
 from flask import request, render_template, jsonify, session, g, redirect
 from tools_me.des_code import ImgCode
@@ -1112,6 +1114,52 @@ def edit_parameter():
             return jsonify(results)
 
 
+# 卡的交易记录
+@admin_blueprint.route('/one_card_detail', methods=['GET'])
+@admin_required
+def one_detail():
+    try:
+        context = {}
+        info_list = []
+        card_no = request.args.get('card_no')
+        """
+        if "****" in card_no:
+            context['remain'] = "该卡已注销, 余额为0"
+            context['balance'] = "f_balance"
+            context['pay_list'] = []
+            return render_template('user/card_detail.html', **context)
+        """
+        # sqldata = Sql_Session.query(BentoCard.card_id, BentoCard.alias).filter(BentoCard.card_number==card_no).first()
+        # sqldata = SqlDataNative.fount_cardid_alias(card_no=card_no)
+        sqldata = SqlDataNative.alias_fount_cardid(alias=card_no)
+        if not sqldata:
+            return jsonify({"code": RET.SERVERERROR, "msg": "数据库没有该用户数据, 可联系管理员添加"})
+        label_status = SqlDataNative.cardid_fount_label(cardid=sqldata)
+        transaction_data, availableAmount = main_transaction_data(cards=sqldata, alias=card_no)
+        context['balance'] = "f_balance"
+        context['remain'] = availableAmount if label_status != "已注销" else "该卡已注销, 余额为0"
+        # context['remain'] = transaction_data[0].get("availableAmount")
+        n = 1
+        for td in transaction_data:
+            info_list.append({
+                "status": td.get("status"),
+                "amount": td.get("amount"),
+                "description": td.get("description"),
+                "date": td.get("date"),
+                "cardTransactionId": td.get("cardTransactionId"),
+                "lastFour": td.get("lastFour"),
+                "alias": td.get("alias"),
+                "originalCurrency": td.get("originalCurrency"),
+            })
+        context['pay_list'] = info_list
+        return render_template('admin/card_detail.html', **context)
+    except Exception as e:
+        logging.error((str(e)))
+        # return jsonify({'code': RET.SERVERERROR, 'msg': str(e)})
+        return render_template('user/404.html')
+        # return jsonify({'code': RET.SERVERERROR, 'msg': "网络繁忙, 稍后再试"})
+
+
 @admin_blueprint.route('/lock_acc/')
 @admin_required
 def lock_acc():
@@ -1415,8 +1463,8 @@ def index():
     sum_top = SqlData.search_table_sum('sum_balance', 'account', '')
     sum_remain = SqlData.search_table_sum('balance', 'account', '')
     card_use = SqlDataNative.count_bento_data(sqld="")
-    card_no = SqlDataNative.count_bento_data(sqld="where label='已注销'")
-    card_un = SqlDataNative.count_bento_data(sqld="where label!='已注销'")
+    card_no = SqlDataNative.count_bento_data(sqld="where card_status = '已注销'")
+    card_un = SqlDataNative.count_bento_data(sqld="where card_status != '已注销'")
     up_remain_time = SqlData.search_admin_field('up_remain_time')
     context = dict()
     context['admin_name'] = admin_name

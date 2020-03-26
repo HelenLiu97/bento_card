@@ -250,6 +250,20 @@
             element = layui.element,
             upload = layui.upload;
 
+        function toPercent(point){
+                var str=Number(point*100).toFixed(1);
+                str+="%";
+                return str;
+            }
+
+        function toPoint(percent){
+            var str=percent.replace("%","");
+            str= str/100;
+            return str;
+        }
+
+        $("#hand").attr("value", toPercent('{{ hand }}'));
+        $("#dollar_hand").attr("value", toPercent("{{ dollar_hand }}"));
 
 
         //设置轮播主体高度
@@ -323,7 +337,7 @@
                 var a = $('#accountReceivable').val();
                 var b = $('#vipdiscount').val();
                 var range = $('#range').val();
-                var hand = $('#hand').val();
+                var hand = toPoint($('#hand').val());
                 var change = accAdd(b, range),
                     hand_money = accAdd(hand, '1');
                 var sum = accMul(accMul(a, change), hand_money);
@@ -334,7 +348,7 @@
         $(function () {
             $('#top_money').bind('input propertychange', function () {
                 var a = $('#top_money').val();
-                var hand = $('#dollar_hand').val(),
+                var hand = toPoint($('#dollar_hand').val()),
                     hand_exchange = accAdd(hand, '1');
                 var sum = accMul(a, hand_exchange);
                 $('#dollar').html(sum);

@@ -130,10 +130,12 @@ def trans_lock(view_func):
         else:
             # 插入user_id到redis，标识为正在交易用户
             RedisTool.string_set("trans_" + str(user_id), 'InTransaction')
-            f = view_func(*args, **kwargs)
-            # 删除标记，为已处理完交易用户
-            RedisTool.string_del("trans_" + str(user_id))
-            return f
+            try:
+                f = view_func(*args, **kwargs)
+                return f
+            finally:
+                # 删除标记，为已处理完交易用户
+                RedisTool.string_del("trans_" + str(user_id))
     return wraaper
 
 

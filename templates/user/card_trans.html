@@ -1,0 +1,80 @@
+<html>
+        <head>
+            <meta charset="utf-8"/>
+            <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+                <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+            <link href="/static/css/mainpage.css" rel="stylesheet" />
+            <link href="/static/css/carddetail.css" rel="stylesheet" />
+        <link rel="stylesheet" href="/static/layui/css/layui.css" media="all">
+        <script src="/static/layui/layui.js"></script>
+            <link rel="shortcut icon" href="favicon.ico"/>
+
+                <script type="text/javascript">
+    </script>
+            <script type="text/javascript">
+    function base64 (content) {
+       return window.btoa(unescape(encodeURIComponent(content)));
+    }
+    /*
+    *@tableId: table的Id
+    *@fileName: 要生成excel文件的名字（不包括后缀，可随意填写）
+    */
+    function tableToExcel(tableID,fileName){
+        var table = document.getElementById(tableID);
+      var excelContent = table.innerHTML;
+      var excelFile = "<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:x='urn:schemas-microsoft-com:office:excel' xmlns='http://www.w3.org/TR/REC-html40'>";
+      excelFile += "<head><!--[if gte mso 9]><xml><x:ExcelWorkbook><x:ExcelWorksheets><x:ExcelWorksheet><x:Name>{worksheet}</x:Name><x:WorksheetOptions><x:DisplayGridlines/></x:WorksheetOptions></x:ExcelWorksheet></x:ExcelWorksheets></x:ExcelWorkbook></xml><![endif]--></head>";
+      excelFile += "<body><table>";
+      excelFile += excelContent;
+      excelFile += "</table></body>";
+      excelFile += "</html>";
+      var link = "data:application/vnd.ms-excel;base64," + base64(excelFile);
+      var a = document.createElement("a");
+      a.download = fileName+".xls";
+      a.href = link;
+      a.click();
+    }
+</script>
+
+        </head>
+        <body  class="" >
+        <div style="font-size: 18px; color: black; padding-top: 10px; padding-bottom: 10px">
+                以下是该卡的消费记录:
+        </div>
+    <div class="layui-form">
+        <button type="button" onclick="tableToExcel('item','data')">导出交易数据</button>
+      <table class="layui-table" lay-skin="nob" lay-size="sm" id="item">
+        <colgroup>
+        </colgroup>
+        <thead>
+          <tr>
+            <th>alias</th>
+            <th>Transaction Type</th>
+            <th>Transaction Hour</th>
+            <th>Amount</th>
+            <th>Transaction status</th>
+            <th>card transaction id</th>
+            <th>card last four</th>
+            <th>Currency</th>
+          </tr>
+        </thead>
+        <tbody>
+        {% for i in pay_list %}
+            <tr>
+                <td>{{ i.alias }}</td>
+                <td>{{ i.description }}</td>
+                <td>{{ i.date }}</td>
+                <td>{{ i.amount }}</td>
+                <td>{{ i.status }}</td>
+                <td>{{ i.cardTransactionId }}</td>
+                <td>{{ i.lastFour }}</td>
+                <td>{{ i.originalCurrency}}</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+  </table>
+</div>
+
+
+        </body>
+

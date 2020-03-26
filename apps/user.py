@@ -992,31 +992,16 @@ def change_phone():
 
 # 卡的交易记录
 @user_blueprint.route('/one_card_detail', methods=['GET'])
-# @account_lock
-# @login_required
+@login_required
 def one_detail():
     try:
         context = {}
         info_list = []
         card_no = request.args.get('card_no')
-        """
-        if "****" in card_no:
-            context['remain'] = "该卡已注销, 余额为0"
-            context['balance'] = "f_balance"
-            context['pay_list'] = []
-            return render_template('user/card_detail.html', **context)
-        """
-        # sqldata = Sql_Session.query(BentoCard.card_id, BentoCard.alias).filter(BentoCard.card_number==card_no).first()
-        # sqldata = SqlDataNative.fount_cardid_alias(card_no=card_no)
-        sqldata = SqlDataNative.alias_fount_cardid(alias=card_no)
-        if not sqldata:
+        card_id = SqlDataNative.alias_fount_cardid(alias=card_no)
+        if not card_id:
             return jsonify({"code": RET.SERVERERROR, "msg": "数据库没有该用户数据, 可联系管理员添加"})
-        label_status = SqlDataNative.cardid_fount_label(cardid=sqldata)
-        transaction_data, availableAmount = main_transaction_data(cards=sqldata, alias=card_no)
-        context['balance'] = "f_balance"
-        context['remain'] = availableAmount if label_status != "已注销" else "该卡已注销, 余额为0"
-        # context['remain'] = transaction_data[0].get("availableAmount")
-        n = 1
+        transaction_data = RechargeCard().transaction_data(card_id)
         for td in transaction_data:
             info_list.append({
                 "status": td.get("status"),
@@ -1029,7 +1014,24 @@ def one_detail():
                 "originalCurrency": td.get("originalCurrency"),
             })
         context['pay_list'] = info_list
-        return render_template('user/card_detail.html', **context)
+        return render_template('user/card_trans.html', **context)
+    except Exception as e:
+        logging.error((str(e)))
+        # return jsonify({'code': RET.SERVERERROR, 'msg': str(e)})
+        return render_template('user/404.html')
+        # return jsonify({'code': RET.SERVERERROR, 'msg': "网络繁忙, 稍后再试"})
+
+
+# 卡的余额
+@user_blueprint.route('/one_card_remain', methods=['GET'])
+@login_required
+def one_remain():
+    try:
+        context = {}
+        alias = request.args.get('card_no')
+        balance = RechargeCard().one_alias(alias)
+        context['remain'] = balance
+        return render_template('user/card_remain.html', **context)
     except Exception as e:
         logging.error((str(e)))
         # return jsonify({'code': RET.SERVERERROR, 'msg': str(e)})
@@ -1330,7 +1332,6 @@ def login():
                     return jsonify(results)
 
         except Exception as e:
-            logging.error(str(e))
             results['code'] = RET.SERVERERROR
             results['msg'] = MSG.PSWDERROR
             return jsonify(results)
