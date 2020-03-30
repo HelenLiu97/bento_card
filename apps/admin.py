@@ -609,6 +609,7 @@ def account_trans():
     cus_name = request.args.get('cus_name')
     trans_card = request.args.get('trans_card')
     trans_type = request.args.get('trans_do_type')
+    card_name = request.args.get('card_name')
     time_sql = ""
     card_sql = ""
     cus_sql = ""
@@ -627,23 +628,25 @@ def account_trans():
         type_sql = "AND account_trans.do_type LIKE '%{}%'".format(trans_type)
 
     task_info = SqlData.search_trans_admin(cus_sql, card_sql, time_sql, type_sql)
-    """
-    for task_inf in task_info:
-        bento_card_number = task_inf.get("card_no")
-        if bento_card_number:
-            bento_alias = SqlDataNative.cardnum_fount_alias(bento_card_number.strip())
-            task_inf.update({
-                "do_type": bento_alias
-            })
-        else:
-            task_inf.update({
-                "do_type": ""
-            })
-    """
+
     results = {"code": RET.OK, "msg": MSG.OK, "count": 0, "data": ""}
     if len(task_info) == 0:
         results['MSG'] = MSG.NODATA
         return jsonify(results)
+    if card_name:
+        task_info_new = list()
+        card_number_list = SqlDataNative.search_card_number('card_number', card_name)
+        if not card_number_list:
+            results['MSG'] = MSG.NODATA
+            return jsonify(results)
+        for i in task_info:
+            card_no = i.get('card_no').strip()
+            if card_no in card_number_list:
+                task_info_new.append(i)
+        if not task_info_new:
+            results['MSG'] = MSG.NODATA
+            return jsonify(results)
+        task_info = task_info_new
     page_list = list()
     task_info = sorted(task_info, key=operator.itemgetter('date'))
 

@@ -301,6 +301,10 @@
                     <div class="layui-inline">
                         <input type="number" class="layui-input" name="trans_card" id="trans_card" autocomplete="off">
                     </div>
+                    卡名:
+                    <div class="layui-inline">
+                        <input type="text"  class="layui-input" name="card_name" id="card_name" autocomplete="off">
+                    </div>
                     时间范围:
                     <div class="layui-inline">
                     <input type="text" class="layui-input" id="test8" autocomplete="off" placeholder=" - ">
@@ -1114,8 +1118,7 @@ Welcome to BenTo
                 {type: 'numbers'}
                 , {field: 'name', title: '客户', align: 'center', sort: true, totalRowText: '合计：'}
                 , {field: 'pay_num', title: '流水号', align: 'center', sort: true,}
-                , {field: 'time', title: '充值时间', align: 'center', sort: true,}
-                , {field: 'trans_type', title: '充值类型', align: 'center', sort: true, style: 'color: #104E8B'}
+                , {field: 'time', title: '充值时间', align: 'center', sort: true, style: 'color: #104E8B'}
                 , {field: 'money', title: '充值金额', align: 'center', sort: true, totalRow: true, style: 'color: red'}
                 , {field: 'before_balance', title: '充值前余额', align: 'center', sort: true, totalRow: true}
                 , {field: 'balance', title: '充值后余额', align: 'center', sort: true, totalRow: true}
@@ -1736,7 +1739,7 @@ Welcome to BenTo
                 }, where: {
                     acc_name: acc_name,
                     order_num: order_num,
-                    time_range: time_range,
+                    time_range: time_range
                 }
             }, '/admin/bento_refund');
             return false;
@@ -1763,7 +1766,8 @@ Welcome to BenTo
                 trans_card = $('#trans_card').val(),
                 trans_type = $('#trans_type').val(),
                 trans_do_type = $('#bento_do_type').val(),
-                time_range = $('#test8').val();
+                time_range = $('#test8').val(),
+                card_name = $('#card_name').val();
             table.reload("cus_trans_log", {
                 page: {
                     curr: 1 //重新从第 1 页开始
@@ -1773,6 +1777,7 @@ Welcome to BenTo
                     time_range: time_range,
                     trans_type: trans_type,
                     trans_do_type: trans_do_type,
+                    card_name: card_name,
                 }
             }, '/admin/account_trans/');
             return false;

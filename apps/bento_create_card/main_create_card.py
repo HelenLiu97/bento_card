@@ -22,7 +22,7 @@ class CreateCard(object):
         url = "https://api.bentoforbusiness.com/cards"
         try:
             r = self.requests.post(url=url, data=json.dumps(
-                bento_data(card_alias=card_alias, card_amount=card_amount, attribution=attribution)), headers=self.headers)
+                bento_data(card_alias=card_alias, card_amount=card_amount, attribution=attribution)), headers=self.headers, verify=False, timeout=14)
             user_data["alias"] = r.json().get("alias")
             user_data["cardId"] = r.json().get("cardId")
             user_data["card_amount"] = card_amount
@@ -47,7 +47,7 @@ class CreateCard(object):
     def get_pan(self, cardid):
         url = "https://api.bentoforbusiness.com/cards/{}/pan".format(cardid)
         time.sleep(3)
-        response = self.requests.get(url=url, headers=self.headers)
+        response = self.requests.get(url=url, headers=self.headers, verify=False)
         return {
             "pan": response.json().get("pan"),
             "cvv": response.json().get("cvv")
@@ -57,7 +57,7 @@ class CreateCard(object):
     def get_expiration(self, cardid):
         url = "https://api.bentoforbusiness.com/cards/{}".format(cardid)
         time.sleep(3)
-        response = self.requests.get(url=url, headers=self.headers)
+        response = self.requests.get(url=url, headers=self.headers, verify=False, timeout=14)
         return {
             "expiration": response.json().get("expiration")
         }
@@ -74,7 +74,7 @@ class CreateCard(object):
                 "addressType": "BUSINESS_ADDRESS",
                 "bentoType": "com.bentoforbusiness.entity.business.BusinessAddress"
             }
-        respone = self.requests.put(url, headers=self.headers, data=json.dumps(data))
+        respone = self.requests.put(url, headers=self.headers, data=json.dumps(data), verify=False, timeout=14)
         if respone.status_code == 200:
             return True
         else:
@@ -82,7 +82,7 @@ class CreateCard(object):
 
     def get_card_list(self):
         url = "https://api.bentoforbusiness.com/cards?index=0&limit=0"
-        res = self.requests.get(url, headers=self.headers)
+        res = self.requests.get(url, headers=self.headers, verify=False, timeout=14)
         crads = res.json().get('cards')
         # 返回未注销的所有卡信息(详细信息参数api文档card-list接口)
 

@@ -23,10 +23,9 @@ class RechargeCard(object):
 
     def refund_data(self, cardid, recharge_amount):
         # 获取用户cardid
-        # cardid = session.query(BentoCard.card_id).filter(BentoCard.alias=="{}".format(alias), BentoCard.card_number.ilike("%{}%".format(cardnumber))).first()
-        # if alias:
+        # cardid = session.query(BentoCard.card_id).filter(BentoCard.alias=="{}".format(alias), BentoCard.card_number.ilike("%{}%".format(cardnumber))).first() if alias:
         url = "https://api.bentoforbusiness.com/cards/{}".format(cardid)
-        r = self.requests.get(url=url, headers=self.headers)
+        r = self.requests.get(url=url, headers=self.headers, verify=False, timeout=14)
         data = r.json()
         if data:
             try:
@@ -47,11 +46,11 @@ class RechargeCard(object):
                     "%.2f" % bento_use_amount) != float("%.2f" % spendingLimit_amount) else float(
                     "%.2f" % bento_use_amount) - 0.01
                 data["availableAmount"] = float("%.2f" % bento_use_amount)
-                response = self.requests.put(url=url, headers=self.headers, data=json.dumps(data))
+                response = self.requests.put(url=url, headers=self.headers, data=json.dumps(data), verify=False, timeout=14)
                 if response.json().get("availableAmount") > bento_availableAmount:
                     return {"error_msg": "转移失败, 所剩余额未扣减"}
                 return {"msg": "已有金额: {}, 转移金额: {}, 卡内可用余额: {}".format(bento_availableAmount, recharge_amount,
-                                                                       response.json().get("availableAmount"))}
+                                                                   response.json().get("availableAmount"))}
         return {"error_msg": "bento后台数据查无此账号"}
 
     def recharge(self, cardid, recharge_amount):
@@ -59,16 +58,14 @@ class RechargeCard(object):
         # cardid = session.query(BentoCard.card_id).filter(BentoCard.alias=="{}".format(alias), BentoCard.card_number.ilike("%{}%".format(cardnumber))).first()
         # if alias:
         url = "https://api.bentoforbusiness.com/cards/{}".format(cardid)
-        r = self.requests.get(url=url, headers=self.headers)
+        r = self.requests.get(url=url, headers=self.headers, timeout=15, verify=False)
         data = r.json()
         if data:
             try:
                 # 获取用户可用余额
-                bento_availableAmount = data.get("availableAmount")
+                # bento_availableAmount = data.get("availableAmount")
                 # 获取用户可用余额额度
                 spendingLimit_amount = data.get("spendingLimit").get("amount")
-                print(bento_availableAmount, spendingLimit_amount)
-                print(data)
                 # return
             except AttributeError as e:
                 logging.warning(str(e))
@@ -76,16 +73,16 @@ class RechargeCard(object):
             else:
                 # data["availableAmount"] = float("%.2f" % spendingLimit_amount) + int(recharge_amount)
                 # 给可用余额充值
-                bento_use_amount = bento_availableAmount + float(recharge_amount)
+                bento_use_amount = spendingLimit_amount + float(recharge_amount)
                 # 判断可用余额额度与可用余额是否相等
                 # if bento_use_amount = spendingLimit_amount:
-                data["spendingLimit"]["amount"] = 1
+                data["spendingLimit"]["amount"] = bento_use_amount
                 # data["availableAmount"] = 5
-                response = self.requests.put(url=url, headers=self.headers, data=json.dumps(data))
+                response = self.requests.put(url=url, headers=self.headers, data=json.dumps(data), timeout=15, verify=False)
                 print(response.json())
-                if response.json().get("availableAmount") == bento_availableAmount:
+                if response.json().get("availableAmount") == bento_use_amount:
                     return {"error_msg": "充值失败, 所剩余额未扣减"}
-                return {"msg": "已有金额: {}, 充值金额: {}, 可用余额: {}".format(bento_availableAmount, recharge_amount,
+                return {"msg": "已有金额: {}, 充值金额: {}, 可用余额: {}".format(spendingLimit_amount, recharge_amount,
                                                                      response.json().get("availableAmount"))}
         return {"error_msg": "bento后台数据查无此账号"}
 
@@ -97,7 +94,7 @@ class RechargeCard(object):
             "dateStart": 1570032000000,
             "dateEnd": int(round(time.time() * 1000)) if end_time == 0 else end_time
         }
-        r = self.requests.get(url=url, headers=self.headers, params=params)
+        r = self.requests.get(url=url, headers=self.headers, params=params, verify=False, timeout=14)
         size = r.json().get('size')
         if not transactions_datas:
             transactions_datas = []
@@ -128,7 +125,7 @@ class RechargeCard(object):
         params = {
             "cardName": "{}".format(alias),
         }
-        r = self.requests.get(url=url, headers=headers, params=params)
+        r = self.requests.get(url=url, headers=headers, params=params, verify=False, timeout=14)
         try:
             for i in r.json().get("cards"):
                 if i.get("alias") == str(alias):
@@ -140,7 +137,7 @@ class RechargeCard(object):
     def del_card(self, cardid):
         try:
             url = "https://api.bentoforbusiness.com/cards/{}".format(cardid)
-            r = self.requests.delete(url=url, headers=self.headers)
+            r = self.requests.delete(url=url, headers=self.headers, verify=False, timeout=14)
             return 404
         except Exception as e:
             logging.warning(str(e))
@@ -159,7 +156,7 @@ class RechargeCard(object):
                 # "dateStart": dateStart,
                 # "dateEnd": dateEnd,
             }
-            r = self.requests.get(url=url, headers=self.headers, params=params)
+            r = self.requests.get(url=url, headers=self.headers, params=params, verify=False, timeout=14)
             decline_sum += len(r.json().get("cardTransactions"))
         return decline_sum
 
@@ -224,7 +221,20 @@ def card_trans(card_list):
     return info_list
 
 
+def web_hook():
+    headers = {
+        # "Content-Type": "application/json",
+        "Authorization": "Bearer {}".format(GetToken()),
+        # "Connection": "close"
+    }
+    url = "https://api.bentoforbusiness.com/webhooks"
+    response = requests.post(url, headers=headers)
+    print(response.json())
+
+
 if __name__ == "__main__":
+    web_hook()
+    '''
     r = RechargeCard().transaction_data(887551)
     n = 1
     while True:
@@ -237,4 +247,4 @@ if __name__ == "__main__":
             print(e)
     # trans, remain = main_transaction_data(1043609, 'Morris Gerardo')
     # print(len(trans), trans, remain)
-    pass
+    '''
