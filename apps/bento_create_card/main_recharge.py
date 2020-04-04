@@ -63,7 +63,7 @@ class RechargeCard(object):
         if data:
             try:
                 # 获取用户可用余额
-                # bento_availableAmount = data.get("availableAmount")
+                bento_availableAmount = data.get("availableAmount")
                 # 获取用户可用余额额度
                 spendingLimit_amount = data.get("spendingLimit").get("amount")
                 # return
@@ -73,11 +73,13 @@ class RechargeCard(object):
             else:
                 # data["availableAmount"] = float("%.2f" % spendingLimit_amount) + int(recharge_amount)
                 # 给可用余额充值
-                bento_use_amount = spendingLimit_amount + float(recharge_amount)
+                bento_use_amount = bento_availableAmount + float(recharge_amount)
                 # 判断可用余额额度与可用余额是否相等
                 # if bento_use_amount = spendingLimit_amount:
-                data["spendingLimit"]["amount"] = bento_use_amount
-                # data["availableAmount"] = 5
+                data["spendingLimit"]["amount"] = float("%.2f" % bento_use_amount) if float(
+                    "%.2f" % bento_use_amount) != float("%.2f" % spendingLimit_amount) else float(
+                    "%.2f" % bento_use_amount) - 0.01
+                data["availableAmount"] = float("%.2f" % bento_use_amount)
                 response = self.requests.put(url=url, headers=self.headers, data=json.dumps(data), timeout=15, verify=False)
                 print(response.json())
                 if response.json().get("availableAmount") == bento_use_amount:
@@ -223,17 +225,40 @@ def card_trans(card_list):
 
 def web_hook():
     headers = {
+        "Content-Type": "application/json",
+        "Authorization": "{}".format(GetToken()),
+        # "Connection": "close"
+    }
+    data = {
+            'businessId': 30076,
+            'url': 'http://www.trybest.top/admin/bento/',
+        }
+    url = "https://api.bentoforbusiness.com/webhooks"
+    print(headers)
+    print(json.dumps(data))
+    response = requests.post(url, headers=headers, data=json.dumps(data))
+    print(response.status_code)
+    print(response.json())
+    print(response.url)
+    print(response.headers)
+    return 200
+
+
+def card_detail():
+    url = "https://api.bentoforbusiness.com/cards/1081270"
+    headers = {
         # "Content-Type": "application/json",
         "Authorization": "Bearer {}".format(GetToken()),
         # "Connection": "close"
     }
-    url = "https://api.bentoforbusiness.com/webhooks"
-    response = requests.post(url, headers=headers)
+    response = requests.get(url, headers=headers, timeout=5)
     print(response.json())
 
 
 if __name__ == "__main__":
-    web_hook()
+    card_detail()
+
+
     '''
     r = RechargeCard().transaction_data(887551)
     n = 1

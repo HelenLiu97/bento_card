@@ -63,7 +63,7 @@ class CreateCard(object):
         }
 
     def billing_address(self, card_id):
-        url = "https://api.bentoforbusiness.com/cards/{}/billingaddress".format(card_id)
+        url = "https://api.bentoforbusiness.com/cards/{}/billingaddress ".format(card_id)
         data = {
                 "id": 91308,
                 "street": "1709 Elmwood Dr",
@@ -74,7 +74,10 @@ class CreateCard(object):
                 "addressType": "BUSINESS_ADDRESS",
                 "bentoType": "com.bentoforbusiness.entity.business.BusinessAddress"
             }
-        respone = self.requests.put(url, headers=self.headers, data=json.dumps(data), verify=False, timeout=14)
+        print(url)
+        respone = requests.put(url, headers=self.headers, data=json.dumps(data), verify=False, timeout=14)
+        print(respone.text)
+        print(respone.status_code)
         if respone.status_code == 200:
             return True
         else:
@@ -113,6 +116,7 @@ def get_bento_data(cardid):
 
 if __name__ == "__main__":
     s = CreateCard()
-    s.create_card('liuxiao11', 1, '测试', 'gt')
+    r = s.billing_address(1081270)
+    print(r)
     # main(limit_num=3, card_amount=300, label="杨经理kevin")
     pass
