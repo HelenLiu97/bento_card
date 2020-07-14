@@ -16,8 +16,8 @@ def cut_list(ls, n):
 
 
 class Key():
-    ACCESSKEY = "4IEqK6pqfbC6CH8uf4oSXA"
-    SECRETKEY = "XQH2NVKqTOdbKO3jIf1F1g"
+    ACCESSKEY = "4IEqK6pqf4oSXA"
+    SECRETKEY = "XQH2KO3jIf1F1g"
     URL = "https://api.bentoforbusiness.com/"
     SANDBOX = "https://api.sandbox.bentoforbusiness.com/"
 
