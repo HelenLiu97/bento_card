@@ -9,7 +9,7 @@ my_sender = "iuwby@qq.com"
 send_her = "buysys@163.com"
 
 # 密钥
-s_keys = "gxzegzuvcnvrdjjg"
+s_keys = "gxzegznvrdjjg"
 
 # 要发送的内容
 context = "测试"
